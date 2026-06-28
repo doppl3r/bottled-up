@@ -1,7 +1,6 @@
 import { clone } from 'three/examples/jsm/utils/SkeletonUtils';
 import { EventQueue, World } from '@dimforge/rapier3d';
 import { PhysicsFactory } from './PhysicsFactory.js';
-import { MeshFactory } from './MeshFactory.js';
 import { WorldDebugger } from './WorldDebugger.js';
 import { Entity } from './Entity.js';
 import { EntityAudio } from './EntityAudio.js';
@@ -137,6 +136,10 @@ class EntityManager {
       return;
     }
 
+    
+    // TODO: Replace all instanceof conditions with new entity.init() system
+    entity.init(options, this);
+
     // Add model component if entity is an instance of EntityModel
     if (entity instanceof EntityModel) {
       this.assets.load(options.url, asset => {
@@ -161,12 +164,6 @@ class EntityManager {
         entity.dispatchEvent({ type: 'loaded', material });
       });
     }
-    else if (entity instanceof EntityMesh) {
-      // Add mesh component if entity is an instance of EntityMesh
-      const mesh = MeshFactory.create(options);
-      entity.setMesh(mesh, options);
-      entity.add(mesh);
-    }
     else if (entity instanceof EntityTexture) {
       // Add texture component if entity is an instance of EntityTexture
       this.assets.load(options.url, texture => {
@@ -182,10 +179,6 @@ class EntityManager {
           entity.dispatchEvent({ type: 'loaded', textures });
         });
       }
-    }
-    else if (entity instanceof EntityPhysics) {
-      // Add physics component if entity is an instance of EntityPhysics
-      PhysicsFactory.create(entity, options.rigidBody, this.world);
     }
 
     // Return newly created entity

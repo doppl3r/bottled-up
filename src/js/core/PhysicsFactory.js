@@ -78,6 +78,7 @@ class PhysicsFactory {
       isSensor: false,
       mass: 0,
       restitution: 0,
+      rotation: { x: 0, y: 0, z: 0 },
       shapeDesc: {
         type: null,
         arguments: []
@@ -88,6 +89,7 @@ class PhysicsFactory {
 
     // Create collider description using shape "type" (ex: "cuboid") with parameters (ex: 0.5, 0.5, 0.5)
     const colliderDesc = ColliderDesc[options.shapeDesc.type](...options.shapeDesc.arguments);
+    const rotation = options.w ? _q.copy(options.rotation) : _q.setFromEuler(_e.setFromVector3(_v.copy(options.rotation), options.rotation.order || 'XYZ'));
     colliderDesc.setActiveCollisionTypes(isNaN(options.activeCollisionTypes) ? ActiveCollisionTypes[options.activeCollisionTypes] : options.activeCollisionTypes);
     colliderDesc.setActiveEvents(isNaN(options.activeEvents) ? ActiveEvents[options.activeEvents] : options.activeEvents);
     colliderDesc.setCollisionGroups(options.collisionGroups);
@@ -96,6 +98,7 @@ class PhysicsFactory {
     colliderDesc.setDensity(options.density);
     colliderDesc.setFriction(options.friction);
     colliderDesc.setRestitution(options.restitution);
+    colliderDesc.setRotation(rotation);
     colliderDesc.setSensor(options.isSensor);
     colliderDesc.setSolverGroups(options.solverGroups);
     colliderDesc.setTranslation(options.translation.x, options.translation.y, options.translation.z);
@@ -130,17 +133,22 @@ class PhysicsFactory {
   }
 
   static handleEntityAdded(parent, entity, colliderOptions, rigidBody, world) {
-    // Find sibling EntityModel in parent's children
-    const entityModel = parent.children.find(child => child.class === 'EntityModel');
+    // Find sibling model in parent's children
+    const entitySibling = parent.children.find(child => child.class === 'entitySibling' || child.class === 'EntityMesh');
 
     // Wait for sibling model to load
     const onLoaded = event => {
-      PhysicsFactory.handleModelLoaded(event.model, entity, colliderOptions, rigidBody, world);
-      entityModel.removeEventListener('loaded', onLoaded);
+      PhysicsFactory.handleModelLoaded(event.model || event.mesh, entity, colliderOptions, rigidBody, world);
+      entitySibling.removeEventListener('loaded', onLoaded);
     }
 
-    // Add event listener to sibling EntityModel
-    entityModel.addEventListener('loaded', onLoaded);
+    // Add event listener to sibling entitySibling
+    entitySibling.addEventListener('loaded', onLoaded);
+
+    // TODO: Replace this heap of lazy code since it is too coupled with model logic
+    if (entitySibling.mesh) {
+      onLoaded({ model: entitySibling.mesh });
+    }
   }
 
   static handleModelLoaded(model, entity, colliderOptions, rigidBody, world) {

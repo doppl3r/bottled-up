@@ -1,4 +1,5 @@
 import { Euler, Quaternion, Vector3 } from 'three';
+import { PhysicsFactory } from './PhysicsFactory.js';
 import { Entity } from './Entity.js';
 
 /*
@@ -32,6 +33,11 @@ class EntityPhysics extends Entity {
 
     // Add event listeners
     this.addEventListener('added', this.onAdded);
+  }
+
+  init(options, entityManager) {
+    // Add physics component if entity is an instance of EntityPhysics
+    PhysicsFactory.create(this, options.rigidBody, entityManager.world);
   }
 
   update(loop) {

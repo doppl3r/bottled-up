@@ -1,7 +1,6 @@
 import { reactive } from 'vue';
 import { Core } from './core/Core.js';
 import { Record } from './core/Record.js';
-import { CameraController } from './CameraController.js';
 import { EntityClasses } from './EntityClasses.js';
 import { EntityTemplates } from './EntityTemplates.js'
 import { isTauri } from '@tauri-apps/api/core';
@@ -26,18 +25,17 @@ class Game {
     this.core = new Core();
     this.core.entityManager.registerEntityClasses(EntityClasses);
     this.core.entityManager.registerEntityTemplates(EntityTemplates);
-    this.cameraController = new CameraController(this.core.camera, this.core.canvas);
     this.record = new Record('paper-ball', stateStorage);
     this.visible = true;
   }
 
   init() {
     // Initialization core settings
-    this.core.entityManager.debug(false);
+    this.core.entityManager.debug(true);
     this.core.interval.loops[0].delay = 1000 / 10;
     this.core.entityManager.world.timestep = 1 / 10;
     this.core.scene.background.set('#1f1f1f');
-    this.core.camera.position.set(3, 4, 3);
+    this.core.camera.position.set(0, 2, 10);
 
     // Reactive game state (persisted defaults + UI-only keys)
     this.state = reactive({
@@ -45,6 +43,10 @@ class Game {
       ...stateSession,
     });
 
+    this.core.entityManager.load('json/testbed-1.json', child => {
+      // Update state counts for loaded entities
+      
+    });
 
     // Setup event listeners
     this.addEventListeners();

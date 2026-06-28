@@ -30,6 +30,40 @@ const EntityTemplateLightSun = {
   intensity: 3.14
 }
 
+const EntityTemplateBall = {
+  name: 'ball',
+  label: 'Ball',
+  class: 'Entity',
+  children: [
+    {
+      class: 'EntityMesh',
+      type: 'Mesh',
+      geometry: {
+        type: 'SphereGeometry',
+        arguments: [0.5, 32, 32],
+      },
+      material: {
+        type: 'MeshStandardMaterial',
+        arguments: [{ color: '#ffffff', metalness: 0.5, roughness: 0.5 }],
+      }
+    },
+    {
+      class: 'EntityPhysics',
+      rigidBody: {
+        status: 0,
+        colliders: [
+          {
+            shapeDesc: {
+              type: 'ball',
+              arguments: [0.5]
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
+
 const EntityTemplatePlane = {
   name: 'plane',
   label: 'Plane',
@@ -46,14 +80,23 @@ const EntityTemplatePlane = {
       material: {
         type: 'MeshBasicMaterial',
         arguments: [
-          { color: '#ffffff', opacity: 0, transparent: true }
+          { color: '#ffffff', opacity: 1, transparent: true }
         ],
       }
     },
     {
-      class: 'EntityMesh',
-      type: 'GridHelper',
-      arguments: [10, 10, '#331F28', '#331F28'],
+      class: 'EntityPhysics',
+      rigidBody: {
+        status: 1,
+        colliders: [
+          {
+            rotation: { x: -Math.PI / 2, y: 0, z: 0 },
+            shapeDesc: {
+              type: 'trimesh'
+            }
+          }
+        ]
+      }
     }
   ]
 }
@@ -97,8 +140,9 @@ const EntityTemplatePlayer = {
 }
 
 export const EntityTemplates = {
-  EntityTemplatePlane,
+  EntityTemplateBall,
   EntityTemplateLightHemisphere,
   EntityTemplateLightSun,
+  EntityTemplatePlane,
   EntityTemplatePlayer
 }

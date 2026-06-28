@@ -45,6 +45,10 @@ class Entity extends Object3D {
     this.scale.set(options.scale.x, options.scale.y, options.scale.z);
   }
 
+  init() {
+    // This method can be overridden by subclasses
+  }
+
   update(loop) {
     // Dispatch event before updating
     _eventBeforeUpdate.loop = loop;

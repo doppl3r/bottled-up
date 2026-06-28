@@ -1,4 +1,5 @@
 import { Entity } from './Entity.js';
+import { MeshFactory } from './MeshFactory.js';
 
 /*
   EntityMesh is a special entity that applies a material to a model.
@@ -19,6 +20,14 @@ class EntityMesh extends Entity {
     // Create mesh reference prior to creation
     this.mesh = null;
     this.meshOptions = options;
+  }
+
+  init(options) {
+    // Add mesh component if entity is an instance of EntityMesh
+    const mesh = MeshFactory.create(options);
+    this.setMesh(mesh, options);
+    this.add(mesh);
+    this.dispatchEvent({ type: 'loaded', mesh });
   }
 
   setMesh(mesh, options) {
