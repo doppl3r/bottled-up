@@ -1,0 +1,38 @@
+{
+  "name": "paper-ball",
+  "version": "1.0.0",
+  "author": "Jacob DeBenedetto",
+  "description": "You are a paper ball.",
+  "type": "module",
+  "scripts": {
+    "build": "vite build",
+    "build-extension": "vite build && node files/js/build-extension.js",
+    "tauri": "tauri",
+    "build-tauri": "tauri build",
+    "build-tauri-icon": "tauri icon public/png/icon256.png",
+    "dev": "vite",
+    "dev-tauri": "tauri dev"
+  },
+  "dependencies": {
+    "@dimforge/rapier3d": "^0.19.3",
+    "@tauri-apps/api": "^2.11.0",
+    "@tauri-apps/plugin-opener": "^2.5.4",
+    "@tweenjs/tween.js": "^25.0.0",
+    "camera-controls": "^3.1.2",
+    "overlayscrollbars-vue": "^0.5.9",
+    "three": "^0.184.0",
+    "vue": "^3.5.34",
+    "vue-i18n": "^11.4.2",
+    "vue-router": "^5.0.6"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.11.1",
+    "@vitejs/plugin-vue": "^6.0.6",
+    "gulp": "^5.0.1",
+    "gulp-zip": "^6.1.0",
+    "sass": "^1.99.0",
+    "sharp": "^0.34.5",
+    "vite": "^8.0.11",
+    "vite-plugin-wasm": "^3.6.0"
+  }
+}

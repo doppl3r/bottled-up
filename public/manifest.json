@@ -1,0 +1,19 @@
+{
+  "manifest_version": 3,
+  "name": "Paper Ball",
+  "description": "You are a paper ball.",
+  "version": "1.0.0",
+  "action": {
+    "default_popup": "index.html",
+    "default_title": "Paper Ball"
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'"
+  },
+  "icons": { 
+    "16": "png/icon16.png",
+    "32": "png/icon32.png",
+    "48": "png/icon48.png",
+    "128": "png/icon128.png"
+  }
+}
