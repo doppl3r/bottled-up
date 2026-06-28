@@ -1,0 +1,128 @@
+* {
+  box-sizing: border-box;
+  user-select: none;
+  font-size: 100%;
+  text-transform: uppercase;
+}
+
+*:focus-visible {
+  outline: none;
+}
+
+html {
+  -ms-touch-action: manipulation;
+  height: 100vh;
+  min-height: 22.5em; // 360px
+  min-width: 40em; // 640px
+  overflow: hidden;
+  touch-action: manipulation;
+  width: 100vw;
+
+  body {
+    background-color: #000000;
+    margin: 0;
+    font-family: 'Goblin';
+    font-size: clamp(1em, 4vh, 4em); // fallback without round()
+    font-size: clamp(1em, calc(round(down, 4vh, 0.5em)), 4em); // 2em (< 600px), 3em (600px), 4em (800px)
+    letter-spacing: calc(1em / 16);
+    line-height: 1em;
+    width: inherit;
+    height: inherit;
+    overflow: hidden;
+
+    // Cursor styling
+    * { cursor: url('/png/icon-pointer.png') 10 0, auto !important;}
+    &[pixel-size="2"] * { cursor: url('/png/icon-pointer-2x.png') 10 0, auto !important; }
+    &[pixel-size="3"] * { cursor: url('/png/icon-pointer-3x.png') 15 0, auto !important; }
+    &[pixel-size="4"] * { cursor: url('/png/icon-pointer-4x.png') 20 0, auto !important; }
+    &[pixel-size="5"] * { cursor: url('/png/icon-pointer-5x.png') 25 0, auto !important; }
+    &[pixel-size="6"] * { cursor: url('/png/icon-pointer-6x.png') 30 0, auto !important; }
+    &[pixel-size="7"] * { cursor: url('/png/icon-pointer-7x.png') 35 0, auto !important; }
+    &[pixel-size="8"] * { cursor: url('/png/icon-pointer-8x.png') 40 0, auto !important; }
+    
+    *:active { cursor: url('/png/icon-pointer-grab.png') 10 0, auto !important;}
+    &[pixel-size="2"] *:active { cursor: url('/png/icon-pointer-grab-2x.png') 10 0, auto !important; }
+    &[pixel-size="3"] *:active { cursor: url('/png/icon-pointer-grab-3x.png') 15 0, auto !important; }
+    &[pixel-size="4"] *:active { cursor: url('/png/icon-pointer-grab-4x.png') 20 0, auto !important; }
+    &[pixel-size="5"] *:active { cursor: url('/png/icon-pointer-grab-5x.png') 25 0, auto !important; }
+    &[pixel-size="6"] *:active { cursor: url('/png/icon-pointer-grab-6x.png') 30 0, auto !important; }
+    &[pixel-size="7"] *:active { cursor: url('/png/icon-pointer-grab-7x.png') 35 0, auto !important; }
+    &[pixel-size="8"] *:active { cursor: url('/png/icon-pointer-grab-8x.png') 40 0, auto !important; }
+
+    #app {
+      height: inherit;
+      width: inherit;
+
+      canvas {
+        image-rendering: pixelated;
+      }
+    }
+
+    .os-scrollbar {
+      --os-size: 1.25em;
+      --os-padding-perpendicular: 0.125em;
+      --os-padding-axis: 0.125em;
+      --os-track-border-radius: 0;
+      --os-track-bg: rgba(0, 0, 0, 0.25);
+      --os-track-bg-hover: rgba(0, 0, 0, 0.25);
+      --os-track-bg-active: rgba(0, 0, 0, 0.25);
+      --os-track-border: none;
+      --os-track-border-hover: none;
+      --os-track-border-active: none;
+      --os-handle-border-radius: 0;
+      --os-handle-bg: #e08e41;
+      --os-handle-bg-hover: #ffffff;
+      --os-handle-bg-active: #ffffff;
+      --os-handle-border: none;
+      --os-handle-border-hover: none;
+      --os-handle-border-active: none;
+      --os-handle-min-size: 1em;
+      --os-handle-max-size: none;
+      --os-handle-perpendicular-size: 100%;
+      --os-handle-perpendicular-size-hover: 100%;
+      --os-handle-perpendicular-size-active: 100%;
+      --os-handle-interactive-area-offset: 0;
+
+      .os-scrollbar-track {
+        box-shadow: inset rgba(#000, 0.25) 0 0.125em;
+      }
+
+      .os-scrollbar-handle {
+        &:after,
+        &:before {
+          content: '';
+          display: block;
+          left: 50%;
+          position: absolute;
+          right: initial;
+          top: calc(50% - 0.125em);
+          transform: translate(-50%, -50%);
+          background-color: rgba(#000, 0.25);
+          height: 0.125em;
+          width: 50%;
+        }
+
+        &:after {
+          top: calc(50% + 0.125em);
+        }
+        
+        box-shadow:
+          inset rgba(#fff, 0.25) 0 0.125em,
+          inset rgba(#000, 0.25) 0 -0.125em,
+          #000 0 0.125em,
+          #000 -0.125em 0,
+          #000 0 -0.125em,
+          #000 0.125em 0;
+        cursor: pointer;
+      }
+    }
+  }
+}
+
+/* Font Family */
+@font-face {
+  font-family: 'Goblin';
+  src: url('/woff2/goblin.woff2') format('woff2');
+  font-weight: bold;
+  font-style: normal;
+}

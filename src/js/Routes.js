@@ -1,4 +1,4 @@
-import Game from '../vue/Game.vue'
+import PagePlay from '../vue/PagePlay.vue'
 
 /*
   Vue Router is used to change page components using URL paths. This solution 
@@ -16,6 +16,6 @@ export default [
   {
     name: 'play',
     path: '/play',
-    component: Game
+    component: PagePlay
   }
 ];
