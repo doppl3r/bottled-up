@@ -1,4 +1,3 @@
-import { clone } from 'three/examples/jsm/utils/SkeletonUtils';
 import { EventQueue, World } from '@dimforge/rapier3d';
 import { PhysicsFactory } from './PhysicsFactory.js';
 import { WorldDebugger } from './WorldDebugger.js';
@@ -137,19 +136,11 @@ class EntityManager {
     }
 
     
-    // TODO: Replace all instanceof conditions with new entity.init() system
-    entity.init(options, this);
+    // TODO: Replace all instanceof conditions with new entity.create() system
+    entity.create(options, this);
 
     // Add model component if entity is an instance of EntityModel
-    if (entity instanceof EntityModel) {
-      this.assets.load(options.url, asset => {
-        const model = clone(asset);
-        entity.setModel(model, options);
-        entity.add(model);
-        entity.dispatchEvent({ type: 'loaded', model });
-      });
-    }
-    else if (entity instanceof EntityAudio) {
+    if (entity instanceof EntityAudio) {
       // Add audio component if entity is an instance of EntityAudio
       this.assets.load(options.url, audio => {
         entity.setAudio(audio, options);

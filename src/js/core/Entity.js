@@ -45,7 +45,7 @@ class Entity extends Object3D {
     this.scale.set(options.scale.x, options.scale.y, options.scale.z);
   }
 
-  init() {
+  create(options, entityManager) {
     // This method can be overridden by subclasses
   }
 

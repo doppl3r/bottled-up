@@ -139,10 +139,39 @@ const EntityTemplatePlayer = {
   ]
 }
 
+const EntityTemplateRamps = {
+  name: 'ramps',
+  label: 'Ramps',
+  class: 'Entity',
+  metaData: {
+    isSelectable: true
+  },
+  children: [
+    {
+      class: 'EntityModel',
+      url: 'glb/ramps.glb'
+    },
+    {
+      class: 'EntityPhysics',
+      rigidBody: {
+        status: 1,
+        colliders: [
+          {
+            shapeDesc: {
+              type: 'trimesh'
+            }
+          }
+        ],
+      }
+    }
+  ]
+}
+
 export const EntityTemplates = {
   EntityTemplateBall,
   EntityTemplateLightHemisphere,
   EntityTemplateLightSun,
   EntityTemplatePlane,
-  EntityTemplatePlayer
+  EntityTemplatePlayer,
+  EntityTemplateRamps
 }

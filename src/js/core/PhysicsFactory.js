@@ -122,46 +122,40 @@ class PhysicsFactory {
   }
 
   static deferColliderCreation(entity, colliderOptions, rigidBody, world) {
-    // Wait for entity to be added to parent
+    // Wait for entity to be added to parent, then resolve mesh from a sibling
     const onAdded = event => {
-      PhysicsFactory.handleEntityAdded(event.target.parent, entity, colliderOptions, rigidBody, world);
+      PhysicsFactory.buildTrimeshFromSibling(event.target.parent, entity, colliderOptions, rigidBody, world);
       entity.removeEventListener('added', onAdded);
-    }
-
-    // Add event listener to entity
+    };
     entity.addEventListener('added', onAdded);
   }
 
-  static handleEntityAdded(parent, entity, colliderOptions, rigidBody, world) {
-    // Find sibling model in parent's children
-    const entitySibling = parent.children.find(child => child.class === 'entitySibling' || child.class === 'EntityMesh');
-
-    // Wait for sibling model to load
-    const onLoaded = event => {
-      PhysicsFactory.handleModelLoaded(event.model || event.mesh, entity, colliderOptions, rigidBody, world);
-      entitySibling.removeEventListener('loaded', onLoaded);
+  static buildTrimeshFromSibling(parent, entity, colliderOptions, rigidBody, world) {
+    // Find a sibling that provides mesh data
+    const sibling = parent.children.find(child => child.class === 'EntityModel' || child.class === 'EntityMesh');
+    if (sibling?.mesh) {
+      // Build mesh collider immediately if sibling mesh is already loaded
+      PhysicsFactory.buildTrimeshCollider(sibling.mesh, entity, colliderOptions, rigidBody, world);
     }
+    else {
+      // Wait for mesh to load from model
+      const onLoaded = event => {
+        PhysicsFactory.buildTrimeshCollider(event.model, entity, colliderOptions, rigidBody, world);
+        sibling.removeEventListener('loaded', onLoaded);
+      };
 
-    // Add event listener to sibling entitySibling
-    entitySibling.addEventListener('loaded', onLoaded);
-
-    // TODO: Replace this heap of lazy code since it is too coupled with model logic
-    if (entitySibling.mesh) {
-      onLoaded({ model: entitySibling.mesh });
+      // Add event listener to sibling for when mesh is loaded
+      sibling.addEventListener('loaded', onLoaded);
     }
   }
 
-  static handleModelLoaded(model, entity, colliderOptions, rigidBody, world) {
-    // Extract indices and vertices
-    const { geometry } = MeshFactory.mergeObjectMeshes(model);
+  static buildTrimeshCollider(mesh, entity, colliderOptions, rigidBody, world) {
+    // Extract geometry data and resume collider setup
+    const { geometry } = MeshFactory.mergeObjectMeshes(mesh);
     const vertices = geometry.attributes.position.array;
     const indices = geometry.index.array;
     colliderOptions.shapeDesc.arguments = [vertices, indices, TriMeshFlags['FIX_INTERNAL_EDGES']];
-
-    // Resume collider setup
     PhysicsFactory.setupCollider(entity, colliderOptions, rigidBody, world);
-
-    // Remove heavy model data from memory
     delete colliderOptions.shapeDesc.arguments;
   }
 

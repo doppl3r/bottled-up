@@ -35,7 +35,7 @@ class EntityPhysics extends Entity {
     this.addEventListener('added', this.onAdded);
   }
 
-  init(options, entityManager) {
+  create(options, entityManager) {
     // Add physics component if entity is an instance of EntityPhysics
     PhysicsFactory.create(this, options.rigidBody, entityManager.world);
   }

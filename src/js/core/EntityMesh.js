@@ -22,12 +22,11 @@ class EntityMesh extends Entity {
     this.meshOptions = options;
   }
 
-  init(options) {
+  create(options) {
     // Add mesh component if entity is an instance of EntityMesh
     const mesh = MeshFactory.create(options);
     this.setMesh(mesh, options);
     this.add(mesh);
-    this.dispatchEvent({ type: 'loaded', mesh });
   }
 
   setMesh(mesh, options) {
