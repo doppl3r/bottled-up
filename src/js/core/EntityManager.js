@@ -134,45 +134,9 @@ class EntityManager {
       console.error(`Entity class "${ options.class }" does not exist.`);
       return;
     }
-
     
-    // TODO: Replace all instanceof conditions with new entity.create() system
-    entity.create(options, this);
-
-    // Add model component if entity is an instance of EntityModel
-    if (entity instanceof EntityAudio) {
-      // Add audio component if entity is an instance of EntityAudio
-      this.assets.load(options.url, audio => {
-        entity.setAudio(audio, options);
-        entity.add(audio);
-        entity.dispatchEvent({ type: 'loaded', audio });
-      });
-    }
-    else if (entity instanceof EntityMaterial) {
-      // Add material component if entity is an instance of EntityMaterial
-      this.assets.load(options.url, material => {
-        entity.setMaterial(material, options);
-        entity.dispatchEvent({ type: 'loaded', material });
-      });
-    }
-    else if (entity instanceof EntityTexture) {
-      // Add texture component if entity is an instance of EntityTexture
-      this.assets.load(options.url, texture => {
-        entity.setTexture(texture, options);
-        entity.dispatchEvent({ type: 'loaded', texture });
-      });
-    }
-    else if (entity instanceof EntityParticles) {
-      // Add particles component if entity is an instance of EntityParticles
-      if (options.urls) {
-        this.assets.loadBatch(options.urls, textures => {
-          entity.setTextures(textures, options);
-          entity.dispatchEvent({ type: 'loaded', textures });
-        });
-      }
-    }
-
     // Return newly created entity
+    entity.create(options, this);
     return entity;
   }
 

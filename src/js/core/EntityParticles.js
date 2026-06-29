@@ -22,6 +22,16 @@ class EntityParticles extends Entity {
     this.add(this.particles);
   }
 
+  create(options, entityManager) {
+    // Add particles component if entity is an instance of EntityParticles
+    if (options.urls) {
+      entityManager.assets.loadBatch(options.urls, textures => {
+        this.setTextures(textures, options);
+        this.dispatchEvent({ type: 'loaded', textures });
+      });
+    }
+  }
+
   render(loop) {
     // Perform base entity render
     super.render(loop);

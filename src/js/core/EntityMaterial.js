@@ -19,6 +19,14 @@ class EntityMaterial extends Entity {
     this.url;
   }
 
+  create(options, entityManager) {
+    // Add material component if entity is an instance of EntityMaterial
+    entityManager.assets.load(options.url, material => {
+      this.setMaterial(material, options);
+      this.dispatchEvent({ type: 'loaded', material });
+    });
+  }
+
   setMaterial(material, options) {
     // Add 3D model to entity
     this.material = material;
