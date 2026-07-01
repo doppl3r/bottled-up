@@ -23,7 +23,7 @@ class PhysicsFactory {
 
     // Add colliders to rigid body
     options.colliders?.forEach(colliderOptions => {
-      PhysicsFactory.setupCollider(entity, colliderOptions, rigidBody, world);
+      PhysicsFactory.attachCollider(entity, colliderOptions, rigidBody);
     });
   }
 
@@ -105,59 +105,58 @@ class PhysicsFactory {
     return colliderDesc;
   }
 
-  static createCollider(colliderDesc, rigidBody, world) {
-    return world.createCollider(colliderDesc, rigidBody);
+  static createCollider(colliderDesc, rigidBody) {
+    return rigidBody.world.createCollider(colliderDesc, rigidBody);
   }
 
-  static setupCollider(entity, colliderOptions, rigidBody, world) {
-    // Defer collider creating for shapes that require model data
-    if (colliderOptions.shapeDesc.arguments === undefined) {
-      PhysicsFactory.deferColliderCreation(entity, colliderOptions, rigidBody, world);
-    }
-    else {
-      // Create collider immediately
+  static attachCollider(entity, colliderOptions, rigidBody) {
+    // Create collider immediately
+    if (colliderOptions.shapeDesc.arguments) {
       const colliderDesc = PhysicsFactory.createColliderDesc(colliderOptions);
-      PhysicsFactory.createCollider(colliderDesc, rigidBody, world);
-    }
-  }
-
-  static deferColliderCreation(entity, colliderOptions, rigidBody, world) {
-    // Wait for entity to be added to parent, then resolve mesh from a sibling
-    const onAdded = event => {
-      PhysicsFactory.buildTrimeshFromSibling(event.target.parent, entity, colliderOptions, rigidBody, world);
-      entity.removeEventListener('added', onAdded);
-    };
-    entity.addEventListener('added', onAdded);
-  }
-
-  static buildTrimeshFromSibling(parent, entity, colliderOptions, rigidBody, world) {
-    // Find a sibling that provides mesh data
-    const sibling = parent.children.find(child => child.class === 'EntityModel' || child.class === 'EntityMesh');
-    if (sibling?.mesh) {
-      // Build mesh collider immediately if sibling mesh is already loaded
-      PhysicsFactory.buildTrimeshCollider(sibling.mesh, entity, colliderOptions, rigidBody, world);
+      PhysicsFactory.createCollider(colliderDesc, rigidBody);
     }
     else {
-      // Wait for mesh to load from model
-      const onLoaded = event => {
-        PhysicsFactory.buildTrimeshCollider(event.model, entity, colliderOptions, rigidBody, world);
-        sibling.removeEventListener('loaded', onLoaded);
-      };
-
-      // Add event listener to sibling for when mesh is loaded
-      sibling.addEventListener('loaded', onLoaded);
+      // Create collider from sibling mesh data
+      PhysicsFactory.createColliderFromSibling(entity, colliderOptions, rigidBody);
     }
   }
 
-  static buildTrimeshCollider(mesh, entity, colliderOptions, rigidBody, world) {
-    // Extract geometry data and resume collider setup
-    const { geometry } = MeshFactory.mergeObjectMeshes(mesh);
-    const vertices = geometry.attributes.position.array;
-    const indices = geometry.index.array;
-    colliderOptions.shapeDesc.arguments = [vertices, indices, TriMeshFlags['FIX_INTERNAL_EDGES']];
-    PhysicsFactory.setupCollider(entity, colliderOptions, rigidBody, world);
-    delete colliderOptions.shapeDesc.arguments;
+  static createColliderFromSibling(entity, colliderOptions, rigidBody) {
+    // Get sibling data after adding entity to parent
+    const onEntityAdded = () => {
+      // Find the first sibling with mesh or model data
+      const sibling = entity.parent.children.find(c => ['EntityModel', 'EntityMesh'].includes(c.class));
+      
+      // Create collider from sibling mesh data by class type
+      if (sibling.class === 'EntityMesh') {
+        PhysicsFactory.updateColliderShape(sibling.mesh, colliderOptions);
+        PhysicsFactory.attachCollider(entity, colliderOptions, rigidBody);
+      }
+      else if (sibling.class === 'EntityModel') {
+        // Create collider from sibling model data AFTER loading model data
+        const onModelLoaded = () => {
+          PhysicsFactory.updateColliderShape(sibling.model, colliderOptions);
+          PhysicsFactory.attachCollider(entity, colliderOptions, rigidBody);
+          sibling.removeEventListener('loaded', onModelLoaded);
+        };
+
+        // Add event listener for sibling to load a model asset
+        sibling.addEventListener('loaded', onModelLoaded);
+      }
+
+      // Remove event listener to avoid duplicate calls
+      entity.removeEventListener('added', onEntityAdded);
+    };
+
+    // Wait for entity to be added to parent
+    entity.addEventListener('added', onEntityAdded);
   }
+
+  static updateColliderShape = (mesh, colliderOptions) => {
+    // Build collider from mesh then resume collider setup
+    const { geometry } = MeshFactory.mergeObjectMeshes(mesh);
+    colliderOptions.shapeDesc.arguments = [geometry.attributes.position.array, geometry.index.array, TriMeshFlags['FIX_INTERNAL_EDGES']];
+  };
 
   static createController(entity, options, world) {
     // Set base options
