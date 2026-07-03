@@ -1,22 +1,41 @@
 <script setup>
   import '../scss/Global.scss';
   import 'overlayscrollbars/overlayscrollbars.css';
-  import { useRoute } from 'vue-router';
 
-  // Initialize components
-  const route = useRoute();
+  import { onMounted, onUnmounted, ref } from 'vue';
+  import { useI18n } from 'vue-i18n';
+  import { Game } from '../js/Game.js';
+  import ProgressBar from './ProgressBar.vue';
 
-  // Note: Route "pages" (components) are declared in `/src/js/Routes.js`
+  // Initialize Vue components
+  const i18n = useI18n();
+  const canvas = ref();
+  const progress = ref({ url: '', itemsLoaded: 0, itemsTotal: 0 });
+
+  // Initialize game
+  let game = window.game = new Game();
+  game.init();
+  game.core.assets.addEventListener('onProgress', e => progress.value = e);
+
+  // Initialize app after canvas has been mounted
+  onMounted(() => {
+    // Replace canvas element
+    canvas.value.replaceWith(game.core.canvas);
+  });
+
+  onUnmounted(() => {
+    
+  });
 </script>
 
 <template>
-  <!-- Render page component using Routes.js -->
-  <div class="page" :class="route.name">
-    <router-view v-slot="{ Component }">
-      <transition name="fade">
-        <component :is="Component" />
-      </transition>
-    </router-view>
+  <!-- Core canvas -->
+  <canvas ref="canvas"></canvas>
+
+  <!-- Floating menus -->
+  <div class="game-ui">
+    <!-- Loading bar -->
+    <ProgressBar :progress="progress" />
   </div>
 </template>
 
