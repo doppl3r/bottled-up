@@ -108,6 +108,15 @@ class EntityPhysics extends Entity {
     this.quaternion.copy(rotation);
   }
 
+  setScale(scale) {
+    // Update scale for all colliders attached to the rigid body
+    const colliders = this.rigidBody.colliderSet.getAll();
+    colliders?.forEach(collider => {
+      const shape = collider.shape;
+      // TODO: Update collider properties
+    });
+  }
+
   onAdded = event => {
     // Inherit parent position if rigidBody options don't specify one
     if (this.rigidBodyOptions.position === undefined) {
@@ -117,6 +126,11 @@ class EntityPhysics extends Entity {
     // Inherit parent rotation if rigidBody options don't specify one
     if (this.rigidBodyOptions.rotation === undefined) {
       this.setRotation(event.target.parent.quaternion);
+    }
+
+    // Inherit parent scale if rigidBody options don't specify one
+    if (this.rigidBodyOptions.scale === undefined) {
+      this.setScale(event.target.parent.scale);
     }
 
     // Save initial state

@@ -24,6 +24,39 @@ const EntityTemplateLightSun = {
   intensity: 3.14
 }
 
+const EntityTemplateCube = {
+  name: 'cube',
+  label: 'Cube',
+  class: 'Entity',
+  children: [
+    {
+      class: 'EntityPhysics',
+      rigidBody: {
+        status: 1,
+        colliders: [
+          {
+            shapeDesc: {
+              type: 'cuboid',
+              arguments: [1, 1, 1]
+            }
+          }
+        ]
+      }
+    },
+    {
+      class: 'EntityMesh',
+      geometry: {
+        type: 'BoxGeometry',
+        arguments: [1, 1, 1]
+      },
+      material: {
+        type: 'MeshStandardMaterial',
+        arguments: [{ color: '#ffffff' }],
+      }
+    }
+  ]
+}
+
 const EntityTemplatePlane = {
   name: 'plane',
   label: 'Plane',
@@ -127,5 +160,6 @@ export const EntityTemplates = {
   EntityTemplateLightSun,
   EntityTemplatePlane,
   EntityTemplatePlayer,
-  EntityTemplateRamps
+  EntityTemplateRamps,
+  EntityTemplateCube
 }

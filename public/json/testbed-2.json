@@ -1,0 +1,32 @@
+{
+  "name": "testbed-2",
+  "children": [
+    {
+      "template": "EntityTemplateLightHemisphere",
+      "skyColor": "#ffffff",
+      "groundColor": "#aaaaaa",
+      "intensity": 3.14
+    },
+    {
+      "template": "EntityTemplatePlayer",
+      "position": {
+        "x": 4,
+        "y": 4,
+        "z": 1
+      }
+    },
+    {
+      "template": "EntityTemplateCube",
+      "scale": {
+        "x": 10,
+        "y": 1,
+        "z": 10
+      },
+      "position": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      }
+    }
+  ]
+}

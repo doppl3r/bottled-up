@@ -43,7 +43,7 @@ class Game {
       ...stateSession,
     });
 
-    this.core.entityManager.load('json/testbed-1.json', child => {
+    this.core.entityManager.load('json/testbed-2.json', child => {
       // Update state counts for loaded entities
       this.state.entityCount = (this.state.entityCount || 0) + 1;
     });
