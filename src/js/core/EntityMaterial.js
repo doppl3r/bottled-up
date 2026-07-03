@@ -19,7 +19,7 @@ class EntityMaterial extends Entity {
     this.url;
   }
 
-  create(options, entityManager) {
+  init(options, entityManager) {
     // Add material component if entity is an instance of EntityMaterial
     entityManager.assets.load(options.url, material => {
       this.setMaterial(material, options);

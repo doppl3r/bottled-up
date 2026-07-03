@@ -100,6 +100,7 @@ class EntityManager {
 
       // Continue loading child entities recursively
       options.children?.forEach(childOptions => {
+        childOptions.parent = options;
         this.spawn(childOptions, entity);
       });
 
@@ -129,15 +130,13 @@ class EntityManager {
     let entity;
     if (this.entityClasses[options.class]) {
       entity = new this.entityClasses[options.class](options);
+      entity.init(options, this);
+      return entity;
     }
     else {
       console.error(`Entity class "${ options.class }" does not exist.`);
       return;
     }
-    
-    // Return newly created entity
-    entity.create(options, this);
-    return entity;
   }
 
   remove(entity) {

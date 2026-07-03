@@ -19,7 +19,7 @@ class EntityTexture extends Entity {
     this.texture = null;
   }
 
-  create(options, entityManager) {
+  init(options, entityManager) {
     // Add texture component if entity is an instance of EntityTexture
     entityManager.assets.load(options.url, texture => {
       this.setTexture(texture, options);

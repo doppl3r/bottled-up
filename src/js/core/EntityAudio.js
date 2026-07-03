@@ -20,7 +20,7 @@ class EntityAudio extends Entity {
     this.url;
   }
 
-  create(options, entityManager) {
+  init(options, entityManager) {
     // Add audio component if entity is an instance of EntityAudio
     entityManager.assets.load(options.url, audio => {
       this.setAudio(audio, options);

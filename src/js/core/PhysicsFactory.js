@@ -129,13 +129,13 @@ class PhysicsFactory {
       
       // Create collider from sibling mesh data by class type
       if (sibling.class === 'EntityMesh') {
-        PhysicsFactory.updateColliderShape(sibling.mesh, colliderOptions);
+        PhysicsFactory.updateShapeDescFromMesh(sibling.mesh, colliderOptions);
         PhysicsFactory.attachCollider(entity, colliderOptions, rigidBody);
       }
       else if (sibling.class === 'EntityModel') {
         // Create collider from sibling model data AFTER loading model data
         const onModelLoaded = () => {
-          PhysicsFactory.updateColliderShape(sibling.model, colliderOptions);
+          PhysicsFactory.updateShapeDescFromMesh(sibling.model, colliderOptions);
           PhysicsFactory.attachCollider(entity, colliderOptions, rigidBody);
           sibling.removeEventListener('loaded', onModelLoaded);
         };
@@ -152,7 +152,7 @@ class PhysicsFactory {
     entity.addEventListener('added', onEntityAdded);
   }
 
-  static updateColliderShape = (mesh, colliderOptions) => {
+  static updateShapeDescFromMesh = (mesh, colliderOptions) => {
     // Build collider from mesh then resume collider setup
     const { geometry } = MeshFactory.mergeObjectMeshes(mesh);
     colliderOptions.shapeDesc.arguments = [geometry.attributes.position.array, geometry.index.array, TriMeshFlags['FIX_INTERNAL_EDGES']];

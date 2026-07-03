@@ -35,7 +35,26 @@ class EntityPhysics extends Entity {
     this.addEventListener('added', this.onAdded);
   }
 
-  create(options, entityManager) {
+  init(options, entityManager) {
+    // Inherit position from parent options
+    if (options.rigidBody.position === undefined && options.parent.position) {
+      options.rigidBody.position = options.parent.position;
+    }
+
+    // Inherit rotation from parent options
+    if (options.rigidBody.rotation === undefined && options.parent.rotation) {
+      options.rigidBody.rotation = options.parent.rotation;
+    }
+
+    // Inherit scale from parent options
+    if (options.parent.scale) {
+      options.rigidBody.colliders?.forEach(colliderOptions => {
+        if (colliderOptions.shapeDesc.type === 'cuboid') {
+          colliderOptions.shapeDesc.arguments = Object.values(options.parent.scale).map(v => v * 0.5);
+        }
+      });
+    }
+
     // Add physics component if entity is an instance of EntityPhysics
     PhysicsFactory.create(this, options.rigidBody, entityManager.world);
   }
@@ -108,31 +127,7 @@ class EntityPhysics extends Entity {
     this.quaternion.copy(rotation);
   }
 
-  setScale(scale) {
-    // Update scale for all colliders attached to the rigid body
-    const colliders = this.rigidBody.colliderSet.getAll();
-    colliders?.forEach(collider => {
-      const shape = collider.shape;
-      // TODO: Update collider properties
-    });
-  }
-
   onAdded = event => {
-    // Inherit parent position if rigidBody options don't specify one
-    if (this.rigidBodyOptions.position === undefined) {
-      this.setPosition(event.target.parent.position);
-    }
-
-    // Inherit parent rotation if rigidBody options don't specify one
-    if (this.rigidBodyOptions.rotation === undefined) {
-      this.setRotation(event.target.parent.quaternion);
-    }
-
-    // Inherit parent scale if rigidBody options don't specify one
-    if (this.rigidBodyOptions.scale === undefined) {
-      this.setScale(event.target.parent.scale);
-    }
-
     // Save initial state
     this.saveState();
 
