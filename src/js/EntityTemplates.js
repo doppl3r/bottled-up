@@ -117,6 +117,7 @@ const EntityTemplatePlayer = {
       class: 'EntityPhysics',
       rigidBody: {
         status: 0,
+        ccd: true,
         colliders: [
           {
             shapeDesc: {

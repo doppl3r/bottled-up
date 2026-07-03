@@ -32,8 +32,9 @@ class Game {
   init() {
     // Initialization core settings
     this.core.entityManager.debug(true);
-    this.core.interval.loops[0].delay = 1000 / 60;
-    this.core.entityManager.world.timestep = 1 / 60;
+    this.core.interval.loops[0].delay = 1000 / 10;
+    this.core.entityManager.world.timestep = 1 / 10;
+    this.core.entityManager.world.gravity.y = -9.81 * 4;
     this.core.scene.background.set('#1f1f1f');
     this.core.camera.position.set(0, 2, 10);
 
@@ -43,9 +44,9 @@ class Game {
       ...stateSession,
     });
 
-    this.core.entityManager.load('json/testbed-1.json', child => {
+    this.core.entityManager.load('json/testbed-2.json', child => {
       // Update state counts for loaded entities
-      this.state.entityCount = (this.state.entityCount || 0) + 1;
+      
     });
 
     // Setup event listeners
