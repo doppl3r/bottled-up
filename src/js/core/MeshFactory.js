@@ -20,28 +20,24 @@ import {
 
 class MeshFactory {
   static create(options) {
-    if (options.geometry && options.material) {
-      // Create geometry
-      const geometryType = options.geometry.type;
-      const geometryArguments = options.geometry.arguments ?? [];
-      const geometry = new MeshFactory[geometryType](...geometryArguments);
+    // Set default options
+    options = Object.assign({
+      type: 'Mesh',
+      geometry: {
+        type: 'BoxGeometry',
+        arguments: [1, 1, 1]
+      },
+      material: {
+        type: 'MeshStandardMaterial',
+        arguments: [{ color: '#ff00ff' }]
+      }
+    }, options);
 
-      // Create material
-      const materialType = options.material.type;
-      const materialArguments = options.material.arguments ?? [];
-      const material = new MeshFactory[materialType](...materialArguments);
-
-      // Create mesh
-      const type = options.type;
-      const mesh = new MeshFactory[type](geometry, material)
-      return mesh;
-    }
-    else {
-      // Create generic mesh type
-      const type = options.type;
-      const args = options.arguments ?? [];
-      return new MeshFactory[type](...args);
-    }
+    // Create mesh with geometry and material
+    const geometry = new MeshFactory[options.geometry.type](...options.geometry.arguments);
+    const material = new MeshFactory[options.material.type](...options.material.arguments);
+    const mesh = new MeshFactory[options.type](geometry, material)
+    return mesh;
   }
 
   static createInstancedMesh(object3D, coordinates) {

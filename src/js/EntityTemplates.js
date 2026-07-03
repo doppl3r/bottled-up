@@ -8,9 +8,6 @@ const EntityTemplateLightHemisphere = {
   name: 'light-hemisphere',
   label: 'Light Hemisphere',
   class: 'EntityLightHemisphere',
-  metaData: {
-    isStorable: true
-  },
   skyColor: '#ffffff',
   groundColor: '#aaaaaa',
   intensity: 3.14
@@ -20,48 +17,11 @@ const EntityTemplateLightSun = {
   name: 'light-sun',
   label: 'Light Sun',
   class: 'EntityLightSun',
-  metaData: {
-    isStorable: true
-  },
   speed: 1,
   distance: 8,
   time: 6,
   color: '#ffffff',
   intensity: 3.14
-}
-
-const EntityTemplateBall = {
-  name: 'ball',
-  label: 'Ball',
-  class: 'Entity',
-  children: [
-    {
-      class: 'EntityMesh',
-      type: 'Mesh',
-      geometry: {
-        type: 'SphereGeometry',
-        arguments: [0.5, 32, 32],
-      },
-      material: {
-        type: 'MeshStandardMaterial',
-        arguments: [{ color: '#ffffff' }],
-      }
-    },
-    {
-      class: 'EntityPhysics',
-      rigidBody: {
-        status: 0,
-        colliders: [
-          {
-            shapeDesc: {
-              type: 'ball',
-              arguments: [0.5]
-            }
-          }
-        ]
-      }
-    }
-  ]
 }
 
 const EntityTemplatePlane = {
@@ -102,38 +62,36 @@ const EntityTemplatePlane = {
 }
 
 const EntityTemplatePlayer = {
-  name: 'player',
-  label: 'Player',
+  name: 'ball',
+  label: 'Ball',
   class: 'EntityPlayer',
-  metaData: {
-    isSelectable: true
-  },
   children: [
     {
-      class: 'EntityModel',
-      url: 'glb/player.glb',
-      children: [
-        {
-          class: 'EntityMixer'
-        }
-      ]
+      class: 'EntityBallController'
     },
     {
-      class: 'EntityKCC'
+      class: 'EntityMesh',
+      geometry: {
+        type: 'SphereGeometry',
+        arguments: [0.5, 8, 8]
+      },
+      material: {
+        type: 'MeshStandardMaterial',
+        arguments: [{ color: '#ffffff' }],
+      }
     },
     {
       class: 'EntityPhysics',
       rigidBody: {
-        status: 2,
+        status: 0,
         colliders: [
           {
             shapeDesc: {
-              type: 'capsule',
-              arguments: [1 / 4, 1 / 4]
-            },
-            translation: { x: 0, y: 0.5, z: 0 }
+              type: 'ball',
+              arguments: [0.5]
+            }
           }
-        ],
+        ]
       }
     }
   ]
@@ -143,9 +101,6 @@ const EntityTemplateRamps = {
   name: 'ramps',
   label: 'Ramps',
   class: 'Entity',
-  metaData: {
-    isSelectable: true
-  },
   children: [
     {
       class: 'EntityModel',
@@ -168,7 +123,6 @@ const EntityTemplateRamps = {
 }
 
 export const EntityTemplates = {
-  EntityTemplateBall,
   EntityTemplateLightHemisphere,
   EntityTemplateLightSun,
   EntityTemplatePlane,
