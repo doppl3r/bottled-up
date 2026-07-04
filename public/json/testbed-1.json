@@ -8,7 +8,7 @@
       "intensity": 3.14
     },
     {
-      "template": "EntityTemplatePlayer",
+      "template": "EntityTemplateBall",
       "position": {
         "x": 4,
         "y": 4,

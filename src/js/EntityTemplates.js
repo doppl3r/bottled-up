@@ -94,10 +94,10 @@ const EntityTemplatePlane = {
   ]
 }
 
-const EntityTemplatePlayer = {
+const EntityTemplateBall = {
   name: 'ball',
   label: 'Ball',
-  class: 'EntityPlayer',
+  class: 'Entity',
   children: [
     {
       class: 'EntityBallController'
@@ -161,7 +161,7 @@ export const EntityTemplates = {
   EntityTemplateLightHemisphere,
   EntityTemplateLightSun,
   EntityTemplatePlane,
-  EntityTemplatePlayer,
+  EntityTemplateBall,
   EntityTemplateRamps,
   EntityTemplateCube
 }
