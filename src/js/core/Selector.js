@@ -2,7 +2,7 @@ import { EventDispatcher, Raycaster, Vector2, Vector3 } from 'three';
 
 /*
   The Selector class provides functionality for selecting and interacting
-  with entities in a 3D scene using pointer events. It utilizes raycasting
+  with entities in a 3D object using pointer events. It utilizes raycasting
   to detect which objects are under the pointer and dispatches events
   accordingly.
 */
@@ -14,14 +14,14 @@ const _eventPointerMove = { type: 'pointermove', button: 0, buttons: 0, clientX:
 const _eventPointerUp = { type: 'pointerup', button: 0, buttons: 0, clientX: 0, clientY: 0, intersects: [], pointerType: 'mouse', pressed: false, snapped: false }
 
 class Selector extends EventDispatcher {
-  constructor(camera, scene, canvas) {
+  constructor(camera, canvas) {
     // Inherit Three.js EventDispatcher system
     super();
 
     // Store references
     this.camera = camera;
-    this.scene = scene;
     this.canvas = canvas;
+    this.object = undefined;
 
     // Initialize raycaster and coordinates
     this.raycaster = new Raycaster();
@@ -35,6 +35,14 @@ class Selector extends EventDispatcher {
 
     // Enable by default
     this.addEventListeners();
+  }
+
+  attach(object) {
+    this.object = object;
+  }
+
+  detach() {
+    this.object = undefined;
   }
 
   addEventListeners() {
@@ -55,7 +63,7 @@ class Selector extends EventDispatcher {
     // Return all intersected objects under pointer
     this.updateCoords(e);
     this.raycaster.setFromCamera(this.pointViewport, this.camera);
-    let intersects = this.raycaster.intersectObject(this.scene, true);
+    let intersects = this.raycaster.intersectObject(this.object, true);
     return intersects;
   }
 
@@ -82,6 +90,9 @@ class Selector extends EventDispatcher {
   }
 
   onPointerDown = e => {
+    // Cancel event if no object is attached
+    if (this.object === undefined) return;
+
     // Update pointer down state
     this.pointDown.set(e.clientX, e.clientY);
     this.pointPressed = true;
@@ -100,6 +111,9 @@ class Selector extends EventDispatcher {
   }
   
   onPointerMove = e => {
+    // Cancel event if no object is attached
+    if (this.object === undefined) return;
+
     // Update pointer move state
     this.pointMove.set(e.clientX, e.clientY);
     this.pointSnapped = this.isSnapped();
@@ -117,6 +131,9 @@ class Selector extends EventDispatcher {
   }
   
   onPointerUp = e => {
+    // Cancel event if no object is attached
+    if (this.object === undefined) return;
+
     // Update pointer up state
     this.pointPressed = false;
     this.pointUp.set(e.clientX, e.clientY);

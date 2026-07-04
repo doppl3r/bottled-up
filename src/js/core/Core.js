@@ -28,7 +28,7 @@ class Core extends EventDispatcher {
     this.scene = new Scene();
     this.scene.fog = new Fog('#ffffff');
     this.scene.background = new Color('#000000');
-    this.selector = new Selector(this.camera, this.scene, this.canvas);
+    this.selector = new Selector(this.camera, this.canvas);
     this.renderer = new WebGLRenderer({ alpha: true, canvas: this.canvas });
     this.compositor = new Compositor(this.scene, this.camera, this.renderer);
     
