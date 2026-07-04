@@ -118,6 +118,7 @@ const EntityTemplatePlayer = {
       rigidBody: {
         status: 0,
         ccd: true,
+        softCcdPrediction: 0.5,
         colliders: [
           {
             shapeDesc: {

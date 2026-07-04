@@ -12,6 +12,10 @@
       "position": { "x": 4, "y": 8, "z": 0 }
     },
     {
+      "template": "EntityTemplatePlayer",
+      "position": { "x": -6, "y": 1, "z": 0 }
+    },
+    {
       "template": "EntityTemplateCube",
       "position": { "x": 3, "y": 4, "z": 0 },
       "rotation": { "x": 0, "y": 0, "z": 0.25 },
@@ -21,6 +25,12 @@
       "template": "EntityTemplateCube",
       "position": { "x": -3, "y": 2, "z": 0 },
       "rotation": { "x": 0, "y": 0, "z": -0.25 },
+      "scale": { "x": 8, "y": 0.125, "z": 1 }
+    },
+    {
+      "template": "EntityTemplateCube",
+      "position": { "x": -3, "y": -0.5, "z": 0 },
+      "rotation": { "x": 0, "y": 0, "z": -0.02 },
       "scale": { "x": 8, "y": 0.125, "z": 1 }
     },
     {
