@@ -30,25 +30,6 @@ html {
     height: inherit;
     overflow: hidden;
 
-    // Cursor styling
-    * { cursor: url('/png/icon-pointer.png') 10 0, auto !important;}
-    &[pixel-size="2"] * { cursor: url('/png/icon-pointer-2x.png') 10 0, auto !important; }
-    &[pixel-size="3"] * { cursor: url('/png/icon-pointer-3x.png') 15 0, auto !important; }
-    &[pixel-size="4"] * { cursor: url('/png/icon-pointer-4x.png') 20 0, auto !important; }
-    &[pixel-size="5"] * { cursor: url('/png/icon-pointer-5x.png') 25 0, auto !important; }
-    &[pixel-size="6"] * { cursor: url('/png/icon-pointer-6x.png') 30 0, auto !important; }
-    &[pixel-size="7"] * { cursor: url('/png/icon-pointer-7x.png') 35 0, auto !important; }
-    &[pixel-size="8"] * { cursor: url('/png/icon-pointer-8x.png') 40 0, auto !important; }
-    
-    *:active { cursor: url('/png/icon-pointer-grab.png') 10 0, auto !important;}
-    &[pixel-size="2"] *:active { cursor: url('/png/icon-pointer-grab-2x.png') 10 0, auto !important; }
-    &[pixel-size="3"] *:active { cursor: url('/png/icon-pointer-grab-3x.png') 15 0, auto !important; }
-    &[pixel-size="4"] *:active { cursor: url('/png/icon-pointer-grab-4x.png') 20 0, auto !important; }
-    &[pixel-size="5"] *:active { cursor: url('/png/icon-pointer-grab-5x.png') 25 0, auto !important; }
-    &[pixel-size="6"] *:active { cursor: url('/png/icon-pointer-grab-6x.png') 30 0, auto !important; }
-    &[pixel-size="7"] *:active { cursor: url('/png/icon-pointer-grab-7x.png') 35 0, auto !important; }
-    &[pixel-size="8"] *:active { cursor: url('/png/icon-pointer-grab-8x.png') 40 0, auto !important; }
-
     #app {
       height: inherit;
       width: inherit;

@@ -3,7 +3,8 @@ import { Entity } from './core/Entity.js';
 
 // Tuning constants
 const MOVE_FORCE   = 10;
-const MAX_SPEED    = 5;
+const MAX_SPEED    = 8;
+const STEER_FACTOR = 1.0;
 const DASH_IMPULSE = 10;
 const DASH_COOLDOWN_MS = 3000;
 const JUMP_IMPULSE = 8;
@@ -21,6 +22,7 @@ const _forward = new Vector3();
 const _right   = new Vector3();
 const _forceDir = new Vector3();
 const _force    = new Vector3();
+const _perp     = new Vector3();
 const _orbitCenter = new Vector3();
 
 class EntityBallController extends Entity {
@@ -127,7 +129,14 @@ class EntityBallController extends Entity {
   _handleCanvasMouseDown(event) {
     if (event.button !== 0) return;
     if (this.canvas?.requestPointerLock) {
-      this.canvas.requestPointerLock();
+      // requestPointerLock() returns a Promise in modern browsers and throws in
+      // environments that don't support it (e.g. Chrome Extension popups).
+      // Catch the rejection and fall back to drag mode silently.
+      Promise.resolve(this.canvas.requestPointerLock()).catch(() => {
+        this.isDragging = true;
+        this.dragX = event.clientX;
+        this.dragY = event.clientY;
+      });
     } else {
       // Fallback drag mode
       this.isDragging = true;
@@ -205,10 +214,16 @@ class EntityBallController extends Entity {
     // is one-shot per call and unambiguously correct for per-tick character movement.
     if (_forceDir.lengthSq() > 0) {
       const linvel = rb.linvel();
-      const speedInDir = linvel.x * _forceDir.x + linvel.y * _forceDir.y + linvel.z * _forceDir.z;
+      const speedInDir = linvel.x * _forceDir.x + linvel.z * _forceDir.z; // Y is always 0 in forceDir
       const scale = Math.max(0, 1 - speedInDir / MAX_SPEED);
       _force.copy(_forceDir).multiplyScalar(MOVE_FORCE * scale * (loop.delta / 1000));
       rb.applyImpulse(_force, true);
+
+      // Steering: cancel velocity perpendicular to the intended direction so the
+      // ball corrects toward the camera facing without killing momentum from
+      // slopes, dashes, or collisions. Only acts on the XZ plane.
+      _perp.set(linvel.x - speedInDir * _forceDir.x, 0, linvel.z - speedInDir * _forceDir.z);
+      rb.applyImpulse(_perp.multiplyScalar(-STEER_FACTOR * (loop.delta / 1000)), true);
     }
 
     // Step 6: Jump — fires when buffer is active and a surface was touched
