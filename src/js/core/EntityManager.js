@@ -142,18 +142,14 @@ class EntityManager {
   remove(entity) {
     // Remove entity's rigid body from physics world
     entity.removeFromParent();
-
-    // Queue rigid body for removal if entity has one
-    if (entity instanceof EntityPhysics) {
-      this.world.queueRigidBodyRemoval(entity.rigidBody);
-    }
   }
 
   removeAll() {
     // Remove all entities from scene and physics world
-    this.scene.children.forEach(child => {
+    for (let i = this.scene.children.length - 1; i >= 0; i--) {
+      const child = this.scene.children[i];
       if (child.isEntity) this.remove(child);
-    });
+    }
   }
 
   drainRigidBodyQueue() {

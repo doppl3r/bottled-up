@@ -141,7 +141,8 @@ class PhysicsFactory {
         };
 
         // Add event listener for sibling to load a model asset
-        sibling.addEventListener('loaded', onModelLoaded);
+        if (sibling.model) onModelLoaded();
+        else sibling.addEventListener('loaded', onModelLoaded);
       }
 
       // Remove event listener to avoid duplicate calls
