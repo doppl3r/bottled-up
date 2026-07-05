@@ -54,10 +54,6 @@ class Game {
     // Setup event listeners
     this.addEventListeners();
 
-    // Expose camera and canvas to entities via entityManager
-    this.core.entityManager.camera = this.core.camera;
-    this.core.entityManager.canvas = this.core.canvas;
-
     // Start the core engine
     this.core.compositor.resize();
     this.core.start();

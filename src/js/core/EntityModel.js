@@ -26,8 +26,8 @@ class EntityModel extends Entity {
     super.render(loop);
   }
 
-  init(options, entityManager) {
-    entityManager.assets.load(options.url, asset => {
+  init(options, core) {
+    core.assets.load(options.url, asset => {
       const model = clone(asset);
       this.setURL(options.url);
       this.setModel(model);

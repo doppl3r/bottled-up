@@ -35,7 +35,7 @@ class Core extends EventDispatcher {
     // Initialize core components
     this.assets = new Assets();
     this.audio = new Audio(this.assets);
-    this.entityManager = new EntityManager(this.scene, this.assets);
+    this.entityManager = new EntityManager(this);
     
     // Setup main loops
     this.interval = new Interval();

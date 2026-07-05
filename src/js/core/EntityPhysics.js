@@ -35,7 +35,7 @@ class EntityPhysics extends Entity {
     this.addEventListener('added', this.onAdded);
   }
 
-  init(options, entityManager) {
+  init(options, core) {
     // Inherit position from parent options
     if (options.rigidBody.position === undefined && options.parent.position) {
       options.rigidBody.position = options.parent.position;
@@ -56,7 +56,7 @@ class EntityPhysics extends Entity {
     }
 
     // Add physics component if entity is an instance of EntityPhysics
-    PhysicsFactory.create(this, options.rigidBody, entityManager.world);
+    PhysicsFactory.create(this, options.rigidBody, core.entityManager.world);
   }
 
   update(loop) {

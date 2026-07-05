@@ -24,9 +24,8 @@ import { EntityLightPoint } from './EntityLightPoint.js';
 */
 
 class EntityManager {
-  constructor(scene, assets) {
-    this.scene = scene;
-    this.assets = assets;
+  constructor(core) {
+    this.core = core;
     this.world = new World({ x: 0, y: -9.81, z: 0 });
     this.world.numSolverIterations = 4; // Default = 4
     this.world.timestep = 1 / 60; // Default 1 / 60
@@ -67,7 +66,7 @@ class EntityManager {
     this.worldDebugger.update();
 
     // 4: Update all scene entities
-    this.scene.children.forEach(child => child.update?.(loop));
+    this.core.scene.children.forEach(child => child.update?.(loop));
 
     // 5: Dispatch collision events to each entity pair
     this.eventQueue.drainCollisionEvents(this.onCollision);
@@ -75,7 +74,7 @@ class EntityManager {
 
   render(loop) {
     // Render all scene entities
-    this.scene.children.forEach(child => child.render?.(loop));
+    this.core.scene.children.forEach(child => child.render?.(loop));
   }
 
   onCollision = (handle1, handle2, started) => {
@@ -91,7 +90,7 @@ class EntityManager {
     entity2.dispatchEvent(event2);
   }
 
-  spawn(options, parent = this.scene) {
+  spawn(options, parent = this.core.scene) {
     // Create and add entity to parent
     const entity = this.create(options);
     if (entity) {
@@ -130,7 +129,7 @@ class EntityManager {
     let entity;
     if (this.entityClasses[options.class]) {
       entity = new this.entityClasses[options.class](options);
-      entity.init(options, this);
+      entity.init(options, this.core);
       return entity;
     }
     else {
@@ -146,8 +145,8 @@ class EntityManager {
 
   removeAll() {
     // Remove all entities from scene and physics world
-    for (let i = this.scene.children.length - 1; i >= 0; i--) {
-      const child = this.scene.children[i];
+    for (let i = this.core.scene.children.length - 1; i >= 0; i--) {
+      const child = this.core.scene.children[i];
       if (child.isEntity) this.remove(child);
     }
   }
@@ -197,19 +196,19 @@ class EntityManager {
 
   debug(state = true) {
     // Enable or disable physics world debugger
-    if (state === true) this.scene.add(this.worldDebugger);
-    else this.scene.remove(this.worldDebugger);
+    if (state === true) this.core.scene.add(this.worldDebugger);
+    else this.core.scene.remove(this.worldDebugger);
   }
 
   serialize(condition = () => true) {
     // Serialize scene to JSON
     const json = {
-      name: this.scene.name,
+      name: this.core.scene.name,
       children: []
     };
 
     // Serialize scene entities
-    this.scene.children.forEach(child => {
+    this.core.scene.children.forEach(child => {
       if (child.isEntity && condition(child)) {
         json.children.push(child.serialize());
       }

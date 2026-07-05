@@ -56,9 +56,9 @@ class EntityBallController extends Entity {
     this._lookTarget = new Vector3();
   }
 
-  init(options, entityManager) {
-    this.camera = entityManager.camera;
-    this.canvas = entityManager.canvas;
+  init(options, core) {
+    this.camera = core.camera;
+    this.canvas = core.canvas;
 
     // Initialise lookTarget to current camera position so there's no jump on first frame
     if (this.camera) this._lookTarget.copy(this.camera.position);
