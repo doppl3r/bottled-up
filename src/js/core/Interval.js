@@ -74,6 +74,8 @@ class Interval {
 
     // Set thread delta from thread timestamp
     const threadDelta = timestamp - this.threadTimestamp;
+    const maxDelta = this.loops[0].delay;
+    const cappedDelta = Math.min(threadDelta, maxDelta);
     this.threadTimestamp = timestamp;
 
     // Loop through array of loops (descending order)
@@ -82,11 +84,11 @@ class Interval {
       if (this.loops[i].paused === true) continue;
       
       // Add thread delta to loop sum
-      this.loops[i].sum += threadDelta * this.speed;
+      this.loops[i].sum += cappedDelta * this.speed;
 
       // Trigger loop callback
       if (this.loops[i].sum >= this.loops[i].delay) {
-        this.loops[i].sum %= this.loops[i].delay;
+        this.loops[i].sum -= this.loops[i].delay;
         this.loops[i].delta = (timestamp - this.loops[i].timestamp) * this.speed;
         this.loops[i].alpha = this.loops[0].sum / this.loops[0].delay;
         this.loops[i].fps = 1000 / this.loops[i].delta;
