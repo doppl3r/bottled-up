@@ -30,10 +30,6 @@ class EntityBallController extends Entity {
     options = Object.assign({ class: 'EntityBallController' }, options);
     super(options);
 
-    // References set in init()
-    this.camera = null;
-    this.canvas = null;
-
     // Sibling found on first update() tick
     this.entityPhysics = null;
     this._collisionListener = null;
@@ -57,11 +53,9 @@ class EntityBallController extends Entity {
   }
 
   init(options, core) {
-    this.camera = core.camera;
-    this.canvas = core.canvas;
-
     // Initialise lookTarget to current camera position so there's no jump on first frame
-    if (this.camera) this._lookTarget.copy(this.camera.position);
+    this.core = core;
+    this._lookTarget.copy(this.core.camera.position);
 
     // Bind handlers so we can remove them later
     this._onKeyDown          = this._handleKeyDown.bind(this);
@@ -74,11 +68,11 @@ class EntityBallController extends Entity {
 
     document.addEventListener('keydown',          this._onKeyDown);
     document.addEventListener('keyup',            this._onKeyUp);
-    document.addEventListener('mousemove',        this._onMouseMove);
     document.addEventListener('pointerlockchange', this._onPointerLockChange);
-    this.canvas?.addEventListener('mousedown',    this._onCanvasMouseDown);
-    window.addEventListener('mouseup',            this._onWindowMouseUp);
+    document.addEventListener('mousemove',        this._onMouseMove);
     window.addEventListener('blur',               this._onWindowBlur);
+    window.addEventListener('mouseup',            this._onWindowMouseUp);
+    this.core.canvas.addEventListener('mousedown',    this._onCanvasMouseDown);
 
     // Cleanup when the parent ball entity is removed from the scene
     this.parent?.addEventListener('removed', this._onParentRemoved);
@@ -119,7 +113,7 @@ class EntityBallController extends Entity {
   }
 
   _handlePointerLockChange() {
-    this.hasPointerLock = (document.pointerLockElement === this.canvas);
+    this.hasPointerLock = (document.pointerLockElement === this.core.canvas);
     // If lock was lost (Escape), pause drag controls until user clicks again
     if (!this.hasPointerLock) {
       this.isDragging = false;
@@ -128,11 +122,11 @@ class EntityBallController extends Entity {
 
   _handleCanvasMouseDown(event) {
     if (event.button !== 0) return;
-    if (this.canvas?.requestPointerLock) {
+    if (this.core.canvas.requestPointerLock) {
       // requestPointerLock() returns a Promise in modern browsers and throws in
       // environments that don't support it (e.g. Chrome Extension popups).
       // Catch the rejection and fall back to drag mode silently.
-      Promise.resolve(this.canvas.requestPointerLock()).catch(() => {
+      Promise.resolve(this.core.canvas.requestPointerLock()).catch(() => {
         this.isDragging = true;
         this.dragX = event.clientX;
         this.dragY = event.clientY;
@@ -161,7 +155,7 @@ class EntityBallController extends Entity {
     document.removeEventListener('keyup',             this._onKeyUp);
     document.removeEventListener('mousemove',         this._onMouseMove);
     document.removeEventListener('pointerlockchange', this._onPointerLockChange);
-    this.canvas?.removeEventListener('mousedown',     this._onCanvasMouseDown);
+    this.core.canvas.removeEventListener('mousedown',     this._onCanvasMouseDown);
     window.removeEventListener('mouseup',             this._onWindowMouseUp);
     window.removeEventListener('blur',                this._onWindowBlur);
 
@@ -255,8 +249,6 @@ class EntityBallController extends Entity {
   // ─── Render (render tick, interpolated) ────────────────────────────────────
 
   render(loop) {
-    if (!this.camera) return super.render(loop);
-
     // Delta-time-normalised lerp factor — equivalent to 0.1 per frame at 60fps
     const lerpFactor = 1 - Math.pow(CAM_LERP_BASE, loop.delta / 16.67);
 
@@ -270,13 +262,13 @@ class EntityBallController extends Entity {
 
     const h = CAM_DISTANCE * Math.cos(this.pitch);
     const v = CAM_DISTANCE * Math.sin(this.pitch);
-    this.camera.position.set(
+    this.core.camera.position.set(
       _orbitCenter.x + h * Math.sin(this.azimuth),
       _orbitCenter.y + v,
       _orbitCenter.z + h * Math.cos(this.azimuth)
     );
 
-    this.camera.lookAt(_orbitCenter);
+    this.core.camera.lookAt(_orbitCenter);
 
     super.render(loop);
   }
