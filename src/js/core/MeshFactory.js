@@ -86,8 +86,8 @@ class MeshFactory {
       }
     });
 
-    // Filter geometries to have consistent attributes before merging
-    geometries = this.filterSharedGeometries(geometries);
+    // Resolve missing attributes across geometries
+    geometries = this.syncAttributes(geometries);
     
     // Return singular geometry and materials array
     geometry = mergeGeometries(geometries, true);
@@ -95,24 +95,39 @@ class MeshFactory {
     return { geometry, materials };
   }
 
-  static filterSharedGeometries(geometries) {
+  static syncAttributes(geometries, discardKeys = false) {
     // Count shared keys
-    const keyCounts = {};
+    const keys = {}
     geometries.forEach(geometry => {
       Object.keys(geometry.attributes).forEach(key => {
-        keyCounts[key] = (keyCounts[key] || 0) + 1;
+        if (!keys[key]) keys[key] = { count: 0, bufferCount: 0, bufferItemSize: 0 };
+        keys[key].count += 1;
+        keys[key].bufferCount = geometry.getAttribute(key).count;
+        keys[key].bufferItemSize = geometry.getAttribute(key).itemSize;
       });
     });
 
     // Create array of unshared keys
-    const unsharedKeys = Object.keys(keyCounts).filter(key => keyCounts[key] < geometries.length);
+    const missingKeys = Object.keys(keys).filter(key => keys[key].count < geometries.length);
 
-    // Delete unshared attributes from all geometries
-    unsharedKeys.forEach(key => {
+    // Loop through all missing keys
+    missingKeys.forEach(key => {
+      // Loop through all geometries
       geometries.forEach(geometry => {
-        geometry.deleteAttribute(key);
+        if (discardKeys === true) {
+          // Delete missing key to reduce memory allocations
+          geometry.deleteAttribute(key);
+        }
+        else {
+          // Create missing attribute
+          if (geometry.hasAttribute(key) === false) {
+            const float32Array = new Float32Array(keys[key].bufferCount * keys[key].bufferItemSize);
+            const bufferAttribute = new BufferAttribute(float32Array, keys[key].bufferItemSize);
+            geometry.setAttribute(key, bufferAttribute);
+          }
+        }
       });
-    })
+    });
 
     // Return geometries with shared attributes
     return geometries;
