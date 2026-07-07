@@ -55,7 +55,6 @@ class EntityBallController extends Entity {
 
     // Sibling found on first update() tick
     this.entityPhysics = null;
-    this.collisionListener = null;
 
     // Input state
     this.keys = new Set();
@@ -93,20 +92,6 @@ class EntityBallController extends Entity {
   }
 
   update(loop) {
-    // Find sibling EntityPhysics
-    if (this.entityPhysics === null) {
-      const sibling = this.parent?.children.find(c => c.class === 'EntityPhysics');
-      if (!sibling) return; // not ready yet (shouldn't happen)
-      this.entityPhysics = sibling;
-      this.collisionListener = event => {
-        if (event.started) this.canJump = true;
-      };
-      this.entityPhysics.addEventListener('collision', this.collisionListener);
-    }
-
-    const rb = this.entityPhysics.rigidBody;
-    if (!rb) return;
-
     // Decrement timers
     this.dashTimerElapsed = Math.max(0, this.dashTimerElapsed - loop.delta);
     this.jumpBufferElapsed = Math.max(0, this.jumpBufferElapsed - loop.delta);
@@ -172,6 +157,11 @@ class EntityBallController extends Entity {
 
     // Resume Entity render behavior
     super.render(loop);
+  }
+
+  setEntityPhysics(entity) {
+    this.entityPhysics = entity;
+    this.entityPhysics.addEventListener('collision', this.onCollision);
   }
 
   onKeyDown = (event) => {
@@ -240,8 +230,25 @@ class EntityBallController extends Entity {
   }
 
   onAdded = event => {
+    // Set reference to physics entity type
+    const sibling = this.parent.children.find(c => c.class === 'EntityPhysics');
+    if (sibling) this.setEntityPhysics(sibling);
+
     // Add event listener to parent entity
-    event.target.parent.addEventListener('removed', this.onParentRemoved);
+    this.parent.addEventListener('removed', this.onParentRemoved);
+    this.parent.addEventListener('childadded', this.onChildAdded);
+  }
+
+  onChildAdded = event => {
+    // Check if child of parent is a physics entity type
+    if (event.child.class === 'EntityPhysics') {
+      this.setEntityPhysics(event.child);
+      this.parent.removeEventListener('childadded', this.onChildAdded);
+    }
+  }
+
+  onCollision = event => {
+    if (event.started) this.canJump = true;
   }
 
   onParentRemoved = () => {
@@ -255,7 +262,7 @@ class EntityBallController extends Entity {
     this.core.canvas.removeEventListener('mousedown', this.onCanvasMouseDown);
 
     // Remove collision listener from sibling EntityPhysics
-    this.entityPhysics.removeEventListener('collision', this.collisionListener);
+    this.entityPhysics.removeEventListener('collision', this.onCollision);
 
     // Exit pointer lock if active
     if (this.hasPointerLock) document.exitPointerLock?.();

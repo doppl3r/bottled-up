@@ -139,7 +139,7 @@ const EntityTemplateRamps = {
   children: [
     {
       class: 'EntityModel',
-      url: 'glb/ramps.glb'
+      url: 'glb/dungeon-forge.glb'
     },
     {
       class: 'EntityPhysics',
