@@ -106,7 +106,7 @@ const EntityTemplateBall = {
       class: 'EntityMesh',
       geometry: {
         type: 'SphereGeometry',
-        arguments: [0.5, 8, 8]
+        arguments: [0.5, 16, 16]
       },
       material: {
         type: 'MeshStandardMaterial',

@@ -4,7 +4,7 @@
 
 import { mergeGeometries, mergeVertices } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import {
-  BoxGeometry, BufferGeometry, CapsuleGeometry, CircleGeometry,
+  BoxGeometry, BufferAttribute, BufferGeometry, CapsuleGeometry, CircleGeometry,
   ConeGeometry, CylinderGeometry,  DodecahedronGeometry, EdgesGeometry,
   ExtrudeGeometry, GridHelper, IcosahedronGeometry,  InstancedMesh,
   LatheGeometry, LineBasicMaterial, LineDashedMaterial, LineSegments,
@@ -72,30 +72,50 @@ class MeshFactory {
     // Traverse and add geometries/materials to array
     object3D.traverse(obj => {
       if (obj.isMesh) {
-        // Translate geometry from mesh origin
-        obj.geometry.rotateX(obj.rotation.x);
-        obj.geometry.rotateY(obj.rotation.y);
-        obj.geometry.rotateZ(obj.rotation.z);
-        obj.geometry.scale(obj.scale.x, obj.scale.y, obj.scale.z);
-        obj.geometry.translate(obj.position.x, obj.position.y, obj.position.z);
-
-        // Reset mesh translated mesh values
-        obj.position.set(0, 0, 0);
-        obj.rotation.set(0, 0, 0);
-        obj.scale.set(1, 1, 1);
+        // Clone geometry to avoid mutating the original
+        let geo = obj.geometry.clone();
+        
+        // Apply the world matrix to bake all transforms (position, rotation, scale)
+        geo.applyMatrix4(obj.matrixWorld);
 
         // Push geometry to array for merge
-        geometries.push(obj.geometry);
+        geometries.push(geo);
 
         // Assign material
         materials.push(obj.material);
       }
     });
+
+    // Filter geometries to have consistent attributes before merging
+    geometries = this.filterSharedGeometries(geometries);
     
     // Return singular geometry and materials array
     geometry = mergeGeometries(geometries, true);
     geometry = mergeVertices(geometry);
     return { geometry, materials };
+  }
+
+  static filterSharedGeometries(geometries) {
+    // Count shared keys
+    const keyCounts = {};
+    geometries.forEach(geometry => {
+      Object.keys(geometry.attributes).forEach(key => {
+        keyCounts[key] = (keyCounts[key] || 0) + 1;
+      });
+    });
+
+    // Create array of unshared keys
+    const unsharedKeys = Object.keys(keyCounts).filter(key => keyCounts[key] < geometries.length);
+
+    // Delete unshared attributes from all geometries
+    unsharedKeys.forEach(key => {
+      geometries.forEach(geometry => {
+        geometry.deleteAttribute(key);
+      });
+    })
+
+    // Return geometries with shared attributes
+    return geometries;
   }
 
   // Assign all Three.js Mesh classes as static fields
