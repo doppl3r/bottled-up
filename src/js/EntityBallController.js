@@ -92,6 +92,88 @@ class EntityBallController extends Entity {
     this.addEventListener('added', this.onAdded);
   }
 
+  update(loop) {
+    // Find sibling EntityPhysics
+    if (this.entityPhysics === null) {
+      const sibling = this.parent?.children.find(c => c.class === 'EntityPhysics');
+      if (!sibling) return; // not ready yet (shouldn't happen)
+      this.entityPhysics = sibling;
+      this.collisionListener = event => {
+        if (event.started) this.canJump = true;
+      };
+      this.entityPhysics.addEventListener('collision', this.collisionListener);
+    }
+
+    const rb = this.entityPhysics.rigidBody;
+    if (!rb) return;
+
+    // Decrement timers
+    this.dashTimerElapsed = Math.max(0, this.dashTimerElapsed - loop.delta);
+    this.jumpBufferElapsed = Math.max(0, this.jumpBufferElapsed - loop.delta);
+
+    // Set direction vectors (XZ only, Y=0)
+    _forward.set(-Math.sin(this.camAzimuth), 0, -Math.cos(this.camAzimuth));
+    _right.set(Math.cos(this.camAzimuth), 0, -Math.sin(this.camAzimuth));
+
+    // Accumulate movement direction from held keys
+    _forceDir.set(0, 0, 0);
+    if (this.keys.has('KeyW') || this.keys.has('ArrowUp')) _forceDir.add(_forward);
+    if (this.keys.has('KeyS') || this.keys.has('ArrowDown')) _forceDir.sub(_forward);
+    if (this.keys.has('KeyD') || this.keys.has('ArrowRight')) _forceDir.add(_right);
+    if (this.keys.has('KeyA') || this.keys.has('ArrowLeft')) _forceDir.sub(_right);
+    if (_forceDir.lengthSq() > 1) _forceDir.normalize();
+
+    // Taper input force as speed approaches max movement speed using dot-product
+    if (_forceDir.lengthSq() > 0) {
+      const linvel = this.entityPhysics.rigidBody.linvel();
+      const speedInDir = linvel.x * _forceDir.x + linvel.z * _forceDir.z; // Y is always 0 in forceDir
+      const scale = Math.max(0, 1 - speedInDir / this.moveMaxSpeed);
+      _force.copy(_forceDir).multiplyScalar(this.moveForce * scale * (loop.delta / 1000));
+      this.entityPhysics.rigidBody.applyImpulse(_force, true);
+
+      // Steer the ball towards the camera direction
+      _perp.set(linvel.x - speedInDir * _forceDir.x, 0, linvel.z - speedInDir * _forceDir.z);
+      this.entityPhysics.rigidBody.applyImpulse(_perp.multiplyScalar(-this.steerFactor * (loop.delta / 1000)), true);
+    }
+
+    // Perform a jump behavior
+    if (this.jumpBufferElapsed > 0 && this.canJump) {
+      const linvel = this.entityPhysics.rigidBody.linvel();
+      if (linvel.y < 0) {
+        this.entityPhysics.rigidBody.setLinvel({ x: linvel.x, y: 0, z: linvel.z }, true);
+      }
+      this.entityPhysics.rigidBody.applyImpulse({ x: 0, y: this.jumpImpulse, z: 0 }, true);
+      this.canJump = false;
+      this.jumpBufferElapsed = 0;
+    }
+
+    // Perform a forward dash
+    const wantsDash = this.keys.has('ShiftLeft') || this.keys.has('ShiftRight');
+    if (wantsDash && this.dashTimerElapsed <= 0) {
+      const dashDir = _forceDir.lengthSq() > 0 ? _forceDir : _forward;
+      this.entityPhysics.rigidBody.applyImpulse({ x: dashDir.x * this.dashImpulse, y: 0, z: dashDir.z * this.dashImpulse }, true);
+      this.dashTimerElapsed = this.dashTimerDuration;
+    }
+
+    // Resume Entity update behavior
+    super.update(loop);
+  }
+
+  render(loop) {
+    // Lerp only the orbit center toward the ball
+    const lerpFactor = 1 - Math.pow(this.camLerp, loop.delta / 16.67);
+    _orbitCenter.lerp(this.parent.position, lerpFactor);
+
+    // Update camera position and rotation
+    const h = this.camDistance * Math.cos(this.camPitch);
+    const v = this.camDistance * Math.sin(this.camPitch);
+    this.core.camera.position.set(_orbitCenter.x + h * Math.sin(this.camAzimuth), _orbitCenter.y + v, _orbitCenter.z + h * Math.cos(this.camAzimuth));
+    this.core.camera.lookAt(_orbitCenter);
+
+    // Resume Entity render behavior
+    super.render(loop);
+  }
+
   onKeyDown = (event) => {
     this.keys.add(event.code);
     if (event.code === 'Space') {
@@ -132,9 +214,7 @@ class EntityBallController extends Entity {
   onCanvasMouseDown = (event) => {
     if (event.button !== 0) return;
     if (this.core.canvas.requestPointerLock) {
-      // requestPointerLock() returns a Promise in modern browsers and throws in
-      // environments that don't support it (e.g. Chrome Extension popups).
-      // Catch the rejection and fall back to drag mode silently.
+      // Attempt to request pointer lock
       Promise.resolve(this.core.canvas.requestPointerLock()).catch(() => {
         this.isDragging = true;
         this.dragX = event.clientX;
@@ -179,98 +259,6 @@ class EntityBallController extends Entity {
 
     // Exit pointer lock if active
     if (this.hasPointerLock) document.exitPointerLock?.();
-  }
-
-  update(loop) {
-    // Step 1: One-time sibling lookup — safe because spawn() is synchronous,
-    // so all siblings exist before the first update() tick runs.
-    if (this.entityPhysics === null) {
-      const sibling = this.parent?.children.find(c => c.class === 'EntityPhysics');
-      if (!sibling) return; // not ready yet (shouldn't happen)
-      this.entityPhysics = sibling;
-      this.collisionListener = event => {
-        if (event.started) this.canJump = true;
-      };
-      this.entityPhysics.addEventListener('collision', this.collisionListener);
-    }
-
-    const rb = this.entityPhysics.rigidBody;
-    if (!rb) return;
-
-    // Step 2: Decrement timers
-    this.dashTimerElapsed    = Math.max(0, this.dashTimerElapsed    - loop.delta);
-    this.jumpBufferElapsed = Math.max(0, this.jumpBufferElapsed - loop.delta);
-
-    // Step 3: Direction vectors (XZ only, Y=0)
-    _forward.set(-Math.sin(this.camAzimuth), 0, -Math.cos(this.camAzimuth));
-    _right.set(   Math.cos(this.camAzimuth), 0, -Math.sin(this.camAzimuth));
-
-    // Step 4: Accumulate movement direction from held keys
-    _forceDir.set(0, 0, 0);
-    if (this.keys.has('KeyW') || this.keys.has('ArrowUp')) _forceDir.add(_forward);
-    if (this.keys.has('KeyS') || this.keys.has('ArrowDown')) _forceDir.sub(_forward);
-    if (this.keys.has('KeyD') || this.keys.has('ArrowRight')) _forceDir.add(_right);
-    if (this.keys.has('KeyA') || this.keys.has('ArrowLeft')) _forceDir.sub(_right);
-    if (_forceDir.lengthSq() > 1) _forceDir.normalize();
-
-    // Step 5: Dot-product force cap — taper input force as speed approaches this.moveMaxSpeed.
-    // Uses applyImpulse scaled by delta time rather than addForce, because addForce
-    // accumulates in Rapier's force buffer and persists until the next step. applyImpulse
-    // is one-shot per call and unambiguously correct for per-tick character movement.
-    if (_forceDir.lengthSq() > 0) {
-      const linvel = rb.linvel();
-      const speedInDir = linvel.x * _forceDir.x + linvel.z * _forceDir.z; // Y is always 0 in forceDir
-      const scale = Math.max(0, 1 - speedInDir / this.moveMaxSpeed);
-      _force.copy(_forceDir).multiplyScalar(this.moveForce * scale * (loop.delta / 1000));
-      rb.applyImpulse(_force, true);
-
-      // Steering: cancel velocity perpendicular to the intended direction so the
-      // ball corrects toward the camera facing without killing momentum from
-      // slopes, dashes, or collisions. Only acts on the XZ plane.
-      _perp.set(linvel.x - speedInDir * _forceDir.x, 0, linvel.z - speedInDir * _forceDir.z);
-      rb.applyImpulse(_perp.multiplyScalar(-this.steerFactor * (loop.delta / 1000)), true);
-    }
-
-    // Step 6: Jump — fires when buffer is active and a surface was touched
-    if (this.jumpBufferElapsed > 0 && this.canJump) {
-      const linvel = rb.linvel();
-      if (linvel.y < 0) {
-        rb.setLinvel({ x: linvel.x, y: 0, z: linvel.z }, true);
-      }
-      rb.applyImpulse({ x: 0, y: this.jumpImpulse, z: 0 }, true);
-      this.canJump = false;
-      this.jumpBufferElapsed = 0;
-    }
-
-    // Step 7: Dash — one-shot impulse in movement direction (or forward if idle)
-    const wantsDash = this.keys.has('ShiftLeft') || this.keys.has('ShiftRight');
-    if (wantsDash && this.dashTimerElapsed <= 0) {
-      const dashDir = _forceDir.lengthSq() > 0 ? _forceDir : _forward;
-      rb.applyImpulse({ x: dashDir.x * this.dashImpulse, y: 0, z: dashDir.z * this.dashImpulse }, true);
-      this.dashTimerElapsed = this.dashTimerDuration;
-    }
-
-    super.update(loop);
-  }
-
-  render(loop) {
-    // Delta-time-normalised lerp factor — equivalent to 0.1 per frame at 60fps
-    const lerpFactor = 1 - Math.pow(this.camLerp, loop.delta / 16.67);
-
-    // Ball's interpolated world position (set by EntityPhysics.render before this runs)
-    const ball = this.parent.position;
-
-    // Lerp only the orbit center toward the ball — this gives the smooth follow lag.
-    // Orbit angles are applied directly (no lerp) so rapid mouse rotation never
-    // lerps the camera through 3D space and produces the correct arc at any speed.
-    _orbitCenter.lerp(ball, lerpFactor);
-
-    const h = this.camDistance * Math.cos(this.camPitch);
-    const v = this.camDistance * Math.sin(this.camPitch);
-    this.core.camera.position.set(_orbitCenter.x + h * Math.sin(this.camAzimuth), _orbitCenter.y + v, _orbitCenter.z + h * Math.cos(this.camAzimuth));
-    this.core.camera.lookAt(_orbitCenter);
-
-    super.render(loop);
   }
 }
 
