@@ -1,4 +1,4 @@
-import { Vector3 } from 'three';
+import { Vector3, Raycaster } from 'three';
 import { Entity } from './core/Entity.js';
 import { Tweens } from './core/Tweens.js';
 
@@ -14,6 +14,8 @@ const _forceDir = new Vector3();
 const _force = new Vector3();
 const _perp = new Vector3();
 const _orbitCenter = new Vector3();
+const _desiredCamPos = new Vector3();
+const _rayDirection = new Vector3();
 
 class EntityBallController extends Entity {
   constructor(options = {}) {
@@ -24,15 +26,17 @@ class EntityBallController extends Entity {
       steerFactor: 1.0,
       dashImpulse: 10,
       dashTimerDuration: 3000,
-      jumpImpulse: 8,
       jumpBufferDuration: 100,
-      camDistance: 8,
+      jumpImpulse: 8,
       camPitchDefault: 0.5,
       camPitchMin: 0.08,
       camPitchMax: 1.48,
       camLerp: 0.9,
-      azimuthSensitivity: 0.0025,
-      pitchSensitivity: 0.003
+      camCollisionMinDistance: 2.0,
+      camCollisionMaxDistance: 8,
+      camCollisionLerp: 0.95,
+      camAzimuthSensitivity: 0.0025,
+      camPitchSensitivity: 0.003,
     }, options);
 
     // Inherit Entity properties
@@ -46,13 +50,15 @@ class EntityBallController extends Entity {
     this.dashTimerDuration = options.dashTimerDuration;
     this.jumpImpulse = options.jumpImpulse;
     this.jumpBufferDuration = options.jumpBufferDuration;
-    this.camDistance = options.camDistance;
     this.camPitchDefault = options.camPitchDefault;
     this.camPitchMin = options.camPitchMin;
     this.camPitchMax = options.camPitchMax;
     this.camLerp = options.camLerp;
-    this.camAzimuthSensitivity = options.azimuthSensitivity;
-    this.camPitchSensitivity = options.pitchSensitivity;
+    this.camAzimuthSensitivity = options.camAzimuthSensitivity;
+    this.camPitchSensitivity = options.camPitchSensitivity;
+    this.camCollisionMaxDistance = options.camCollisionMaxDistance;
+    this.camCollisionMinDistance = options.camCollisionMinDistance;
+    this.camCollisionLerp = options.camCollisionLerp;
 
     // Sibling found on first update() tick
     this.entityPhysics = null;
@@ -70,6 +76,10 @@ class EntityBallController extends Entity {
     this.isDragging = false;
     this.dragX = 0;
     this.dragY = 0;
+
+    // Camera collision detection state
+    this.raycaster = new Raycaster();
+    this.camDistance = this.camCollisionMaxDistance;
 
     // Lerp targets
     this.lookTarget = new Vector3();
@@ -162,10 +172,50 @@ class EntityBallController extends Entity {
     const lerpFactor = 1 - Math.pow(this.camLerp, loop.delta / 16.67);
     _orbitCenter.lerp(this.parent.position, lerpFactor);
 
-    // Update camera position and rotation
-    const h = this.camDistance * Math.cos(this.camPitch);
-    const v = this.camDistance * Math.sin(this.camPitch);
-    this.core.camera.position.set(_orbitCenter.x + h * Math.sin(this.camAzimuth), _orbitCenter.y + v, _orbitCenter.z + h * Math.cos(this.camAzimuth));
+    // Perform collision detection to adjust camera distance
+    const h = this.camCollisionMaxDistance * Math.cos(this.camPitch);
+    const v = this.camCollisionMaxDistance * Math.sin(this.camPitch);
+    
+    // Calculate desired camera position
+    _desiredCamPos.set(
+      _orbitCenter.x + h * Math.sin(this.camAzimuth),
+      _orbitCenter.y + v,
+      _orbitCenter.z + h * Math.cos(this.camAzimuth)
+    );
+    
+    // Cast ray from orbit center toward desired camera position
+    _rayDirection.subVectors(_desiredCamPos, _orbitCenter).normalize();
+    this.raycaster.set(_orbitCenter, _rayDirection);
+    this.raycaster.far = this.camCollisionMaxDistance;
+    
+    // Get intersections, filtering out the player ball
+    const intersections = this.raycaster.intersectObject(this.core.scene, true);
+    const filteredIntersections = intersections.filter(hit => {
+      // Exclude the player ball and its children
+      let current = hit.object;
+      while (current) {
+        if (current === this.parent) return false;
+        current = current.parent;
+      }
+      return true;
+    });
+    
+    // Calculate target distance based on collision
+    let targetCamDistance = this.camCollisionMaxDistance;
+    if (filteredIntersections.length > 0) {
+      const hitDistance = filteredIntersections[0].distance;
+      const safeDistance = Math.max(this.camCollisionMinDistance, hitDistance - this.camCollisionMinDistance);
+      targetCamDistance = safeDistance;
+    }
+    
+    // Smoothly lerp current distance toward target
+    const collisionLerpFactor = 1 - Math.pow(this.camCollisionLerp, loop.delta / 16.67);
+    this.camDistance = this.camDistance + (targetCamDistance - this.camDistance) * collisionLerpFactor;
+
+    // Update camera position and rotation using adjusted distance
+    const hAdjusted = this.camDistance * Math.cos(this.camPitch);
+    const vAdjusted = this.camDistance * Math.sin(this.camPitch);
+    this.core.camera.position.set(_orbitCenter.x + hAdjusted * Math.sin(this.camAzimuth), _orbitCenter.y + vAdjusted, _orbitCenter.z + hAdjusted * Math.cos(this.camAzimuth));
     this.core.camera.lookAt(_orbitCenter);
 
     // Resume Entity render behavior

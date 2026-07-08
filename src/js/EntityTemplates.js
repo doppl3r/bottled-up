@@ -132,9 +132,10 @@ const EntityTemplateLevel = {
   children: [
     {
       class: 'EntityModel',
-      url: 'glb/office.glb',
+      url: 'glb/dungeon-forge.glb',
+      position: { x: 0, y: -4, z: 0 },
       rotation: { x: 0, y: -Math.PI / 4, z: 0 },
-      scale: { x: 2, y: 2, z: 2 }
+      scale: { x: 2, y: 2, z: 2 },
     },
     {
       class: 'EntityPhysics',
