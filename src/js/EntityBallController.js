@@ -147,35 +147,7 @@ class EntityBallController extends Entity {
       const dashDir = _forceDir.lengthSq() > 0 ? _forceDir : _forward;
       this.entityPhysics.rigidBody.applyImpulse({ x: dashDir.x * this.dashImpulse, y: 0, z: dashDir.z * this.dashImpulse }, true);
       this.dashTimerElapsed = this.dashTimerDuration;
-
-      // Tween camera FOV: zoom from current to 150%, then back to original
-      const fovOriginal = this.core.camera.fov;
-      const fovState = { fov: fovOriginal };
-
-      const zoomDuration = 250;
-      const zoomAmount = 1.25;
-      const zoomIn = this.tweens.tween({
-        object: fovState,
-        to: { fov: fovOriginal * zoomAmount },
-        duration: zoomDuration,
-        easing: 'Quadratic.InOut',
-        onUpdate: () => {
-          this.core.camera.fov = fovState.fov;
-          this.core.camera.updateProjectionMatrix();
-        },
-        onComplete: () => {
-          this.tweens.tween({
-            object: fovState,
-            to: { fov: fovOriginal },
-            duration: zoomDuration * 2,
-            easing: 'Quadratic.InOut',
-            onUpdate: () => {
-              this.core.camera.fov = fovState.fov;
-              this.core.camera.updateProjectionMatrix();
-            }
-          });
-        }
-      });
+      this.tweenCameraFOV();
     }
 
     // Resume Entity update behavior
@@ -198,6 +170,34 @@ class EntityBallController extends Entity {
 
     // Resume Entity render behavior
     super.render(loop);
+  }
+
+  tweenCameraFOV() {
+    // Tween camera FOV
+    const fovOriginal = this.core.camera.fov;
+    const fovState = { fov: fovOriginal };
+    const zoomDuration = 250;
+    const zoomAmount = 1.25;
+
+    // Create reusable camera tween
+    const tween = (fov = 45, duration = 100, onComplete = () => {}) => {
+      return this.tweens.tween({
+        object: fovState,
+        to: { fov: fov },
+        duration: duration,
+        easing: 'Quadratic.InOut',
+        onComplete: onComplete,
+        onUpdate: () => {
+          this.core.camera.fov = fovState.fov;
+          this.core.camera.updateProjectionMatrix();
+        }
+      });
+    };
+
+    // Tween camera FOV in and out
+    tween(fovOriginal * zoomAmount, zoomDuration, () => {
+      tween(fovOriginal, zoomDuration * 2);
+    });
   }
 
   setEntityPhysics(entity) {
