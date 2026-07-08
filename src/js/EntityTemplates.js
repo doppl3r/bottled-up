@@ -103,15 +103,8 @@ const EntityTemplateBall = {
       class: 'EntityBallController'
     },
     {
-      class: 'EntityMesh',
-      geometry: {
-        type: 'SphereGeometry',
-        arguments: [0.5, 16, 16]
-      },
-      material: {
-        type: 'MeshStandardMaterial',
-        arguments: [{ color: '#ffffff' }],
-      }
+      class: 'EntityModel',
+      url: 'glb/paper-ball.glb'
     },
     {
       class: 'EntityPhysics',

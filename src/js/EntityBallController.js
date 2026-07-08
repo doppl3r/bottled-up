@@ -100,6 +100,11 @@ class EntityBallController extends Entity {
     _forward.set(-Math.sin(this.camAzimuth), 0, -Math.cos(this.camAzimuth));
     _right.set(Math.cos(this.camAzimuth), 0, -Math.sin(this.camAzimuth));
 
+    // Dynamically adjust angular damping based on input
+    const hasInput = this.keys.size > 0;
+    const targetAngularDamping = hasInput ? 0.5 : 10;
+    this.entityPhysics.rigidBody.setAngularDamping(targetAngularDamping);
+
     // Accumulate movement direction from held keys
     _forceDir.set(0, 0, 0);
     if (this.keys.has('KeyW') || this.keys.has('ArrowUp')) _forceDir.add(_forward);

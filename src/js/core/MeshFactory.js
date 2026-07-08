@@ -87,7 +87,7 @@ class MeshFactory {
     });
 
     // Resolve missing attributes across geometries
-    geometries = this.syncAttributes(geometries);
+    geometries = this.normalizeAttributes(geometries);
     
     // Return singular geometry and materials array
     geometry = mergeGeometries(geometries, true);
@@ -95,7 +95,7 @@ class MeshFactory {
     return { geometry, materials };
   }
 
-  static syncAttributes(geometries, discardKeys = false) {
+  static normalizeAttributes(geometries, discardMissingKeys = false) {
     // Count shared keys
     const keys = {}
     geometries.forEach(geometry => {
