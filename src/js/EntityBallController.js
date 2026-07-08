@@ -1,5 +1,6 @@
 import { Vector3 } from 'three';
 import { Entity } from './core/Entity.js';
+import { Tweens } from './core/Tweens.js';
 
 /*
   EntityBallController controls the movement of a physical ball
@@ -72,6 +73,9 @@ class EntityBallController extends Entity {
 
     // Lerp targets
     this.lookTarget = new Vector3();
+
+    // Animations
+    this.tweens = new Tweens();
   }
 
   init(options, core) {
@@ -143,6 +147,35 @@ class EntityBallController extends Entity {
       const dashDir = _forceDir.lengthSq() > 0 ? _forceDir : _forward;
       this.entityPhysics.rigidBody.applyImpulse({ x: dashDir.x * this.dashImpulse, y: 0, z: dashDir.z * this.dashImpulse }, true);
       this.dashTimerElapsed = this.dashTimerDuration;
+
+      // Tween camera FOV: zoom from current to 150%, then back to original
+      const fovOriginal = this.core.camera.fov;
+      const fovState = { fov: fovOriginal };
+
+      const zoomDuration = 250;
+      const zoomAmount = 1.25;
+      const zoomIn = this.tweens.tween({
+        object: fovState,
+        to: { fov: fovOriginal * zoomAmount },
+        duration: zoomDuration,
+        easing: 'Quadratic.InOut',
+        onUpdate: () => {
+          this.core.camera.fov = fovState.fov;
+          this.core.camera.updateProjectionMatrix();
+        },
+        onComplete: () => {
+          this.tweens.tween({
+            object: fovState,
+            to: { fov: fovOriginal },
+            duration: zoomDuration * 2,
+            easing: 'Quadratic.InOut',
+            onUpdate: () => {
+              this.core.camera.fov = fovState.fov;
+              this.core.camera.updateProjectionMatrix();
+            }
+          });
+        }
+      });
     }
 
     // Resume Entity update behavior
@@ -150,6 +183,9 @@ class EntityBallController extends Entity {
   }
 
   render(loop) {
+    // Update tweens
+    this.tweens.update();
+
     // Lerp only the orbit center toward the ball
     const lerpFactor = 1 - Math.pow(this.camLerp, loop.delta / 16.67);
     _orbitCenter.lerp(this.parent.position, lerpFactor);

@@ -125,14 +125,17 @@ const EntityTemplateBall = {
   ]
 }
 
-const EntityTemplateRamps = {
-  name: 'ramps',
-  label: 'Ramps',
+const EntityTemplateLevel = {
+  name: 'level',
+  label: 'Level',
   class: 'Entity',
   children: [
     {
       class: 'EntityModel',
-      url: 'glb/dungeon-forge.glb'
+      url: 'glb/office.glb',
+      /* position: { x: 4, y: 4, z: 4 },
+      rotation: { x: 0, y: Math.PI / 2, z: 0 },
+      scale: { x: 2, y: 2, z: 2 } */
     },
     {
       class: 'EntityPhysics',
@@ -153,8 +156,8 @@ const EntityTemplateRamps = {
 export const EntityTemplates = {
   EntityTemplateLightHemisphere,
   EntityTemplateLightSun,
+  EntityTemplateLevel,
   EntityTemplatePlane,
   EntityTemplateBall,
-  EntityTemplateRamps,
   EntityTemplateCube
 }
