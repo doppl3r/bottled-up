@@ -16,22 +16,24 @@ const _perp = new Vector3();
 const _orbitCenter = new Vector3();
 const _desiredCamPos = new Vector3();
 const _rayDirection = new Vector3();
+const _lookAtTarget = new Vector3();
 
 class EntityBallController extends Entity {
   constructor(options = {}) {
     options = Object.assign({
       class: 'EntityBallController',
-      moveForce: 10,
-      moveMaxSpeed: 8,
+      moveForce: 24,
+      moveMaxSpeed: 12,
       steerFactor: 1.0,
-      dashImpulse: 10,
+      dashImpulse: 12,
       dashTimerDuration: 3000,
       jumpBufferDuration: 100,
-      jumpImpulse: 8,
+      jumpImpulse: 16,
       camPitchDefault: 0.5,
       camPitchMin: 0.08,
       camPitchMax: 1.48,
       camLerp: 0.9,
+      camOrbitHeight: 1,
       camCollisionMinDistance: 2.0,
       camCollisionMaxDistance: 8,
       camCollisionLerp: 0.95,
@@ -54,6 +56,7 @@ class EntityBallController extends Entity {
     this.camPitchMin = options.camPitchMin;
     this.camPitchMax = options.camPitchMax;
     this.camLerp = options.camLerp;
+    this.camOrbitHeight = options.camOrbitHeight;
     this.camAzimuthSensitivity = options.camAzimuthSensitivity;
     this.camPitchSensitivity = options.camPitchSensitivity;
     this.camCollisionMaxDistance = options.camCollisionMaxDistance;
@@ -110,6 +113,9 @@ class EntityBallController extends Entity {
     this.dashTimerElapsed = Math.max(0, this.dashTimerElapsed - loop.delta);
     this.jumpBufferElapsed = Math.max(0, this.jumpBufferElapsed - loop.delta);
 
+    // Get mass for scaling all impulses
+    const mass = this.entityPhysics.rigidBody.mass();
+
     // Set direction vectors (XZ only, Y=0)
     _forward.set(-Math.sin(this.camAzimuth), 0, -Math.cos(this.camAzimuth));
     _right.set(Math.cos(this.camAzimuth), 0, -Math.sin(this.camAzimuth));
@@ -132,12 +138,12 @@ class EntityBallController extends Entity {
       const linvel = this.entityPhysics.rigidBody.linvel();
       const speedInDir = linvel.x * _forceDir.x + linvel.z * _forceDir.z; // Y is always 0 in forceDir
       const scale = Math.max(0, 1 - speedInDir / this.moveMaxSpeed);
-      _force.copy(_forceDir).multiplyScalar(this.moveForce * scale * (loop.delta / 1000));
+      _force.copy(_forceDir).multiplyScalar(this.moveForce * scale * (loop.delta / 1000) * mass);
       this.entityPhysics.rigidBody.applyImpulse(_force, true);
 
       // Steer the ball towards the camera direction
       _perp.set(linvel.x - speedInDir * _forceDir.x, 0, linvel.z - speedInDir * _forceDir.z);
-      this.entityPhysics.rigidBody.applyImpulse(_perp.multiplyScalar(-this.steerFactor * (loop.delta / 1000)), true);
+      this.entityPhysics.rigidBody.applyImpulse(_perp.multiplyScalar(-this.steerFactor * (loop.delta / 1000) * mass), true);
     }
 
     // Perform a jump behavior
@@ -146,7 +152,8 @@ class EntityBallController extends Entity {
       if (linvel.y < 0) {
         this.entityPhysics.rigidBody.setLinvel({ x: linvel.x, y: 0, z: linvel.z }, true);
       }
-      this.entityPhysics.rigidBody.applyImpulse({ x: 0, y: this.jumpImpulse, z: 0 }, true);
+      // Scale jump impulse by mass to account for different ball sizes
+      this.entityPhysics.rigidBody.applyImpulse({ x: 0, y: this.jumpImpulse * mass, z: 0 }, true);
       this.canJump = false;
       this.jumpBufferElapsed = 0;
     }
@@ -155,7 +162,7 @@ class EntityBallController extends Entity {
     const wantsDash = this.keys.has('ShiftLeft') || this.keys.has('ShiftRight');
     if (wantsDash && this.dashTimerElapsed <= 0) {
       const dashDir = _forceDir.lengthSq() > 0 ? _forceDir : _forward;
-      this.entityPhysics.rigidBody.applyImpulse({ x: dashDir.x * this.dashImpulse, y: 0, z: dashDir.z * this.dashImpulse }, true);
+      this.entityPhysics.rigidBody.applyImpulse({ x: dashDir.x * this.dashImpulse * mass, y: 0, z: dashDir.z * this.dashImpulse * mass }, true);
       this.dashTimerElapsed = this.dashTimerDuration;
       this.tweenCameraFOV();
     }
@@ -216,7 +223,11 @@ class EntityBallController extends Entity {
     const hAdjusted = this.camDistance * Math.cos(this.camPitch);
     const vAdjusted = this.camDistance * Math.sin(this.camPitch);
     this.core.camera.position.set(_orbitCenter.x + hAdjusted * Math.sin(this.camAzimuth), _orbitCenter.y + vAdjusted, _orbitCenter.z + hAdjusted * Math.cos(this.camAzimuth));
-    this.core.camera.lookAt(_orbitCenter);
+    
+    // Apply y-offset to orbit center for camera look-at target
+    _lookAtTarget.copy(_orbitCenter);
+    _lookAtTarget.y += this.camOrbitHeight;
+    this.core.camera.lookAt(_lookAtTarget);
 
     // Resume Entity render behavior
     super.render(loop);
