@@ -133,9 +133,8 @@ const EntityTemplateLevel = {
     {
       class: 'EntityModel',
       url: 'glb/office.glb',
-      /* position: { x: 4, y: 4, z: 4 },
-      rotation: { x: 0, y: Math.PI / 2, z: 0 },
-      scale: { x: 2, y: 2, z: 2 } */
+      rotation: { x: 0, y: -Math.PI / 4, z: 0 },
+      scale: { x: 2, y: 2, z: 2 }
     },
     {
       class: 'EntityPhysics',
