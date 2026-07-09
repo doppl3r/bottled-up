@@ -8,20 +8,20 @@ import { Tweens } from './core/Tweens.js';
 */
 
 // Module-scoped reusables to avoid per-frame allocations
-const _forward = new Vector3();
-const _right = new Vector3();
+const _camForward = new Vector3();
+const _camRight = new Vector3();
+const _camLookAtTarget = new Vector3();
 const _forceDir = new Vector3();
-const _force = new Vector3();
-const _perp = new Vector3();
+const _moveImpulse = new Vector3();
+const _steerImpulse = new Vector3();
 const _orbitCenter = new Vector3();
 const _desiredCamPos = new Vector3();
 const _rayDirection = new Vector3();
-const _lookAtTarget = new Vector3();
 const _groundNormalSum = new Vector3();
 const _gravityTangential = new Vector3();
+const _gravityNormalScaled = new Vector3();
 const _uphillDir = new Vector3();
-const _normalScaled = new Vector3();
-const _toBall = new Vector3();
+const _contactToBall = new Vector3();
 const _slopeImpulse = new Vector3();
 
 class EntityBallController extends Entity {
@@ -31,7 +31,7 @@ class EntityBallController extends Entity {
       moveForce: 24,
       moveMaxSpeed: 12,
       steerFactor: 1.0,
-      dashImpulse: 12,
+      dashImpulse: 16,
       dashTimerDuration: 3000,
       jumpBufferDuration: 100,
       jumpImpulse: 16,
@@ -125,6 +125,15 @@ class EntityBallController extends Entity {
     // Refresh ground/slope contact normal from physics narrow-phase
     this.updateGroundNormal();
 
+    // Reset jump availability every tick the ball rests on stable ground.
+    if (this.isGrounded) {
+      const linvel = this.entityPhysics.rigidBody.linvel();
+      const normalSpeed = linvel.x * this.groundNormal.x + linvel.y * this.groundNormal.y + linvel.z * this.groundNormal.z;
+      if (normalSpeed <= 0.01) {
+        this.canJump = true;
+      }
+    }
+
     // Decrement timers
     this.dashTimerElapsed = Math.max(0, this.dashTimerElapsed - loop.delta);
     this.jumpBufferElapsed = Math.max(0, this.jumpBufferElapsed - loop.delta);
@@ -133,8 +142,8 @@ class EntityBallController extends Entity {
     const mass = this.entityPhysics.rigidBody.mass();
 
     // Set direction vectors (XZ only, Y=0)
-    _forward.set(-Math.sin(this.camAzimuth), 0, -Math.cos(this.camAzimuth));
-    _right.set(Math.cos(this.camAzimuth), 0, -Math.sin(this.camAzimuth));
+    _camForward.set(-Math.sin(this.camAzimuth), 0, -Math.cos(this.camAzimuth));
+    _camRight.set(Math.cos(this.camAzimuth), 0, -Math.sin(this.camAzimuth));
 
     // Dynamically adjust angular damping based on input
     const hasInput = this.keys.size > 0;
@@ -143,10 +152,10 @@ class EntityBallController extends Entity {
 
     // Accumulate movement direction from held keys
     _forceDir.set(0, 0, 0);
-    if (this.keys.has('KeyW') || this.keys.has('ArrowUp')) _forceDir.add(_forward);
-    if (this.keys.has('KeyS') || this.keys.has('ArrowDown')) _forceDir.sub(_forward);
-    if (this.keys.has('KeyD') || this.keys.has('ArrowRight')) _forceDir.add(_right);
-    if (this.keys.has('KeyA') || this.keys.has('ArrowLeft')) _forceDir.sub(_right);
+    if (this.keys.has('KeyW') || this.keys.has('ArrowUp')) _forceDir.add(_camForward);
+    if (this.keys.has('KeyS') || this.keys.has('ArrowDown')) _forceDir.sub(_camForward);
+    if (this.keys.has('KeyD') || this.keys.has('ArrowRight')) _forceDir.add(_camRight);
+    if (this.keys.has('KeyA') || this.keys.has('ArrowLeft')) _forceDir.sub(_camRight);
     if (_forceDir.lengthSq() > 1) _forceDir.normalize();
 
     // Taper input force as speed approaches max movement speed using dot-product
@@ -154,23 +163,26 @@ class EntityBallController extends Entity {
       const linvel = this.entityPhysics.rigidBody.linvel();
       const speedInDir = linvel.x * _forceDir.x + linvel.z * _forceDir.z; // Y is always 0 in forceDir
       const scale = Math.max(0, 1 - speedInDir / this.moveMaxSpeed);
-      _force.copy(_forceDir).multiplyScalar(this.moveForce * scale * (loop.delta / 1000) * mass);
-      this.entityPhysics.rigidBody.applyImpulse(_force, true);
+      _moveImpulse.copy(_forceDir).multiplyScalar(this.moveForce * scale * (loop.delta / 1000) * mass);
+      this.entityPhysics.rigidBody.applyImpulse(_moveImpulse, true);
 
       // Steer the ball towards the camera direction
-      _perp.set(linvel.x - speedInDir * _forceDir.x, 0, linvel.z - speedInDir * _forceDir.z);
-      this.entityPhysics.rigidBody.applyImpulse(_perp.multiplyScalar(-this.steerFactor * (loop.delta / 1000) * mass), true);
+      _steerImpulse.set(linvel.x - speedInDir * _forceDir.x, 0, linvel.z - speedInDir * _forceDir.z);
+      this.entityPhysics.rigidBody.applyImpulse(_steerImpulse.multiplyScalar(-this.steerFactor * (loop.delta / 1000) * mass), true);
 
       // Cancel gravity's downhill pull while climbing a gentle slope
       if (this.isGrounded) {
         const slopeAngle = Math.acos(Math.min(1, Math.max(-1, this.groundNormal.y)));
+
+        // Check if slope angle is less than predefined max slope angle
         if (slopeAngle <= this.maxSlopeAngleRad) {
           const gravity = this.core.entityManager.world.gravity;
           _gravityTangential.set(gravity.x, gravity.y, gravity.z);
           const gDotN = _gravityTangential.dot(this.groundNormal);
-          _normalScaled.copy(this.groundNormal).multiplyScalar(gDotN);
-          _gravityTangential.sub(_normalScaled);
+          _gravityNormalScaled.copy(this.groundNormal).multiplyScalar(gDotN);
+          _gravityTangential.sub(_gravityNormalScaled);
 
+          // Apply slope climbing if gravity tangential is greater than 1e-6 (near zero)
           if (_gravityTangential.lengthSq() > 1e-6) {
             _uphillDir.copy(_gravityTangential).multiplyScalar(-1).normalize();
             const climbFactor = Math.max(0, Math.min(1, _forceDir.dot(_uphillDir)));
@@ -183,10 +195,12 @@ class EntityBallController extends Entity {
 
     // Perform a jump behavior
     if (this.jumpBufferElapsed > 0 && this.canJump) {
+      // Reset downward velocity for better air-jump
       const linvel = this.entityPhysics.rigidBody.linvel();
       if (linvel.y < 0) {
         this.entityPhysics.rigidBody.setLinvel({ x: linvel.x, y: 0, z: linvel.z }, true);
       }
+
       // Scale jump impulse by mass to account for different ball sizes
       this.entityPhysics.rigidBody.applyImpulse({ x: 0, y: this.jumpImpulse * mass, z: 0 }, true);
       this.canJump = false;
@@ -196,7 +210,7 @@ class EntityBallController extends Entity {
     // Perform a forward dash
     const wantsDash = this.keys.has('ShiftLeft') || this.keys.has('ShiftRight');
     if (wantsDash && this.dashTimerElapsed <= 0) {
-      const dashDir = _forceDir.lengthSq() > 0 ? _forceDir : _forward;
+      const dashDir = _forceDir.lengthSq() > 0 ? _forceDir : _camForward;
       this.entityPhysics.rigidBody.applyImpulse({ x: dashDir.x * this.dashImpulse * mass, y: 0, z: dashDir.z * this.dashImpulse * mass }, true);
       this.dashTimerElapsed = this.dashTimerDuration;
       this.tweenCameraFOV();
@@ -230,19 +244,15 @@ class EntityBallController extends Entity {
     this.raycaster.set(_orbitCenter, _rayDirection);
     this.raycaster.far = this.camCollisionMaxDistance;
     
-    // Get intersections, filtering out the player ball
+    // Get intersections from the ball to the camera (ignore parent model)
     const intersections = this.raycaster.intersectObject(this.core.scene, true);
     const filteredIntersections = intersections.filter(hit => {
       // Exclude the player ball and its children
-      let current = hit.object;
-      while (current) {
-        if (current === this.parent) return false;
-        current = current.parent;
-      }
+      while (hit.object) { if (hit.object === this.parent) return false; hit.object = hit.object.parent; }
       return true;
     });
     
-    // Calculate target distance based on collision
+    // Calculate camera target distance based on collision
     let targetCamDistance = this.camCollisionMaxDistance;
     if (filteredIntersections.length > 0) {
       const hitDistance = filteredIntersections[0].distance;
@@ -250,7 +260,7 @@ class EntityBallController extends Entity {
       targetCamDistance = safeDistance;
     }
     
-    // Smoothly lerp current distance toward target
+    // Smoothly lerp current distance toward camera target
     const collisionLerpFactor = 1 - Math.pow(this.camCollisionLerp, loop.delta / 16.67);
     this.camDistance = this.camDistance + (targetCamDistance - this.camDistance) * collisionLerpFactor;
 
@@ -260,9 +270,9 @@ class EntityBallController extends Entity {
     this.core.camera.position.set(_orbitCenter.x + hAdjusted * Math.sin(this.camAzimuth), _orbitCenter.y + vAdjusted, _orbitCenter.z + hAdjusted * Math.cos(this.camAzimuth));
     
     // Apply y-offset to orbit center for camera look-at target
-    _lookAtTarget.copy(_orbitCenter);
-    _lookAtTarget.y += this.camOrbitHeight;
-    this.core.camera.lookAt(_lookAtTarget);
+    _camLookAtTarget.copy(_orbitCenter);
+    _camLookAtTarget.y += this.camOrbitHeight;
+    this.core.camera.lookAt(_camLookAtTarget);
 
     // Resume Entity render behavior
     super.render(loop);
@@ -278,15 +288,20 @@ class EntityBallController extends Entity {
     const world = this.core.entityManager.world;
     const ballPos = this.parent.position;
 
+    // Query all contacts with this ball to find ground surfaces
     world.narrowPhase.contactPairsWith(this.ballColliderHandle, otherHandle => {
+
+      // Extract contact manifold to query normal and contact point
       world.narrowPhase.contactPair(this.ballColliderHandle, otherHandle, manifold => {
         if (manifold.numSolverContacts() === 0) return;
 
-        // Canonicalize normal to point away from the ball's surface
+        // Canonicalize normal to point away from the contact surface
         const n = manifold.normal();
         const contactPoint = manifold.solverContactPoint(0);
-        _toBall.set(ballPos.x - contactPoint.x, ballPos.y - contactPoint.y, ballPos.z - contactPoint.z);
-        const sign = (n.x * _toBall.x + n.y * _toBall.y + n.z * _toBall.z) < 0 ? -1 : 1;
+
+        // Determine if normal points toward or away from ball
+        _contactToBall.set(ballPos.x - contactPoint.x, ballPos.y - contactPoint.y, ballPos.z - contactPoint.z);
+        const sign = (n.x * _contactToBall.x + n.y * _contactToBall.y + n.z * _contactToBall.z) < 0 ? -1 : 1;
 
         // Only accumulate contacts steep enough to be considered climbable ground
         const ny = n.y * sign;
@@ -299,6 +314,7 @@ class EntityBallController extends Entity {
       });
     });
 
+    // Update grounded state and preserve normal value
     if (contactCount > 0) {
       this.groundNormal.copy(_groundNormalSum).normalize();
       this.isGrounded = true;
@@ -306,15 +322,6 @@ class EntityBallController extends Entity {
     else {
       this.groundNormal.set(0, 1, 0);
       this.isGrounded = false;
-    }
-
-    // Reset jump availability every tick the ball rests on stable ground.
-    if (this.isGrounded) {
-      const linvel = this.entityPhysics.rigidBody.linvel();
-      const normalSpeed = linvel.x * this.groundNormal.x + linvel.y * this.groundNormal.y + linvel.z * this.groundNormal.z;
-      if (normalSpeed <= 0.01) {
-        this.canJump = true;
-      }
     }
   }
 
@@ -331,7 +338,7 @@ class EntityBallController extends Entity {
         object: fovState,
         to: { fov: fov },
         duration: duration,
-        easing: 'Quadratic.InOut',
+        easing: 'Quadratic.Out',
         onComplete: onComplete,
         onUpdate: () => {
           this.core.camera.fov = fovState.fov;
@@ -342,7 +349,7 @@ class EntityBallController extends Entity {
 
     // Tween camera FOV in and out
     tween(fovOriginal * zoomAmount, zoomDuration, () => {
-      tween(fovOriginal, zoomDuration * 2);
+      tween(fovOriginal, zoomDuration * 4);
     });
   }
 
