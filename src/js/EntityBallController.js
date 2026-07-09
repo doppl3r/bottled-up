@@ -71,9 +71,8 @@ class EntityBallController extends Entity {
     this.camCollisionMinDistance = options.camCollisionMinDistance;
     this.camCollisionLerp = options.camCollisionLerp;
 
-    // Sibling found on first update() tick
+    // Physics entity reference
     this.entityPhysics = null;
-    this.ballColliderHandle = null;
 
     // Ground/slope detection state
     this.groundNormal = new Vector3(0, 1, 0);
@@ -285,12 +284,13 @@ class EntityBallController extends Entity {
     const rollThreshold = Math.cos(this.maxSlopeAngleRad);
     const world = this.core.entityManager.world;
     const ballPos = this.parent.position;
+    const ballHandle = this.entityPhysics.rigidBody.collider(0).handle;
 
     // Query all contacts with this ball to find ground surfaces
-    world.narrowPhase.contactPairsWith(this.ballColliderHandle, otherHandle => {
+    world.narrowPhase.contactPairsWith(ballHandle, otherHandle => {
 
       // Extract contact manifold to query normal and contact point
-      world.narrowPhase.contactPair(this.ballColliderHandle, otherHandle, manifold => {
+      world.narrowPhase.contactPair(ballHandle, otherHandle, manifold => {
         if (manifold.numSolverContacts() === 0) return;
 
         // Canonicalize normal to point away from the contact surface
@@ -353,7 +353,6 @@ class EntityBallController extends Entity {
 
   setEntityPhysics(entity) {
     this.entityPhysics = entity;
-    this.ballColliderHandle = entity.rigidBody.collider(0).handle;
   }
 
   onKeyDown = (event) => {
