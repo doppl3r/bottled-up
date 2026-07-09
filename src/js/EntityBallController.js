@@ -17,6 +17,12 @@ const _orbitCenter = new Vector3();
 const _desiredCamPos = new Vector3();
 const _rayDirection = new Vector3();
 const _lookAtTarget = new Vector3();
+const _groundNormalSum = new Vector3();
+const _gravityTangential = new Vector3();
+const _uphillDir = new Vector3();
+const _normalScaled = new Vector3();
+const _toBall = new Vector3();
+const _slopeImpulse = new Vector3();
 
 class EntityBallController extends Entity {
   constructor(options = {}) {
@@ -29,6 +35,7 @@ class EntityBallController extends Entity {
       dashTimerDuration: 3000,
       jumpBufferDuration: 100,
       jumpImpulse: 16,
+      maxSlopeAngle: 30,
       camPitchDefault: 0.5,
       camPitchMin: 0.08,
       camPitchMax: 1.48,
@@ -52,6 +59,7 @@ class EntityBallController extends Entity {
     this.dashTimerDuration = options.dashTimerDuration;
     this.jumpImpulse = options.jumpImpulse;
     this.jumpBufferDuration = options.jumpBufferDuration;
+    this.maxSlopeAngleRad = options.maxSlopeAngle * Math.PI / 180;
     this.camPitchDefault = options.camPitchDefault;
     this.camPitchMin = options.camPitchMin;
     this.camPitchMax = options.camPitchMax;
@@ -65,6 +73,11 @@ class EntityBallController extends Entity {
 
     // Sibling found on first update() tick
     this.entityPhysics = null;
+    this.ballColliderHandle = null;
+
+    // Ground/slope detection state
+    this.groundNormal = new Vector3(0, 1, 0);
+    this.isGrounded = false;
 
     // Input state
     this.keys = new Set();
@@ -109,6 +122,9 @@ class EntityBallController extends Entity {
   }
 
   update(loop) {
+    // Refresh ground/slope contact normal from physics narrow-phase
+    this.updateGroundNormal();
+
     // Decrement timers
     this.dashTimerElapsed = Math.max(0, this.dashTimerElapsed - loop.delta);
     this.jumpBufferElapsed = Math.max(0, this.jumpBufferElapsed - loop.delta);
@@ -144,6 +160,25 @@ class EntityBallController extends Entity {
       // Steer the ball towards the camera direction
       _perp.set(linvel.x - speedInDir * _forceDir.x, 0, linvel.z - speedInDir * _forceDir.z);
       this.entityPhysics.rigidBody.applyImpulse(_perp.multiplyScalar(-this.steerFactor * (loop.delta / 1000) * mass), true);
+
+      // Cancel gravity's downhill pull while climbing a gentle slope
+      if (this.isGrounded) {
+        const slopeAngle = Math.acos(Math.min(1, Math.max(-1, this.groundNormal.y)));
+        if (slopeAngle <= this.maxSlopeAngleRad) {
+          const gravity = this.core.entityManager.world.gravity;
+          _gravityTangential.set(gravity.x, gravity.y, gravity.z);
+          const gDotN = _gravityTangential.dot(this.groundNormal);
+          _normalScaled.copy(this.groundNormal).multiplyScalar(gDotN);
+          _gravityTangential.sub(_normalScaled);
+
+          if (_gravityTangential.lengthSq() > 1e-6) {
+            _uphillDir.copy(_gravityTangential).multiplyScalar(-1).normalize();
+            const climbFactor = Math.max(0, Math.min(1, _forceDir.dot(_uphillDir)));
+            _slopeImpulse.copy(_gravityTangential).multiplyScalar(-climbFactor * (loop.delta / 1000) * mass);
+            this.entityPhysics.rigidBody.applyImpulse(_slopeImpulse, true);
+          }
+        }
+      }
     }
 
     // Perform a jump behavior
@@ -233,6 +268,56 @@ class EntityBallController extends Entity {
     super.render(loop);
   }
 
+  updateGroundNormal() {
+    // Reset accumulator for this tick
+    _groundNormalSum.set(0, 0, 0);
+    let contactCount = 0;
+
+    // Only contacts within maxSlopeAngle of vertical count as "ground"
+    const rollThreshold = Math.cos(this.maxSlopeAngleRad);
+    const world = this.core.entityManager.world;
+    const ballPos = this.parent.position;
+
+    world.narrowPhase.contactPairsWith(this.ballColliderHandle, otherHandle => {
+      world.narrowPhase.contactPair(this.ballColliderHandle, otherHandle, manifold => {
+        if (manifold.numSolverContacts() === 0) return;
+
+        // Canonicalize normal to point away from the ball's surface
+        const n = manifold.normal();
+        const contactPoint = manifold.solverContactPoint(0);
+        _toBall.set(ballPos.x - contactPoint.x, ballPos.y - contactPoint.y, ballPos.z - contactPoint.z);
+        const sign = (n.x * _toBall.x + n.y * _toBall.y + n.z * _toBall.z) < 0 ? -1 : 1;
+
+        // Only accumulate contacts steep enough to be considered climbable ground
+        const ny = n.y * sign;
+        if (ny >= rollThreshold) {
+          _groundNormalSum.x += n.x * sign;
+          _groundNormalSum.y += ny;
+          _groundNormalSum.z += n.z * sign;
+          contactCount++;
+        }
+      });
+    });
+
+    if (contactCount > 0) {
+      this.groundNormal.copy(_groundNormalSum).normalize();
+      this.isGrounded = true;
+    }
+    else {
+      this.groundNormal.set(0, 1, 0);
+      this.isGrounded = false;
+    }
+
+    // Reset jump availability every tick the ball rests on stable ground.
+    if (this.isGrounded) {
+      const linvel = this.entityPhysics.rigidBody.linvel();
+      const normalSpeed = linvel.x * this.groundNormal.x + linvel.y * this.groundNormal.y + linvel.z * this.groundNormal.z;
+      if (normalSpeed <= 0.01) {
+        this.canJump = true;
+      }
+    }
+  }
+
   tweenCameraFOV() {
     // Tween camera FOV
     const fovOriginal = this.core.camera.fov;
@@ -263,7 +348,7 @@ class EntityBallController extends Entity {
 
   setEntityPhysics(entity) {
     this.entityPhysics = entity;
-    this.entityPhysics.addEventListener('collision', this.onCollision);
+    this.ballColliderHandle = entity.rigidBody.collider(0).handle;
   }
 
   onKeyDown = (event) => {
@@ -349,10 +434,6 @@ class EntityBallController extends Entity {
     }
   }
 
-  onCollision = event => {
-    if (event.started) this.canJump = true;
-  }
-
   onParentRemoved = () => {
     // Remove event listeners
     document.removeEventListener('keydown', this.onKeyDown);
@@ -362,9 +443,6 @@ class EntityBallController extends Entity {
     window.removeEventListener('blur', this.onWindowBlur);
     window.removeEventListener('mouseup', this.onWindowMouseUp);
     this.core.canvas.removeEventListener('mousedown', this.onCanvasMouseDown);
-
-    // Remove collision listener from sibling EntityPhysics
-    this.entityPhysics.removeEventListener('collision', this.onCollision);
 
     // Exit pointer lock if active
     if (this.hasPointerLock) document.exitPointerLock?.();
