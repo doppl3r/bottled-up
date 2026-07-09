@@ -195,11 +195,9 @@ class EntityBallController extends Entity {
 
     // Perform a jump behavior
     if (this.jumpBufferElapsed > 0 && this.canJump) {
-      // Reset downward velocity for better air-jump
+      // Reset vertical velocity so slope-climb/falling speed doesn't stack with the jump impulse
       const linvel = this.entityPhysics.rigidBody.linvel();
-      if (linvel.y < 0) {
-        this.entityPhysics.rigidBody.setLinvel({ x: linvel.x, y: 0, z: linvel.z }, true);
-      }
+      this.entityPhysics.rigidBody.setLinvel({ x: linvel.x, y: 0, z: linvel.z }, true);
 
       // Scale jump impulse by mass to account for different ball sizes
       this.entityPhysics.rigidBody.applyImpulse({ x: 0, y: this.jumpImpulse * mass, z: 0 }, true);
