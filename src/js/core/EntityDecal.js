@@ -11,11 +11,6 @@ import { MeshFactory } from './MeshFactory.js';
   wall, nested as a template child of an EntityModel/EntityMesh) and
   runtime-spawned decals (ex: bullet holes, bug splatters, spawned via
   entityManager.spawn() with the hit entity as parent).
-
-  Note: options use "decalPosition"/"decalRotation"/"decalNormal"/"decalSize"
-  rather than "position"/"rotation" because the base Entity class already
-  consumes "position"/"rotation" to place this entity in the scene graph.
-  Reusing those names would double-transform the projected decal geometry.
 */
 
 // Module-scoped reusables to avoid per-decal allocations
@@ -24,7 +19,6 @@ const _forward = new Vector3(0, 0, 1);
 const _quaternion = new Quaternion();
 const _euler = new Euler();
 const _position = new Vector3();
-const _size = new Vector3();
 const _relativeMatrix = new Matrix4();
 
 class EntityDecal extends Entity {
@@ -33,10 +27,7 @@ class EntityDecal extends Entity {
     options = Object.assign({
       class: 'EntityDecal',
       url: null,
-      decalPosition: { x: 0, y: 0, z: 0 },
-      decalRotation: null,
-      decalNormal: null,
-      decalSize: { x: 1, y: 1, z: 1 },
+      normal: { x: 0, y: 0, z: 1 },
       color: '#ffffff',
       opacity: 1,
       metalness: 0,
@@ -46,6 +37,15 @@ class EntityDecal extends Entity {
 
     // Inherit Entity properties
     super(options);
+
+    // Capture the projector transform and reset entity transform
+    this.decalPosition = this.position.clone();
+    this.decalSize = this.scale.clone();
+    this.decalRotation = this.rotation.clone();
+    this.decalNormal = options.normal;
+    this.position.set(0, 0, 0);
+    this.rotation.set(0, 0, 0);
+    this.scale.set(1, 1, 1);
 
     // Declare entity components
     this.decalMesh = null;
@@ -102,12 +102,10 @@ class EntityDecal extends Entity {
 
     // Resolve projector position, orientation, and size
     const options = this.decalOptions;
-    _position.set(options.decalPosition.x, options.decalPosition.y, options.decalPosition.z);
-    _size.set(options.decalSize.x, options.decalSize.y, options.decalSize.z);
     const orientation = this.resolveOrientation();
 
     // Create decal geometry
-    const decalGeometry = new DecalGeometry(tempMesh, _position, orientation, _size);
+    const decalGeometry = new DecalGeometry(tempMesh, this.decalPosition, orientation, this.decalSize);
 
     // Load texture and build decal mesh once ready
     core.assets.load(options.url, texture => {
@@ -131,16 +129,14 @@ class EntityDecal extends Entity {
   }
 
   resolveOrientation() {
-    const options = this.decalOptions;
-
     // Use explicit rotation if provided
-    if (options.decalRotation) {
-      return _euler.set(options.decalRotation.x, options.decalRotation.y, options.decalRotation.z, options.decalRotation.order);
+    if (this.decalRotation) {
+      return this.decalRotation;
     }
 
     // Otherwise derive orientation from a surface normal
-    if (options.decalNormal) {
-      const normal = new Vector3(options.decalNormal.x, options.decalNormal.y, options.decalNormal.z).normalize();
+    if (this.decalNormal) {
+      const normal = _position.set(this.decalNormal.x, this.decalNormal.y, this.decalNormal.z).normalize();
       _quaternion.setFromUnitVectors(_forward, normal);
       return _euler.setFromQuaternion(_quaternion);
     }
@@ -192,10 +188,9 @@ class EntityDecal extends Entity {
     // Serialize entity to JSON
     const json = super.serialize();
     json.url = this.url;
-    json.decalPosition = this.decalOptions.decalPosition;
-    if (this.decalOptions.decalRotation) json.decalRotation = this.decalOptions.decalRotation;
-    if (this.decalOptions.decalNormal) json.decalNormal = this.decalOptions.decalNormal;
-    json.decalSize = this.decalOptions.decalSize;
+    json.normal = { x: this.decalNormal.x, y: this.decalNormal.y, z: this.decalNormal.z };
+    json.position = { x: this.decalPosition.x, y: this.decalPosition.y, z: this.decalPosition.z };
+    json.scale = { x: this.decalSize.x, y: this.decalSize.y, z: this.decalSize.z };
     return json;
   }
 }

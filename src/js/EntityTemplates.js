@@ -110,15 +110,15 @@ const EntityTemplateBall = {
       },
       material: {
         type: 'MeshStandardMaterial',
-        arguments: [{ color: '#FFCB4C' }],
+        arguments: [{ color: '#FC7400' }],
       },
       children: [
         {
           class: 'EntityDecal',
-          url: 'png/smile.png',
-          decalPosition: { x: 0, y: 0, z: 0.5 },
-          decalNormal: { x: 0, y: 0, z: 1 },
-          decalSize: { x: 0.9, y: 0.9, z: 0.9 }
+          url: 'png/boxel.png',
+          position: { x: 0, y: 0, z: 0.5 },
+          normal: { x: 0, y: 0, z: 1 },
+          scale: { x: 0.75, y: 0.75, z: 0.75 }
         }
       ]
     },
