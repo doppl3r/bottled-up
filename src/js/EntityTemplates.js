@@ -103,8 +103,24 @@ const EntityTemplateBall = {
       class: 'EntityBallController'
     },
     {
-      class: 'EntityModel',
-      url: 'glb/paper-ball.glb'
+      class: 'EntityMesh',
+      geometry: {
+        type: 'SphereGeometry',
+        arguments: [0.5, 16, 16]
+      },
+      material: {
+        type: 'MeshStandardMaterial',
+        arguments: [{ color: '#FFCB4C' }],
+      },
+      children: [
+        {
+          class: 'EntityDecal',
+          url: 'png/smile.png',
+          decalPosition: { x: 0, y: 0, z: 0.5 },
+          decalNormal: { x: 0, y: 0, z: 1 },
+          decalSize: { x: 0.9, y: 0.9, z: 0.9 }
+        }
+      ]
     },
     {
       class: 'EntityPhysics',

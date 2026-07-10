@@ -3,6 +3,7 @@ import { PhysicsFactory } from './PhysicsFactory.js';
 import { WorldDebugger } from './WorldDebugger.js';
 import { Entity } from './Entity.js';
 import { EntityAudio } from './EntityAudio.js';
+import { EntityDecal } from './EntityDecal.js';
 import { EntityMaterial } from './EntityMaterial.js';
 import { EntityMesh } from './EntityMesh.js';
 import { EntityMixer } from './EntityMixer.js';
@@ -40,6 +41,7 @@ class EntityManager {
     this.registerEntityClasses({
       Entity,
       EntityAudio,
+      EntityDecal,
       EntityMaterial,
       EntityMixer,
       EntityMesh,
