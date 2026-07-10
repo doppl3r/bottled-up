@@ -369,6 +369,16 @@ class EntityBallController extends Entity {
 
   onMouseMove = (event) => {
     if (this.hasPointerLock) {
+      // Set threshold limits (33% of window)
+      const isHorizontalSpike = Math.abs(event.movementX) > window.innerWidth / 3;
+      const isVerticalSpike = Math.abs(event.movementY) > window.innerHeight / 3;
+      
+      // Check if mouse exceeds window threshold
+      if (isHorizontalSpike || isVerticalSpike) {
+        alert('THIS SOLUTION WORKED');
+        return;
+      }
+
       // Pointer lock: use raw movement deltas directly
       this.camAzimuth -= event.movementX * this.camAzimuthSensitivity;
       this.camPitch = Math.max(this.camPitchMin, Math.min(this.camPitchMax, this.camPitch + event.movementY * this.camPitchSensitivity));
