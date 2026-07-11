@@ -33,6 +33,7 @@ class EntityModel extends Entity {
       this.setModel(model);
       this.add(model);
       this.dispatchEvent({ type: 'loaded', model });
+      super.init(options, core);
     });
   }
 

@@ -24,6 +24,7 @@ class EntityMaterial extends Entity {
     core.assets.load(options.url, material => {
       this.setMaterial(material, options);
       this.dispatchEvent({ type: 'loaded', material });
+      super.init(options, core);
     });
   }
 

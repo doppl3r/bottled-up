@@ -46,17 +46,13 @@ class Game {
       ...stateSession,
     });
 
-    this.core.entityManager.load('json/testbed-1.json', child => {
-      // Update state counts for loaded entities
-      
+    this.core.entityManager.load('json/testbed-1.json', () => {
+      this.core.compositor.resize();
+      this.core.start();
     });
 
     // Setup event listeners
     this.addEventListeners();
-
-    // Start the core engine
-    this.core.compositor.resize();
-    this.core.start();
   }
 
   addEventListeners() {

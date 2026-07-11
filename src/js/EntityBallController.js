@@ -118,6 +118,7 @@ class EntityBallController extends Entity {
 
     // Cleanup when the parent ball entity is removed from the scene
     this.addEventListener('added', this.onAdded);
+    super.init(options, core);
   }
 
   update(loop) {

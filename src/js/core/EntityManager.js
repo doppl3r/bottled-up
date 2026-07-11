@@ -92,17 +92,20 @@ class EntityManager {
     entity2.dispatchEvent(event2);
   }
 
-  spawn(options, parent = this.core.scene) {
+  spawn(options, parent = this.core.scene, collector = null) {
     // Create and add entity to parent
     const entity = this.create(options);
     if (entity) {
       // Add entity to parent
       parent.add(entity);
 
+      // Track entity for initialization
+      if (collector) collector.push(entity);
+
       // Continue loading child entities recursively
       options.children?.forEach(childOptions => {
         childOptions.parent = options;
-        this.spawn(childOptions, entity);
+        this.spawn(childOptions, entity, collector);
       });
 
       // Return entity
@@ -163,8 +166,24 @@ class EntityManager {
   async load(data, onLoad = () => {}) {
     // Fetch scene JSON and add entities to scene
     const sceneOptions = typeof data === 'string' ? await this.fetchJSON(data) : data;
+    const collector = [];
     sceneOptions.children?.forEach(childOptions => {
-      onLoad(this.spawn(childOptions));
+      this.spawn(childOptions, this.core.scene, collector);
+    });
+
+    // Call onLoad once all entities have finished initializing
+    const pending = collector.filter(e => !e.isInitialized);
+    if (pending.length === 0) {
+      onLoad();
+      return;
+    }
+    let remaining = pending.length;
+    pending.forEach(entity => {
+      const handler = () => {
+        entity.removeEventListener('initialized', handler);
+        if (--remaining === 0) onLoad();
+      };
+      entity.addEventListener('initialized', handler);
     });
   }
 

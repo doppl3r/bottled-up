@@ -28,7 +28,11 @@ class EntityParticles extends Entity {
       core.assets.loadBatch(options.urls, textures => {
         this.setTextures(textures, options);
         this.dispatchEvent({ type: 'loaded', textures });
+        super.init(options, core);
       });
+    }
+    else {
+      super.init(options, core);
     }
   }
 

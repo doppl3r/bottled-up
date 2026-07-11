@@ -70,7 +70,7 @@ class MeshFactory {
     let materials = [];
 
     // Update object data before traversing
-    object3D.updateMatrixWorld();
+    object3D.updateWorldMatrix(true, true);
 
     // Traverse and add geometries/materials to array
     object3D.traverse(obj => {

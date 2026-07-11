@@ -24,6 +24,7 @@ class EntityTexture extends Entity {
     core.assets.load(options.url, texture => {
       this.setTexture(texture, options);
       this.dispatchEvent({ type: 'loaded', texture });
+      super.init(options, core);
     });
   }
 

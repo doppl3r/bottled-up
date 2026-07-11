@@ -26,6 +26,7 @@ class EntityAudio extends Entity {
       this.setAudio(audio, options);
       this.add(audio);
       this.dispatchEvent({ type: 'loaded', audio });
+      super.init(options, core);
     });
   }
 

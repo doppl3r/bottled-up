@@ -57,6 +57,7 @@ class EntityPhysics extends Entity {
 
     // Add physics component if entity is an instance of EntityPhysics
     PhysicsFactory.create(this, options.rigidBody, core.entityManager.world);
+    super.init(options, core);
   }
 
   update(loop) {

@@ -34,6 +34,7 @@ class Entity extends Object3D {
 
     // Declare entity properties
     this.isEntity = true;
+    this.isInitialized = false;
     this.name = options.name;
     this.label = options.label;
     this.class = options.class;
@@ -46,7 +47,9 @@ class Entity extends Object3D {
   }
 
   init(options, entityManager) {
-    // This method can be overridden by subclasses
+    // Mark entity as initialized and notify listeners
+    this.isInitialized = true;
+    this.dispatchEvent({ type: 'initialized' });
   }
 
   update(loop) {

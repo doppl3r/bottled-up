@@ -125,6 +125,7 @@ class EntityDecal extends Entity {
       this.decalMesh = new Mesh(decalGeometry, material);
       this.add(this.decalMesh);
       this.dispatchEvent({ type: 'loaded' });
+      super.init(this.decalOptions, this.core);
     });
   }
 
