@@ -79,20 +79,45 @@ class EntityManager {
     this.core.scene.children.forEach(child => child.render?.(loop));
   }
 
-  onCollision = (handle1, handle2, started) => {
-    const collider1 = this.world.getCollider(handle1);
-    const collider2 = this.world.getCollider(handle2);
-    if (!collider1 || !collider2) return;
-    const entity1 = collider1._parent?.entity;
-    const entity2 = collider2._parent?.entity;
-    if (!entity1 || !entity2) return;
-    const event1 = { handle: handle1, pair: entity2, started: started, type: 'collision' };
-    const event2 = { handle: handle2, pair: entity1, started: started, type: 'collision' };
-    entity1.dispatchEvent(event1);
-    entity2.dispatchEvent(event2);
+  async load(data, onLoad = () => {}) {
+    // Fetch scene JSON and add entities to scene
+    const sceneOptions = typeof data === 'string' ? await this.fetchJSON(data) : data;
+    const entities = [];
+    sceneOptions.children?.forEach(childOptions => {
+      this.spawn(childOptions, this.core.scene, entities);
+    });
+
+    // Call onLoad immediately if no pending entities
+    const pendingEntities = entities.filter(entity => !entity.isInitialized);
+    if (pendingEntities.length === 0) {
+      onLoad();
+      return;
+    }
+
+    // Loop through pending entities
+    let remaining = pendingEntities.length;
+    pendingEntities.forEach(entity => {
+      // Create initialized entity handler 
+      const onInitialized = () => {
+        entity.removeEventListener('initialized', onInitialized);
+        remaining--;
+        if (remaining === 0) onLoad();
+      };
+
+      // Add initialized event listener
+      entity.addEventListener('initialized', onInitialized);
+    });
   }
 
-  spawn(options, parent = this.core.scene, collector = null) {
+  async fetchJSON(url) {
+    // Load entity descriptions from JSON file
+    let json = {};
+    try { json = await (await fetch(url)).json(); }
+    catch { console.error(`Error: ${ url } not found.`); }
+    return json;
+  }
+
+  spawn(options, parent = this.core.scene, entities = null) {
     // Create and add entity to parent
     const entity = this.create(options);
     if (entity) {
@@ -100,12 +125,12 @@ class EntityManager {
       parent.add(entity);
 
       // Track entity for initialization
-      if (collector) collector.push(entity);
+      if (entities) entities.push(entity);
 
       // Continue loading child entities recursively
       options.children?.forEach(childOptions => {
         childOptions.parent = options;
-        this.spawn(childOptions, entity, collector);
+        this.spawn(childOptions, entity, entities);
       });
 
       // Return entity
@@ -163,36 +188,17 @@ class EntityManager {
     }
   }
 
-  async load(data, onLoad = () => {}) {
-    // Fetch scene JSON and add entities to scene
-    const sceneOptions = typeof data === 'string' ? await this.fetchJSON(data) : data;
-    const collector = [];
-    sceneOptions.children?.forEach(childOptions => {
-      this.spawn(childOptions, this.core.scene, collector);
-    });
-
-    // Call onLoad once all entities have finished initializing
-    const pending = collector.filter(e => !e.isInitialized);
-    if (pending.length === 0) {
-      onLoad();
-      return;
-    }
-    let remaining = pending.length;
-    pending.forEach(entity => {
-      const handler = () => {
-        entity.removeEventListener('initialized', handler);
-        if (--remaining === 0) onLoad();
-      };
-      entity.addEventListener('initialized', handler);
-    });
-  }
-
-  async fetchJSON(url) {
-    // Load entity descriptions from JSON file
-    let json = {};
-    try { json = await (await fetch(url)).json(); }
-    catch { console.error(`Error: ${ url } not found.`); }
-    return json;
+  onCollision = (handle1, handle2, started) => {
+    const collider1 = this.world.getCollider(handle1);
+    const collider2 = this.world.getCollider(handle2);
+    if (!collider1 || !collider2) return;
+    const entity1 = collider1._parent?.entity;
+    const entity2 = collider2._parent?.entity;
+    if (!entity1 || !entity2) return;
+    const event1 = { handle: handle1, pair: entity2, started: started, type: 'collision' };
+    const event2 = { handle: handle2, pair: entity1, started: started, type: 'collision' };
+    entity1.dispatchEvent(event1);
+    entity2.dispatchEvent(event2);
   }
 
   registerEntityClass(name, entityClass) {
