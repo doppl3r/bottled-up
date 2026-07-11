@@ -117,7 +117,7 @@ class MeshFactory {
     missingKeys.forEach(key => {
       // Loop through all geometries
       geometries.forEach(geometry => {
-        if (discardKeys === true) {
+        if (discardMissingKeys === true) {
           // Delete missing key to reduce memory allocations
           geometry.deleteAttribute(key);
         }
