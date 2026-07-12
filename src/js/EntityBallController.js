@@ -36,9 +36,9 @@ class EntityBallController extends Entity {
       jumpBufferDuration: 100,
       jumpImpulse: 16,
       maxSlopeAngle: 30,
-      camPitchDefault: 0.5,
-      camPitchMin: 0.08,
-      camPitchMax: 1.48,
+      camPitchDefault: Math.PI / 4,
+      camPitchMin: (Math.PI / -2) + 0.1,
+      camPitchMax: (Math.PI / 2) - 0.1,
       camLerp: 0.9,
       camOrbitHeight: 1,
       camCollisionMinDistance: 2.0,
@@ -101,6 +101,9 @@ class EntityBallController extends Entity {
 
     // Animations
     this.tweens = new Tweens();
+    this.camRotateTween = null;
+    this.camAzimuthTarget = 0;
+    this.camPitchTarget = this.camPitchDefault;
   }
 
   init(options, core) {
@@ -152,10 +155,10 @@ class EntityBallController extends Entity {
 
     // Accumulate movement direction from held keys
     _forceDir.set(0, 0, 0);
-    if (this.keys.has('KeyW') || this.keys.has('ArrowUp')) _forceDir.add(_camForward);
-    if (this.keys.has('KeyS') || this.keys.has('ArrowDown')) _forceDir.sub(_camForward);
-    if (this.keys.has('KeyD') || this.keys.has('ArrowRight')) _forceDir.add(_camRight);
-    if (this.keys.has('KeyA') || this.keys.has('ArrowLeft')) _forceDir.sub(_camRight);
+    if (this.keys.has('KeyW')) _forceDir.add(_camForward);
+    if (this.keys.has('KeyS')) _forceDir.sub(_camForward);
+    if (this.keys.has('KeyD')) _forceDir.add(_camRight);
+    if (this.keys.has('KeyA')) _forceDir.sub(_camRight);
     if (_forceDir.lengthSq() > 1) _forceDir.normalize();
 
     // Taper input force as speed approaches max movement speed using dot-product
@@ -324,6 +327,49 @@ class EntityBallController extends Entity {
     }
   }
 
+  tweenCameraRotation({ azimuth = 0, pitch = 0, snap, duration = 300, easing = 'Quadratic.Out' }) {
+    // Use last intended target as base when mid-tween, current position when idle
+    const baseAzimuth = this.camRotateTween ? this.camAzimuthTarget : this.camAzimuth;
+    const basePitch   = this.camRotateTween ? this.camPitchTarget   : this.camPitch;
+
+    // Stop any in-progress camera rotation tween
+    if (this.camRotateTween) {
+      this.camRotateTween.stop();
+      this.camRotateTween = null;
+    }
+
+    // Snap azimuth to the nearest snap value (if defined)
+    const camSnapAzimuthValue = Math.round(baseAzimuth / snap + Math.sign(azimuth) * (0.5 + 1e-6)) * snap;
+    const camSnapAzimuthTarget = (snap !== undefined) ? camSnapAzimuthValue : baseAzimuth + azimuth;
+    const camSnapAzimuth = azimuth !== 0 ? camSnapAzimuthTarget : baseAzimuth;
+
+    // Snap pitch to the nearest snap value (if defined)
+    const camSnapPitchValue = Math.round(basePitch / snap + Math.sign(pitch) * (0.5 + 1e-6)) * snap;
+    const camSnapPitchTarget = Math.max(this.camPitchMin, Math.min(this.camPitchMax, snap !== undefined ? camSnapPitchValue : basePitch + pitch));
+    const camSnapPitch = pitch !== 0 ? camSnapPitchTarget : basePitch;
+
+    // Store targets for accumulation on the next call
+    this.camAzimuthTarget = camSnapAzimuth;
+    this.camPitchTarget = camSnapPitch;
+
+    // Tween from current camera state to snapped target
+    const state = { azimuth: this.camAzimuth, pitch: this.camPitch };
+    this.camRotateTween = this.tweens.tween({
+      object: state,
+      to: { azimuth: camSnapAzimuth, pitch: camSnapPitch },
+      dynamic: true,
+      duration,
+      easing,
+      onUpdate: () => {
+        this.camAzimuth = state.azimuth;
+        this.camPitch = state.pitch;
+      },
+      onComplete: () => {
+        this.camRotateTween = null;
+      }
+    });
+  }
+
   tweenCameraFOV() {
     // Tween camera FOV
     const fovOriginal = this.core.camera.fov;
@@ -362,6 +408,12 @@ class EntityBallController extends Entity {
       event.preventDefault();
       this.jumpBufferElapsed = this.jumpBufferDuration;
     }
+
+    // Update camera rotation
+    if (event.code === 'ArrowRight') this.tweenCameraRotation({ azimuth: -Math.PI / 4, duration: 250, snap: Math.PI / 4, easing: 'Quadratic.Out' });
+    if (event.code === 'ArrowLeft')  this.tweenCameraRotation({ azimuth: Math.PI / 4, duration: 250, snap: Math.PI / 4, easing: 'Quadratic.Out' });
+    if (event.code === 'ArrowUp')    this.tweenCameraRotation({ pitch: -Math.PI / 4, duration: 250, snap: Math.PI / 4, easing: 'Quadratic.Out' });
+    if (event.code === 'ArrowDown')  this.tweenCameraRotation({ pitch: Math.PI / 4, duration: 250, snap: Math.PI / 4, easing: 'Quadratic.Out' });
   }
 
   onKeyUp = (event) => {
