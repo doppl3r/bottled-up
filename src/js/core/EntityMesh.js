@@ -11,7 +11,9 @@ class EntityMesh extends Entity {
     options = Object.assign({
       class: 'EntityMesh',
       geometry: null,
-      material: null
+      material: null,
+      castShadow: true,
+      receiveShadow: true
     }, options);
 
     // Inherit Entity properties
@@ -27,6 +29,8 @@ class EntityMesh extends Entity {
     const mesh = MeshFactory.create(options);
     this.setMesh(mesh, options);
     this.add(mesh);
+    mesh.castShadow = options.castShadow;
+    mesh.receiveShadow = options.receiveShadow;
     super.init(options, core);
   }
 

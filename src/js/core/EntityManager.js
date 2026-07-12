@@ -16,6 +16,7 @@ import { EntityLightAmbient } from './EntityLightAmbient.js';
 import { EntityLightDirectional } from './EntityLightDirectional.js';
 import { EntityLightHemisphere } from './EntityLightHemisphere.js';
 import { EntityLightPoint } from './EntityLightPoint.js';
+import { EntityLightSun } from './EntityLightSun.js';
 
 /*
   The EntityManager class is responsible for managing all entities within
@@ -54,6 +55,7 @@ class EntityManager {
       EntityLightDirectional,
       EntityLightHemisphere,
       EntityLightPoint,
+      EntityLightSun,
     });
   }
 

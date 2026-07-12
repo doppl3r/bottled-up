@@ -9,19 +9,24 @@ const EntityTemplateLightHemisphere = {
   label: 'Light Hemisphere',
   class: 'EntityLightHemisphere',
   skyColor: '#ffffff',
-  groundColor: '#aaaaaa',
-  intensity: 3.14
+  groundColor: '#ffffff',
+  intensity: Math.PI * 0.5
 }
 
 const EntityTemplateLightSun = {
   name: 'light-sun',
   label: 'Light Sun',
   class: 'EntityLightSun',
-  speed: 1,
-  distance: 8,
-  time: 6,
   color: '#ffffff',
-  intensity: 3.14
+  intensity: Math.PI * 0.5,
+  distance: 20,
+  time: 12,
+  duration: 120,
+  speed: 0,
+  azimuth: 0,
+  targetName: 'ball',
+  shadowArea: 64,
+  shadowQuality: 32
 }
 
 const EntityTemplateCube = {
@@ -104,6 +109,8 @@ const EntityTemplateBall = {
     },
     {
       class: 'EntityMesh',
+      castShadow: true,
+      receiveShadow: true,
       geometry: {
         type: 'SphereGeometry',
         arguments: [0.5, 16, 16]
@@ -149,7 +156,6 @@ const EntityTemplateLevel = {
       class: 'EntityModel',
       url: 'glb/dungeon-forge.glb',
       position: { x: 0, y: -4, z: 0 },
-      rotation: { x: 0, y: -Math.PI / 4, z: 0 },
       scale: { x: 2, y: 2, z: 2 },
     },
     {
