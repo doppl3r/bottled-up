@@ -376,7 +376,7 @@ class EntityBallController extends Entity {
       
       // Check if mouse exceeds window threshold
       if (isHorizontalSpike || isVerticalSpike) {
-        alert('THIS SOLUTION WORKED');
+        console.log('onMouseMove: Mouse spike occurred');
         return;
       }
 

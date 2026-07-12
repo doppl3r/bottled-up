@@ -126,7 +126,6 @@ const EntityTemplateBall = {
       class: 'EntityPhysics',
       rigidBody: {
         status: 0,
-        ccd: true,
         softCcdPrediction: 0.5,
         colliders: [
           {

@@ -24,9 +24,9 @@ class Core extends EventDispatcher {
 
     // Initialize visual components
     this.canvas = document.createElement('canvas');
-    this.camera = new PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 100);
+    this.camera = new PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
     this.scene = new Scene();
-    this.scene.fog = new Fog('#ffffff');
+    this.scene.fog = new Fog('#000000');
     this.scene.background = new Color('#000000');
     this.selector = new Selector(this.camera, this.canvas);
     this.renderer = new WebGLRenderer({ alpha: true, canvas: this.canvas });
