@@ -412,8 +412,8 @@ class EntityBallController extends Entity {
     // Update camera rotation
     if (event.code === 'ArrowRight') this.tweenCameraRotation({ azimuth: -Math.PI / 4, duration: 250, snap: Math.PI / 4, easing: 'Quadratic.Out' });
     if (event.code === 'ArrowLeft')  this.tweenCameraRotation({ azimuth: Math.PI / 4, duration: 250, snap: Math.PI / 4, easing: 'Quadratic.Out' });
-    if (event.code === 'ArrowUp')    this.tweenCameraRotation({ pitch: -Math.PI / 4, duration: 250, snap: Math.PI / 4, easing: 'Quadratic.Out' });
-    if (event.code === 'ArrowDown')  this.tweenCameraRotation({ pitch: Math.PI / 4, duration: 250, snap: Math.PI / 4, easing: 'Quadratic.Out' });
+    if (event.code === 'ArrowUp')    this.tweenCameraRotation({ pitch: -Math.PI / 8, duration: 250, snap: Math.PI / 8, easing: 'Quadratic.Out' });
+    if (event.code === 'ArrowDown')  this.tweenCameraRotation({ pitch: Math.PI / 8, duration: 250, snap: Math.PI / 8, easing: 'Quadratic.Out' });
   }
 
   onKeyUp = (event) => {
