@@ -47,7 +47,7 @@ class Game {
     });
 
     // Load level then start the game
-    this.core.entityManager.load('json/testbed-1.json', () => {
+    this.core.entityManager.load('json/castle.json', () => {
       this.core.compositor.resize();
       this.core.start();
     });

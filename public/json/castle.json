@@ -1,0 +1,43 @@
+{
+  "name": "testbed-1",
+  "children": [
+    {
+      "template": "EntityTemplateLightHemisphere"
+    },
+    {
+      "template": "EntityTemplateLightSun"
+    },
+    {
+      "template": "EntityTemplateBall",
+      "position": {
+        "x": 0,
+        "y": 0,
+        "z": 0.5
+      }
+    },
+    {
+      "name": "castle",
+      "label": "Castle",
+      "class": "Entity",
+      "children": [
+        {
+          "class": "EntityModel",
+          "url": "glb/castle.glb"
+        },
+        {
+          "class": "EntityPhysics",
+          "rigidBody": {
+            "status": 1,
+            "colliders": [
+              {
+                "shapeDesc": {
+                  "type": "trimesh"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
