@@ -1,5 +1,5 @@
 import { DirectionalLight, Vector3 } from 'three';
-import { Entity } from "./Entity";
+import { Entity } from './Entity.js';
 
 // Module-scoped reusable to avoid per-frame allocation
 const _targetPos = new Vector3();

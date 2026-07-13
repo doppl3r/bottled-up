@@ -1,5 +1,5 @@
 import { DirectionalLight } from 'three';
-import { Entity } from "./Entity";
+import { Entity } from './Entity.js';
 
 class EntityLightDirectional extends Entity {
   constructor(options = {}) {

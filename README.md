@@ -19,6 +19,7 @@ Install local dependencies
 
 Launch Vite + Tauri dev server
 - Run: `npm run tauri dev`
+
 ## Building Extension
 
 Build Chrome extension
@@ -56,3 +57,7 @@ Build portable app
 
 - Navigate to the Partner Builds page: `https://partner.steamgames.com/apps/builds/#######`
 - Scroll to the latest `BuildID` and set the dropdown to the `default` branch, the click "Preview Change" to "publish" to Steam users.
+
+## Exporting Aseprite Slices
+
+- Run `npm run export-slices`

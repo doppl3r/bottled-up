@@ -1,5 +1,5 @@
 import { AnimationMixer } from 'three';
-import { Entity } from "./Entity";
+import { Entity } from './Entity.js';
 
 /*
   EntityMixer is a specialized entity that manages animation

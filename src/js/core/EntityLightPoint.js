@@ -1,5 +1,5 @@
 import { PointLight } from 'three';
-import { Entity } from "./Entity";
+import { Entity } from './Entity.js';
 
 class EntityLightPoint extends Entity {
   constructor(options = {}) {

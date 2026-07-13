@@ -1,5 +1,5 @@
 import { HemisphereLight } from 'three';
-import { Entity } from "./Entity";
+import { Entity } from './Entity.js';
 
 class EntityLightHemisphere extends Entity {
   constructor(options = {}) {

@@ -174,11 +174,36 @@ const EntityTemplateLevel = {
   ]
 }
 
+const EntityTemplateSkybox = {
+  name: 'skybox',
+  label: 'Skybox',
+  class: 'EntitySkybox',
+  urls: [
+    'png/skybox-clear-px.png',
+    'png/skybox-clear-nx.png',
+    'png/skybox-clear-py.png',
+    'png/skybox-clear-ny.png',
+    'png/skybox-clear-pz.png',
+    'png/skybox-clear-nz.png',
+  ]
+}
+
+const EntityTemplateRain = {
+  name: 'rain',
+  label: 'Rain',
+  class: 'EntityRain',
+  urls: [
+    'png/icon16.png'
+  ]
+}
+
 export const EntityTemplates = {
+  EntityTemplateBall,
+  EntityTemplateCube,
+  EntityTemplateLevel,
   EntityTemplateLightHemisphere,
   EntityTemplateLightSun,
-  EntityTemplateLevel,
   EntityTemplatePlane,
-  EntityTemplateBall,
-  EntityTemplateCube
+  EntityTemplateRain,
+  EntityTemplateSkybox,
 }

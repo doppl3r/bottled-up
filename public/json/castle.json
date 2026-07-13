@@ -8,6 +8,9 @@
       "template": "EntityTemplateLightSun"
     },
     {
+      "template": "EntityTemplateSkybox"
+    },
+    {
       "template": "EntityTemplateBall",
       "position": {
         "x": 0,

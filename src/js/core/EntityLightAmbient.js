@@ -1,5 +1,5 @@
 import { AmbientLight } from 'three';
-import { Entity } from "./Entity";
+import { Entity } from './Entity.js';
 
 class EntityLightAmbient extends Entity {
   constructor(options = {}) {

@@ -11,7 +11,8 @@
     "build-tauri": "tauri build",
     "build-tauri-icon": "tauri icon public/png/icon256.png",
     "dev": "vite",
-    "dev-tauri": "tauri dev"
+    "dev-tauri": "tauri dev",
+    "export-slices": "node files/js/export-slices.js"
   },
   "dependencies": {
     "@dimforge/rapier3d": "^0.19.3",
@@ -26,8 +27,10 @@
   "devDependencies": {
     "@tauri-apps/cli": "^2.11.4",
     "@vitejs/plugin-vue": "^6.0.6",
+    "ase-parser": "^0.0.18",
     "gulp": "^5.0.1",
     "gulp-zip": "^6.1.0",
+    "pngjs": "^7.0.0",
     "sass": "^1.99.0",
     "vite": "^8.1.4",
     "vite-plugin-wasm": "^3.6.0"
