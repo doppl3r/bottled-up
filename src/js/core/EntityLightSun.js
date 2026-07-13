@@ -47,25 +47,23 @@ class EntityLightSun extends Entity {
   render(loop) {
     // Compute orbit angle: time=12 → angle=0 (above), time=0/24 → angle=±π (below)
     const elapsed = loop.timestamp / 1000;
-    const angle = ((this.time - 12) / 24) * Math.PI * 2
-      + (this.duration > 0 ? elapsed * this.speed * Math.PI * 2 / this.duration : 0);
+    const timeAngle = ((this.time - 12) / 24) * Math.PI * 2;
+    const orbitAngle = this.duration > 0 ? elapsed * this.speed * Math.PI * 2 / this.duration : 0;
+    const angle = timeAngle + orbitAngle;
 
     // Resolve target world position (falls back to world origin)
     const target = this.targetName ? this.parent?.getObjectByName(this.targetName) : null;
-    if (target) {
-      target.getWorldPosition(_targetPos);
-    } else {
-      _targetPos.set(0, 0, 0);
-    }
+    if (target) target.getWorldPosition(_targetPos);
+    else _targetPos.set(0, 0, 0);
 
     // Position light and its target relative to followed entity
-    const d = this.distance;
-    const az = this.azimuth;
+    const distance = this.distance;
+    const azimuth = this.azimuth;
     this.directionalLight.target.position.set(_targetPos.x, _targetPos.y, _targetPos.z);
     this.directionalLight.position.set(
-      _targetPos.x + Math.sin(angle) * Math.sin(az) * d,
-      _targetPos.y + Math.cos(angle) * d,
-      _targetPos.z + Math.sin(angle) * Math.cos(az) * d,
+      _targetPos.x + Math.sin(angle) * Math.sin(azimuth) * distance,
+      _targetPos.y + Math.cos(angle) * distance,
+      _targetPos.z + Math.sin(angle) * Math.cos(azimuth) * distance,
     );
 
     // Inherit Entity render function
