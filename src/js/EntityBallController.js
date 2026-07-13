@@ -43,7 +43,7 @@ class EntityBallController extends Entity {
       camOrbitHeight: 1,
       camCollisionMinDistance: 2.0,
       camCollisionMaxDistance: 8,
-      camCollisionLerp: 0.95,
+      camCollisionLerp: 0.9,
       camAzimuthSensitivity: 0.0025,
       camPitchSensitivity: 0.003,
     }, options);
@@ -257,8 +257,7 @@ class EntityBallController extends Entity {
     let targetCamDistance = this.camCollisionMaxDistance;
     if (filteredIntersections.length > 0) {
       const hitDistance = filteredIntersections[0].distance;
-      const safeDistance = Math.max(this.camCollisionMinDistance, hitDistance - this.camCollisionMinDistance);
-      targetCamDistance = safeDistance;
+      targetCamDistance = Math.max(this.camCollisionMinDistance, hitDistance);
     }
     
     // Smoothly lerp current distance toward camera target
