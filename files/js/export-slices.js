@@ -6,16 +6,10 @@ import { PNG } from 'pngjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const projectRoot = path.resolve(__dirname, '../../');
 
 // Paths
-const asepriteSrcDir = path.resolve(__dirname, '../../files/aseprite');
-const pngOutputDir = path.resolve(__dirname, '../../public/png');
-
-// Ensure output directory exists
-if (!fs.existsSync(pngOutputDir)) {
-  fs.mkdirSync(pngOutputDir, { recursive: true });
-  console.log(`Created output directory: ${pngOutputDir}`);
-}
+const asepriteSrcDir = path.resolve(projectRoot, 'files/aseprite');
 
 /**
  * Extract pixel data from a CEL and return as Uint8Array (RGBA)
@@ -70,7 +64,9 @@ function savePNG(filename, width, height, pixelData) {
     png.pack()
       .pipe(stream)
       .on('finish', () => {
-        console.log(`  ✓ Exported: ${path.basename(filename)}`);
+        // Display relative path from project root
+        const relativePath = path.relative(projectRoot, filename);
+        console.log(`  ✓ Exported: ${relativePath}`);
         resolve();
       })
       .on('error', reject);
@@ -109,6 +105,30 @@ async function processAsepriteFile(filePath) {
         continue;
       }
 
+      // Parse the slice name to extract path and filename
+      let outputDir, outputFilename;
+      
+      if (sliceName.includes('/') || sliceName.includes('\\')) {
+        // Slice name includes a path (e.g., "/files/blend/textures/grass.png")
+        const normalizedPath = sliceName.replace(/\\/g, '/');
+        const lastSlash = normalizedPath.lastIndexOf('/');
+        const dirPart = normalizedPath.substring(0, lastSlash);
+        const filePart = normalizedPath.substring(lastSlash + 1);
+        
+        // Resolve relative to project root
+        outputDir = path.resolve(projectRoot, dirPart.startsWith('/') ? dirPart.substring(1) : dirPart);
+        outputFilename = filePart.endsWith('.png') ? filePart : `${filePart}.png`;
+      } else {
+        // No path in slice name - export to the aseprite file's directory
+        outputDir = path.dirname(filePath);
+        outputFilename = `${sliceName}.png`;
+      }
+
+      // Ensure output directory exists
+      if (!fs.existsSync(outputDir)) {
+        fs.mkdirSync(outputDir, { recursive: true });
+      }
+
       // Extract the slice region from the frame
       const x = slice.keys[0]?.x || 0;
       const y = slice.keys[0]?.y || 0;
@@ -137,8 +157,8 @@ async function processAsepriteFile(filePath) {
       }
 
       // Save the slice as PNG
-      const outputFilename = path.join(pngOutputDir, `${sliceName}.png`);
-      await savePNG(outputFilename, width, height, slicePixels);
+      const fullOutputPath = path.join(outputDir, outputFilename);
+      await savePNG(fullOutputPath, width, height, slicePixels);
     }
   } catch (error) {
     console.error(`  ✗ Error processing ${filename}:`, error.message);
@@ -151,7 +171,7 @@ async function processAsepriteFile(filePath) {
 async function exportAllSlices() {
   console.log('🎨 Aseprite Slice Exporter');
   console.log(`Source directory: ${asepriteSrcDir}`);
-  console.log(`Output directory: ${pngOutputDir}\n`);
+  console.log('Output: determined by slice names (or aseprite directory if no path)\n');
 
   try {
     // Read all files in the aseprite directory

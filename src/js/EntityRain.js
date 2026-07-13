@@ -32,6 +32,11 @@ class EntityRain extends EntityParticles {
     }
   }
 
+  init(options, core) {
+    core.camera.layers.enable(1);
+    super.init(options, core);
+  }
+
   render(loop) {
     // Update rain particle positions
     this.particles.translateWrapAll(

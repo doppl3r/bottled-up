@@ -192,6 +192,10 @@ const EntityTemplateRain = {
   name: 'rain',
   label: 'Rain',
   class: 'EntityRain',
+  attenuation: 0.5,
+  capacity: 100,
+  range: 100,
+  speed: 0.01,
   urls: [
     'png/icon16.png'
   ]
