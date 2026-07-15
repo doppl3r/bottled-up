@@ -117,7 +117,7 @@ const EntityTemplateBall = {
       },
       material: {
         type: 'MeshStandardMaterial',
-        arguments: [{ color: '#ffcb4c' }],
+        arguments: [{ color: '#03a9f4' }],
       },
       children: [
         {
