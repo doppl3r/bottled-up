@@ -1,11 +1,11 @@
 {
   "manifest_version": 3,
-  "name": "Paper Ball",
-  "description": "You are a paper ball.",
+  "name": "Boxel 4D",
+  "description": "Dash through the 4th dimension to restore the world of Boxel.",
   "version": "1.0.0",
   "action": {
     "default_popup": "index.html",
-    "default_title": "Paper Ball"
+    "default_title": "Boxel 4D"
   },
   "content_security_policy": {
     "extension_pages": "script-src 'self' 'wasm-unsafe-eval'"

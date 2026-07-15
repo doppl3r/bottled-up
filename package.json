@@ -1,8 +1,8 @@
 {
-  "name": "paper-ball",
+  "name": "boxel-4d",
   "version": "1.0.0",
   "author": "Jacob DeBenedetto",
-  "description": "You are a paper ball.",
+  "description": "Dash through the 4th dimension to restore the world of Boxel.",
   "type": "module",
   "scripts": {
     "build": "vite build",

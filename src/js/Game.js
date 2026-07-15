@@ -25,7 +25,7 @@ class Game {
     this.core = new Core();
     this.core.entityManager.registerEntityClasses(EntityClasses);
     this.core.entityManager.registerEntityTemplates(EntityTemplates);
-    this.record = new Record('paper-ball', stateStorage);
+    this.record = new Record('boxel-4d', stateStorage);
     this.visible = true;
   }
 

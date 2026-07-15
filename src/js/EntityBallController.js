@@ -35,7 +35,7 @@ class EntityBallController extends Entity {
       dashTimerDuration: 3000,
       jumpBufferDuration: 100,
       jumpImpulse: 16,
-      maxSlopeAngle: 30,
+      maxSlopeAngle: 45,
       camPitchDefault: Math.PI / 4,
       camPitchMin: (Math.PI / -2) + 0.1,
       camPitchMax: (Math.PI / 2) - 0.1,
