@@ -1,0 +1,46 @@
+{
+  "name": "testbed-1",
+  "children": [
+    {
+      "template": "EntityTemplateLightHemisphere"
+    },
+    {
+      "template": "EntityTemplateLightSun"
+    },
+    {
+      "template": "EntityTemplateSkybox"
+    },
+    {
+      "template": "EntityTemplateBall",
+      "position": {
+        "x": 0,
+        "y": 0.5,
+        "z": 0
+      }
+    },
+    {
+      "name": "dungeon",
+      "label": "Dungeon",
+      "class": "Entity",
+      "children": [
+        {
+          "class": "EntityModel",
+          "url": "glb/dungeon.glb"
+        },
+        {
+          "class": "EntityPhysics",
+          "rigidBody": {
+            "status": 1,
+            "colliders": [
+              {
+                "shapeDesc": {
+                  "type": "trimesh"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
