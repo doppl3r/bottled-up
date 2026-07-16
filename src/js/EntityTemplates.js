@@ -99,26 +99,32 @@ const EntityTemplatePlane = {
   ]
 }
 
-const EntityTemplateBall = {
+const EntityTemplateBallMesh = {
   name: 'ball',
   label: 'Ball',
+  class: 'EntityMesh',
+  castShadow: true,
+  receiveShadow: true,
+  geometry: {
+    type: 'SphereGeometry',
+    arguments: [0.5, 16, 16]
+  },
+  material: {
+    type: 'MeshStandardMaterial',
+    arguments: [{ color: '#42bfe8' }],
+  }
+}
+
+const EntityTemplatePlayer = {
+  name: 'player',
+  label: 'Player',
   class: 'Entity',
   children: [
     {
       class: 'EntityBallController'
     },
     {
-      class: 'EntityMesh',
-      castShadow: true,
-      receiveShadow: true,
-      geometry: {
-        type: 'SphereGeometry',
-        arguments: [0.5, 16, 16]
-      },
-      material: {
-        type: 'MeshStandardMaterial',
-        arguments: [{ color: '#03a9f4' }],
-      },
+      template: 'EntityTemplateBallMesh',
       children: [
         {
           class: 'EntityDecal',
@@ -179,12 +185,12 @@ const EntityTemplateSkybox = {
   label: 'Skybox',
   class: 'EntitySkybox',
   urls: [
-    'png/skybox-clear-px.png',
-    'png/skybox-clear-nx.png',
-    'png/skybox-clear-py.png',
-    'png/skybox-clear-ny.png',
-    'png/skybox-clear-pz.png',
-    'png/skybox-clear-nz.png',
+    'png/skybox-1-px.png',
+    'png/skybox-1-nx.png',
+    'png/skybox-1-py.png',
+    'png/skybox-1-ny.png',
+    'png/skybox-1-pz.png',
+    'png/skybox-1-nz.png',
   ]
 }
 
@@ -202,12 +208,13 @@ const EntityTemplateRain = {
 }
 
 export const EntityTemplates = {
-  EntityTemplateBall,
+  EntityTemplateBallMesh,
   EntityTemplateCube,
   EntityTemplateLevel,
   EntityTemplateLightHemisphere,
   EntityTemplateLightSun,
   EntityTemplatePlane,
+  EntityTemplatePlayer,
   EntityTemplateRain,
   EntityTemplateSkybox,
 }
