@@ -12,7 +12,10 @@ import { getCurrentWindow } from '@tauri-apps/api/window';
 */
 
 const stateStorage = {
-  fullscreen: true
+  fullscreen: true,
+  checkpoint: {
+    position: { x: 0, y: 0, z: 0 },
+  }
 }
 
 const stateSession = {
@@ -65,10 +68,30 @@ class Game {
   }
 
   onKeyDown = event => {
-    if (event.key === 'F11') {
+    if (event.code === 'F11') {
       event.preventDefault();
       this.toggleFullscreen();
     }
+    else if (event.code === 'KeyC') {
+      this.saveCheckpoint();
+    }
+    else if (event.code === 'KeyR') {
+      this.restoreCheckpoint();
+    }
+  }
+
+  saveCheckpoint() {
+    const player = this.core.scene.getObjectByName('player');
+    const position = player.position.clone();
+    this.state.checkpoint.position = position;
+    this.record.save('checkpoint', { position });
+  }
+
+  restoreCheckpoint() {
+    const player = this.core.scene.getObjectByName('player');
+    const physics = player.getObjectByProperty('class', 'EntityPhysics');
+    const checkpoint = this.record.load('checkpoint');
+    physics.setPosition(checkpoint.position);
   }
 
   onFullscreenChange = () => {
