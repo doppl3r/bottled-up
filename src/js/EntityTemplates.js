@@ -19,13 +19,10 @@ const EntityTemplateLightSun = {
   class: 'EntityLightSun',
   color: '#ffffff',
   intensity: Math.PI * 0.5,
-  distance: 20,
   time: 12,
-  duration: 120,
   speed: 0,
-  azimuth: 0,
   targetName: 'ball',
-  shadowArea: 64,
+  shadowArea: 128,
   shadowQuality: 32
 }
 

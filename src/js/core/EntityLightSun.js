@@ -1,4 +1,4 @@
-import { DirectionalLight, Vector3 } from 'three';
+import { DirectionalLight, Vector3, DirectionalLightHelper } from 'three';
 import { Entity } from './Entity.js';
 
 // Module-scoped reusable to avoid per-frame allocation
@@ -11,14 +11,13 @@ class EntityLightSun extends Entity {
       class: 'EntityLightSun',
       color: '#ffffff',
       intensity: Math.PI,
-      distance: 20,
       time: 12,
       duration: 120,
       speed: 1,
       azimuth: 0,
       targetName: '',
+      shadowArea: 64,
       shadowQuality: 128,
-      shadowArea: 32,
     }, options);
 
     // Inherit Entity properties
@@ -26,9 +25,9 @@ class EntityLightSun extends Entity {
 
     // Store shadow parameters
     this.shadowQuality = options.shadowQuality;
+    this.shadowArea = options.shadowArea;
 
     // Store orbit parameters
-    this.distance = options.distance;
     this.time = options.time;
     this.duration = options.duration;
     this.speed = options.speed;
@@ -42,6 +41,9 @@ class EntityLightSun extends Entity {
 
     // Recalculate shadow area once
     this.updateShadowArea(options.shadowArea);
+
+    // Create optional debug helper
+    this.lightHelper = new DirectionalLightHelper(this.directionalLight, 1);
   }
 
   render(loop) {
@@ -57,13 +59,12 @@ class EntityLightSun extends Entity {
     else _targetPos.set(0, 0, 0);
 
     // Position light and its target relative to followed entity
-    const distance = this.distance;
     const azimuth = this.azimuth;
     this.directionalLight.target.position.set(_targetPos.x, _targetPos.y, _targetPos.z);
     this.directionalLight.position.set(
-      _targetPos.x + Math.sin(angle) * Math.sin(azimuth) * distance,
-      _targetPos.y + Math.cos(angle) * distance,
-      _targetPos.z + Math.sin(angle) * Math.cos(azimuth) * distance,
+      _targetPos.x + Math.sin(angle) * Math.sin(azimuth) * (this.shadowArea / 2),
+      _targetPos.y + Math.cos(angle) * (this.shadowArea / 2),
+      _targetPos.z + Math.sin(angle) * Math.cos(azimuth) * (this.shadowArea / 2),
     );
 
     // Inherit Entity render function
@@ -77,7 +78,7 @@ class EntityLightSun extends Entity {
     this.directionalLight.shadow.camera.top = area / 2;
     this.directionalLight.shadow.camera.bottom = -area / 2;
     this.directionalLight.shadow.camera.near = 0.1;
-    this.directionalLight.shadow.camera.far = this.distance * 2;
+    this.directionalLight.shadow.camera.far = this.shadowArea;
     this.directionalLight.shadow.camera.updateProjectionMatrix();
 
     // Map size = area × texels-per-unit, keeping shadow density constant
@@ -90,6 +91,12 @@ class EntityLightSun extends Entity {
       this.directionalLight.shadow.map.dispose();
       this.directionalLight.shadow.map = null;
     }
+  }
+
+  debug(state = true) {
+    // Enable or disable directional light helper
+    if (state === true) this.add(this.lightHelper);
+    else this.remove(this.lightHelper);
   }
 }
 
