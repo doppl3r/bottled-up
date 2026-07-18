@@ -1,5 +1,5 @@
 {
-  "name": "castle",
+  "name": "forge",
   "children": [
     {
       "template": "EntityTemplateLightHemisphere"
@@ -8,24 +8,32 @@
       "template": "EntityTemplateLightSun"
     },
     {
-      "template": "EntityTemplateSkybox"
+      "template": "EntityTemplateSkybox",
+      "urls": [
+        "png/skybox-forge-1-px.png",
+        "png/skybox-forge-1-nx.png",
+        "png/skybox-forge-1-py.png",
+        "png/skybox-forge-1-ny.png",
+        "png/skybox-forge-1-pz.png",
+        "png/skybox-forge-1-nz.png"
+      ]
     },
     {
       "template": "EntityTemplatePlayer",
       "position": {
         "x": 0,
-        "y": 0,
-        "z": 0.5
+        "y": 0.5,
+        "z": 0
       }
     },
     {
-      "name": "castle",
-      "label": "Castle",
+      "name": "forge",
+      "label": "Forge",
       "class": "Entity",
       "children": [
         {
           "class": "EntityModel",
-          "url": "glb/castle.glb"
+          "url": "glb/forge.glb"
         },
         {
           "class": "EntityPhysics",
