@@ -1,4 +1,4 @@
-import { DirectionalLight, Vector3, DirectionalLightHelper } from 'three';
+import { DirectionalLight, Vector3, CameraHelper } from 'three';
 import { Entity } from './Entity.js';
 
 // Module-scoped reusable to avoid per-frame allocation
@@ -17,7 +17,7 @@ class EntityLightSun extends Entity {
       azimuth: 0,
       targetName: '',
       shadowArea: 64,
-      shadowQuality: 128,
+      shadowQuality: 64,
     }, options);
 
     // Inherit Entity properties
@@ -42,8 +42,8 @@ class EntityLightSun extends Entity {
     // Recalculate shadow area once
     this.updateShadowArea(options.shadowArea);
 
-    // Create optional debug helper
-    this.lightHelper = new DirectionalLightHelper(this.directionalLight, 1);
+    // Create optional debug helper for shadow camera frustum
+    this.lightHelper = new CameraHelper(this.directionalLight.shadow.camera);
   }
 
   render(loop) {
@@ -94,7 +94,7 @@ class EntityLightSun extends Entity {
   }
 
   debug(state = true) {
-    // Enable or disable directional light helper
+    // Enable or disable shadow camera helper
     if (state === true) this.add(this.lightHelper);
     else this.remove(this.lightHelper);
   }

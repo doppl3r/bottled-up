@@ -248,6 +248,9 @@ class EntityBallController extends Entity {
     // Get intersections from the ball to the camera (ignore parent model)
     const intersections = this.raycaster.intersectObject(this.core.scene, true);
     const filteredIntersections = intersections.filter(hit => {
+      // Only include mesh objects (exclude helpers and other non-mesh types)
+      if (hit.object.type !== 'Mesh') return false;
+      
       // Exclude the player ball and its children
       while (hit.object) { if (hit.object === this.parent) return false; hit.object = hit.object.parent; }
       return true;

@@ -22,7 +22,7 @@ const EntityTemplateLightSun = {
   time: 12,
   speed: 0,
   targetName: 'ball',
-  shadowArea: 128,
+  shadowArea: 64,
   shadowQuality: 32
 }
 
