@@ -104,7 +104,7 @@ const EntityTemplateBallMesh = {
   receiveShadow: true,
   geometry: {
     type: 'SphereGeometry',
-    arguments: [0.5, 16, 16]
+    arguments: [0.25, 16, 16]
   },
   material: {
     type: 'MeshStandardMaterial',
@@ -126,9 +126,9 @@ const EntityTemplatePlayer = {
         {
           class: 'EntityDecal',
           url: 'png/smile.png',
-          position: { x: 0, y: 0, z: 0.5 },
+          position: { x: 0, y: 0, z: 0.25 },
           normal: { x: 0, y: 0, z: 1 },
-          scale: { x: 0.9, y: 0.9, z: 0.9 }
+          scale: { x: 0.5, y: 0.5, z: 0.5 }
         }
       ]
     },
@@ -136,12 +136,12 @@ const EntityTemplatePlayer = {
       class: 'EntityPhysics',
       rigidBody: {
         status: 0,
-        softCcdPrediction: 0.5,
+        softCcdPrediction: 0.25,
         colliders: [
           {
             shapeDesc: {
               type: 'ball',
-              arguments: [0.5]
+              arguments: [0.25]
             }
           }
         ]
