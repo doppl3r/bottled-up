@@ -31,10 +31,10 @@ class EntityBallController extends Entity {
       moveForce: 24,
       moveMaxSpeed: 8,
       steerFactor: 4.0,
-      dashImpulse: 8,
+      dashSpeed: 8,
       dashTimerDuration: 3000,
       jumpBufferDuration: 100,
-      jumpImpulse: 16,
+      jumpHeight: 2.5,
       maxSlopeAngle: 45,
       camPitchDefault: Math.PI / 8,
       camPitchMin: (Math.PI / -2) + 0.1,
@@ -44,8 +44,8 @@ class EntityBallController extends Entity {
       camCollisionMinDistance: 1.0,
       camCollisionMaxDistance: 5,
       camCollisionLerp: 0.9,
-      camAzimuthSensitivity: 0.0025,
-      camPitchSensitivity: 0.003,
+      camAzimuthSensitivity: 0.00125,
+      camPitchSensitivity: 0.00125,
     }, options);
 
     // Inherit Entity properties
@@ -55,9 +55,9 @@ class EntityBallController extends Entity {
     this.moveForce = options.moveForce;
     this.moveMaxSpeed = options.moveMaxSpeed;
     this.steerFactor = options.steerFactor;
-    this.dashImpulse = options.dashImpulse;
+    this.dashSpeed = options.dashSpeed;
     this.dashTimerDuration = options.dashTimerDuration;
-    this.jumpImpulse = options.jumpImpulse;
+    this.jumpHeight = options.jumpHeight;
     this.jumpBufferDuration = options.jumpBufferDuration;
     this.maxSlopeAngleRad = options.maxSlopeAngle * Math.PI / 180;
     this.camPitchDefault = options.camPitchDefault;
@@ -202,8 +202,15 @@ class EntityBallController extends Entity {
       const linvel = this.entityPhysics.rigidBody.linvel();
       this.entityPhysics.rigidBody.setLinvel({ x: linvel.x, y: 0, z: linvel.z }, true);
 
-      // Scale jump impulse by mass to account for different ball sizes
-      this.entityPhysics.rigidBody.applyImpulse({ x: 0, y: this.jumpImpulse * mass, z: 0 }, true);
+      // Calculate jump impulse from the desired jump height
+      const gravity = this.core.entityManager.world.gravity;
+      const gravityMagnitude = Math.sqrt(gravity.x ** 2 + gravity.y ** 2 + gravity.z ** 2);
+      const mass = this.entityPhysics.rigidBody.mass();
+      const requiredVelocity = Math.sqrt(2 * gravityMagnitude * this.jumpHeight);
+      const jumpImpulse = requiredVelocity * mass;
+
+      // Apply calculated jump impulse
+      this.entityPhysics.rigidBody.applyImpulse({ x: 0, y: jumpImpulse, z: 0 }, true);
       this.canJump = false;
       this.jumpBufferElapsed = 0;
     }
@@ -212,7 +219,7 @@ class EntityBallController extends Entity {
     const wantsDash = this.keys.has('ShiftLeft') || this.keys.has('ShiftRight');
     if (wantsDash && this.dashTimerElapsed <= 0) {
       const dashDir = _forceDir.lengthSq() > 0 ? _forceDir : _camForward;
-      this.entityPhysics.rigidBody.applyImpulse({ x: dashDir.x * this.dashImpulse * mass, y: 0, z: dashDir.z * this.dashImpulse * mass }, true);
+      this.entityPhysics.rigidBody.applyImpulse({ x: dashDir.x * this.dashSpeed * mass, y: 0, z: dashDir.z * this.dashSpeed * mass }, true);
       this.dashTimerElapsed = this.dashTimerDuration;
       this.tweenCameraFOV();
     }
