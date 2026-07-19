@@ -118,7 +118,8 @@ async function processAsepriteFile(filePath) {
         // Resolve relative to project root
         outputDir = path.resolve(projectRoot, dirPart.startsWith('/') ? dirPart.substring(1) : dirPart);
         outputFilename = filePart.endsWith('.png') ? filePart : `${filePart}.png`;
-      } else {
+      }
+      else {
         // No path in slice name - export to the aseprite file's directory
         outputDir = path.dirname(filePath);
         outputFilename = `${sliceName}.png`;

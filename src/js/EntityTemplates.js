@@ -129,6 +129,12 @@ const EntityTemplatePlayer = {
           position: { x: 0, y: 0, z: 0.25 },
           normal: { x: 0, y: 0, z: 1 },
           scale: { x: 0.5, y: 0.5, z: 0.5 }
+        },
+        {
+          class: 'EntityShadow',
+          distance: 64,
+          scale: { x: 0.5, y: 0.5, z: 0.5 },
+          url: 'png/shadow.png'
         }
       ]
     },
