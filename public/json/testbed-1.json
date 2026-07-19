@@ -5,9 +5,6 @@
       "template": "EntityTemplateLightHemisphere"
     },
     {
-      "template": "EntityTemplateLightSun"
-    },
-    {
       "template": "EntityTemplatePlayer",
       "position": {
         "x": 0,
@@ -16,7 +13,29 @@
       }
     },
     {
-      "template": "EntityTemplateLevel"
+      "name": "level",
+      "label": "Level",
+      "class": "Entity",
+      "children": [
+        {
+          "class": "EntityModel",
+          "url": "glb/ramps.glb",
+          "position": { "x": 0, "y": -4, "z": 0 }
+        },
+        {
+          "class": "EntityPhysics",
+          "rigidBody": {
+            "status": 1,
+            "colliders": [
+              {
+                "shapeDesc": {
+                  "type": "trimesh"
+                }
+              }
+            ]
+          }
+        }
+      ]
     }
   ]
 }

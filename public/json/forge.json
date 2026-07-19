@@ -2,10 +2,10 @@
   "name": "forge",
   "children": [
     {
-      "template": "EntityTemplateLightHemisphere"
-    },
-    {
-      "template": "EntityTemplateLightSun"
+      "template": "EntityTemplateLightHemisphere",
+      "skyColor": "#ffffff",
+      "groundColor": "#aaaaaa",
+      "intensity": 3.14
     },
     {
       "template": "EntityTemplateSkybox",

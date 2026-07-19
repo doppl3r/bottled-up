@@ -2,10 +2,7 @@
   "name": "testbed-2",
   "children": [
     {
-      "template": "EntityTemplateLightHemisphere",
-      "skyColor": "#ffffff",
-      "groundColor": "#aaaaaa",
-      "intensity": 3.14
+      "template": "EntityTemplateLightHemisphere"
     },
     {
       "template": "EntityTemplatePlayer",

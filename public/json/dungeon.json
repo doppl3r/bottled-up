@@ -5,16 +5,21 @@
       "template": "EntityTemplateLightHemisphere"
     },
     {
-      "template": "EntityTemplateLightSun"
-    },
-    {
-      "template": "EntityTemplateSkybox"
+      "template": "EntityTemplateSkybox",
+      "urls": [
+        "png/skybox-forge-1-px.png",
+        "png/skybox-forge-1-nx.png",
+        "png/skybox-forge-1-py.png",
+        "png/skybox-forge-1-ny.png",
+        "png/skybox-forge-1-pz.png",
+        "png/skybox-forge-1-nz.png"
+      ]
     },
     {
       "template": "EntityTemplatePlayer",
       "position": {
         "x": 0,
-        "y": 0.5,
+        "y": 4.5,
         "z": 0
       }
     },

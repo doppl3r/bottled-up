@@ -9,8 +9,8 @@ const EntityTemplateLightHemisphere = {
   label: 'Light Hemisphere',
   class: 'EntityLightHemisphere',
   skyColor: '#ffffff',
-  groundColor: '#ffffff',
-  intensity: Math.PI * 0.5
+  groundColor: '#aaaaaa',
+  intensity: Math.PI
 }
 
 const EntityTemplateLightSun = {
@@ -18,7 +18,7 @@ const EntityTemplateLightSun = {
   label: 'Light Sun',
   class: 'EntityLightSun',
   color: '#ffffff',
-  intensity: Math.PI * 0.5,
+  intensity: Math.PI,
   time: 12,
   speed: 0,
   targetName: 'ball',
@@ -96,7 +96,7 @@ const EntityTemplatePlane = {
   ]
 }
 
-const EntityTemplateBallMesh = {
+const EntityTemplateBall = {
   name: 'ball',
   label: 'Ball',
   class: 'EntityMesh',
@@ -121,7 +121,7 @@ const EntityTemplatePlayer = {
       class: 'EntityBallController'
     },
     {
-      template: 'EntityTemplateBallMesh',
+      template: 'EntityTemplateBall',
       children: [
         {
           class: 'EntityDecal',
@@ -129,12 +129,6 @@ const EntityTemplatePlayer = {
           position: { x: 0, y: 0, z: 0.25 },
           normal: { x: 0, y: 0, z: 1 },
           scale: { x: 0.5, y: 0.5, z: 0.5 }
-        },
-        {
-          class: 'EntityShadow',
-          distance: 64,
-          scale: { x: 0.5, y: 0.5, z: 0.5 },
-          url: 'png/shadow.png'
         }
       ]
     },
@@ -152,36 +146,15 @@ const EntityTemplatePlayer = {
           }
         ]
       }
+    },
+    {
+      class: 'EntityShadow',
+      distance: 64,
+      scale: { x: 0.5, y: 0.5, z: 0.5 }
     }
   ]
 }
 
-const EntityTemplateLevel = {
-  name: 'level',
-  label: 'Level',
-  class: 'Entity',
-  children: [
-    {
-      class: 'EntityModel',
-      url: 'glb/dungeon-forge.glb',
-      position: { x: 0, y: -4, z: 0 },
-      scale: { x: 2, y: 2, z: 2 },
-    },
-    {
-      class: 'EntityPhysics',
-      rigidBody: {
-        status: 1,
-        colliders: [
-          {
-            shapeDesc: {
-              type: 'trimesh'
-            }
-          }
-        ],
-      }
-    }
-  ]
-}
 
 const EntityTemplateSkybox = {
   name: 'skybox',
@@ -211,9 +184,8 @@ const EntityTemplateRain = {
 }
 
 export const EntityTemplates = {
-  EntityTemplateBallMesh,
+  EntityTemplateBall,
   EntityTemplateCube,
-  EntityTemplateLevel,
   EntityTemplateLightHemisphere,
   EntityTemplateLightSun,
   EntityTemplatePlane,
