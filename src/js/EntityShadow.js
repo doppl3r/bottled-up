@@ -1,4 +1,4 @@
-import { CanvasTexture, Vector3, Raycaster, PlaneGeometry, MeshBasicMaterial, Mesh } from 'three';
+import { CanvasTexture, Vector3, Quaternion, Raycaster, PlaneGeometry, MeshBasicMaterial, Mesh } from 'three';
 import { Entity } from './core/Entity.js';
 
 /*
@@ -8,9 +8,12 @@ import { Entity } from './core/Entity.js';
 
 // Module-scoped reusables to avoid per-frame allocations
 const _rayOrigin = new Vector3();
-const _rayDir = new Vector3(0, -1, 0);
-const _planeNormal = new Vector3(0, 0, 1); // PlaneGeometry default normal faces +Z
+const _rayDirection = new Vector3(0, -1, 0);
+const _planeNormal = new Vector3(0, 0, 1);
 const _worldNormal = new Vector3();
+const _localNormal = new Vector3();
+const _localPosition = new Vector3();
+const _worldQuaternion = new Quaternion();
 
 class EntityShadow extends Entity {
   constructor(options = {}) {
@@ -28,7 +31,7 @@ class EntityShadow extends Entity {
     this.raycaster = new Raycaster();
 
     // Set in init()
-    this.shadowMesh = null;
+    this.shadow = null;
     this.core = null;
     this.url = null;
   }
@@ -41,9 +44,8 @@ class EntityShadow extends Entity {
     const geometry = new PlaneGeometry(1, 1);
     const material = new MeshBasicMaterial({ color: '#000000', transparent: true, opacity: 0.5 });
     const mesh = new Mesh(geometry, material);
-    this.shadowMesh = mesh;
-    this.shadowMesh.scale.copy(this.scale);
-    core.scene.add(mesh);
+    this.shadow = mesh;
+    this.add(mesh);
 
     // Load shadow texture map
     if (options.url) {
@@ -54,14 +56,6 @@ class EntityShadow extends Entity {
     else {
       material.map = this.createShadowTexture();
     }
-
-    // Clean up the scene-root mesh when this entity is removed from its parent
-    this.addEventListener('removed', () => {
-      core.scene.remove(this.shadowMesh);
-      this.shadowMesh.geometry.dispose();
-      this.shadowMesh.material.dispose();
-      this.shadowMesh = null;
-    });
 
     super.init(options, core);
   }
@@ -79,7 +73,7 @@ class EntityShadow extends Entity {
     this.parent.getWorldPosition(_rayOrigin);
 
     // Cast ray straight down from the parent's world position
-    this.raycaster.set(_rayOrigin, _rayDir);
+    this.raycaster.set(_rayOrigin, _rayDirection);
     this.raycaster.far = this.distance;
 
     // Check for intersections with the scene
@@ -87,30 +81,40 @@ class EntityShadow extends Entity {
     const hit = intersections.find(i => {
       if (i.object.type !== 'Mesh') return false;
       let obj = i.object;
-      while (obj) { if (obj === this.shadowMesh || obj === this.parent) return false; obj = obj.parent; }
+      while (obj) { if (obj === this.parent) return false; obj = obj.parent; }
       return true;
     });
 
-    // Place shadow at the hit point in world space
+    // Place shadow at the hit point in local space
     if (hit) {
-      // Align the plane to the surface normal so it lies flat on slopes
+      // Convert world position to local space (relative to this entity)
+      _localPosition.copy(hit.point);
+      this.worldToLocal(_localPosition);
+      
+      // Transform surface normal to local space
       _worldNormal.copy(hit.face.normal).transformDirection(hit.object.matrixWorld).normalize();
-      this.shadowMesh.position.copy(hit.point).addScaledVector(_worldNormal, 0.01);
-      this.shadowMesh.quaternion.setFromUnitVectors(_planeNormal, _worldNormal);
-      this.shadowMesh.visible = true;
+      _localNormal.copy(_worldNormal);
+      this.getWorldQuaternion(_worldQuaternion);
+      _worldQuaternion.invert();
+      _localNormal.applyQuaternion(_worldQuaternion);
+      
+      // Position shadow at hit point and align to surface normal (in local space)
+      this.shadow.position.copy(_localPosition).addScaledVector(_localNormal, 0.01);
+      this.shadow.quaternion.setFromUnitVectors(_planeNormal, _localNormal);
+      this.shadow.visible = true;
     }
     else {
-      this.shadowMesh.visible = false;
+      this.shadow.visible = false;
     }
   }
 
   createShadowTexture(options = {}) {
     options = Object.assign({
       antiAlias: false,
-      minFilter: 1006,
-      magFilter: 1006,
+      minFilter: 1003,
+      magFilter: 1003,
       padding: 1,
-      size: 32,
+      size: 16,
     }, options);
 
     // Create canvas
