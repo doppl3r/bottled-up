@@ -100,7 +100,7 @@ const EntityTemplateBall = {
   name: 'ball',
   label: 'Ball',
   class: 'EntityMesh',
-  castShadow: true,
+  castShadow: false,
   receiveShadow: true,
   geometry: {
     type: 'SphereGeometry',
@@ -136,7 +136,7 @@ const EntityTemplatePlayer = {
       class: 'EntityPhysics',
       rigidBody: {
         status: 0,
-        softCcdPrediction: 0.25,
+        softCcdPrediction: 1.0,
         colliders: [
           {
             shapeDesc: {
