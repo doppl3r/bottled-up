@@ -11,9 +11,8 @@ const _rayOrigin = new Vector3();
 const _rayDirection = new Vector3(0, -1, 0);
 const _planeNormal = new Vector3(0, 0, 1);
 const _worldNormal = new Vector3();
-const _localNormal = new Vector3();
 const _localPosition = new Vector3();
-const _worldQuaternion = new Quaternion();
+const _worldQuat = new Quaternion();
 
 class EntityShadow extends Entity {
   constructor(options = {}) {
@@ -69,10 +68,13 @@ class EntityShadow extends Entity {
   }
 
   updateShadow() {
-    // Set ray origin and direction for downward raycast
-    this.parent.getWorldPosition(_rayOrigin);
+    // Counteract inherited player rotation so this entity's local space is world-aligned
+    this.parent.getWorldQuaternion(_worldQuat);
+    this.quaternion.copy(_worldQuat).invert();
+    this.updateWorldMatrix(true, false);
 
-    // Cast ray straight down from the parent's world position
+    // Set ray origin and cast straight down from the parent's world position
+    this.parent.getWorldPosition(_rayOrigin);
     this.raycaster.set(_rayOrigin, _rayDirection);
     this.raycaster.far = this.distance;
 
@@ -85,22 +87,17 @@ class EntityShadow extends Entity {
       return true;
     });
 
-    // Place shadow at the hit point in local space
     if (hit) {
-      // Convert world position to local space (relative to this entity)
+      // World surface normal (equals local normal since rotation is neutralized above)
+      _worldNormal.copy(hit.face.normal).transformDirection(hit.object.matrixWorld).normalize();
+
+      // Position shadow at hit point, nudged slightly off the surface
       _localPosition.copy(hit.point);
       this.worldToLocal(_localPosition);
-      
-      // Transform surface normal to local space
-      _worldNormal.copy(hit.face.normal).transformDirection(hit.object.matrixWorld).normalize();
-      _localNormal.copy(_worldNormal);
-      this.getWorldQuaternion(_worldQuaternion);
-      _worldQuaternion.invert();
-      _localNormal.applyQuaternion(_worldQuaternion);
-      
-      // Position shadow at hit point and align to surface normal (in local space)
-      this.shadow.position.copy(_localPosition).addScaledVector(_localNormal, 0.01);
-      this.shadow.quaternion.setFromUnitVectors(_planeNormal, _localNormal);
+      this.shadow.position.copy(_localPosition).addScaledVector(_worldNormal, 0.01);
+
+      // Align shadow plane to surface normal
+      this.shadow.quaternion.setFromUnitVectors(_planeNormal, _worldNormal);
       this.shadow.visible = true;
     }
     else {
