@@ -28,6 +28,7 @@ class Core extends EventDispatcher {
     this.scene = new Scene();
     this.scene.fog = new Fog('#000000');
     this.scene.background = new Color('#000000');
+    this.scene.matrixWorldAutoUpdate = false;
     this.selector = new Selector(this.camera, this.canvas);
     this.renderer = new WebGLRenderer({ alpha: true, canvas: this.canvas });
     this.compositor = new Compositor(this.scene, this.camera, this.renderer);
@@ -64,6 +65,7 @@ class Core extends EventDispatcher {
     
     // Update component visual states before rendering
     this.entityManager.render(loop);
+    this.scene.updateMatrixWorld();
     this.compositor.render();
     
     // Dispatch final rendered event
