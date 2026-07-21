@@ -1,4 +1,4 @@
-import { Vector3, Raycaster } from 'three';
+import { Vector3 } from 'three';
 import { Entity } from './core/Entity.js';
 import { Tweens } from './core/Tweens.js';
 
@@ -93,7 +93,6 @@ class EntityBallController extends Entity {
     this.dragY = 0;
 
     // Camera collision detection state
-    this.raycaster = new Raycaster();
     this.camDistance = this.camCollisionMaxDistance;
 
     // Lerp targets
@@ -247,26 +246,9 @@ class EntityBallController extends Entity {
       _orbitCenter.z + h * Math.cos(this.camAzimuth)
     );
     
-    // Cast ray from orbit center toward desired camera position
+    // Cast sphere from orbit center toward desired camera position using Rapier shape cast
     _rayDirection.subVectors(_desiredCamPos, _orbitCenter).normalize();
-    this.raycaster.set(_orbitCenter, _rayDirection);
-    this.raycaster.far = this.camCollisionMaxDistance;
-    
-    // Get intersections from the ball to the camera (ignore parent model)
-    const intersections = this.raycaster.intersectObject(this.core.scene, true);
-    const filteredIntersections = intersections.filter(hit => {
-      // Only include mesh objects (exclude helpers and other non-mesh types)
-      if (hit.object.type !== 'Mesh') return false;
-      while (hit.object) { if (hit.object === this.parent) return false; hit.object = hit.object.parent; }
-      return true;
-    });
-    
-    // Calculate camera target distance based on collision
-    let targetCamDistance = this.camCollisionMaxDistance;
-    if (filteredIntersections.length > 0) {
-      const hitDistance = filteredIntersections[0].distance;
-      targetCamDistance = Math.max(this.camCollisionMinDistance, hitDistance);
-    }
+    const targetCamDistance = this.castCameraCollisionSphere(_orbitCenter, _rayDirection, this.camCollisionMaxDistance);
     
     // Smoothly lerp current distance toward camera target
     const collisionLerpFactor = 1 - Math.pow(this.camCollisionLerp, loop.delta / 16.67);
@@ -332,6 +314,34 @@ class EntityBallController extends Entity {
       this.groundNormal.set(0, 1, 0);
       this.isGrounded = false;
     }
+  }
+
+  castCameraCollisionSphere(origin, direction, maxDistance) {
+    // Guard: return max distance if physics not yet initialized
+    if (!this.entityPhysics || !this.entityPhysics.rigidBody) {
+      return maxDistance;
+    }
+
+    // Cast the ball shape from shapePos toward desired camera position
+    const world = this.core.entityManager.world;
+    const rigidBody = this.entityPhysics.rigidBody;
+    const shape = rigidBody.collider(0).shape;
+    const shapePos = origin;
+    const shapeRot = rigidBody.rotation();
+    const shapeVel = direction;
+    const targetDistance = 0.0; // Distance between collision
+    const maxToi = maxDistance;
+    const stopAtPenetration = false; // Continue full sweep
+    const filterFlags = undefined;
+    const filterGroups = undefined;
+    const filterExcludeCollider = rigidBody.collider(0);
+    const hit = world.castShape(shapePos, shapeRot, shapeVel, shape, targetDistance, maxToi, stopAtPenetration, filterFlags, filterGroups, filterExcludeCollider);
+
+    // Distance traveled before the swept shape touches a collider
+    if (hit) {
+      return Math.max(this.camCollisionMinDistance, hit.time_of_impact);
+    }
+    return maxDistance;
   }
 
   tweenCameraRotation({ azimuth = 0, pitch = 0, snap, duration = 300, easing = 'Quadratic.Out' }) {
