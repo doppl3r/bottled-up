@@ -82,16 +82,20 @@ class Game {
 
   saveCheckpoint() {
     const player = this.core.scene.getObjectByName('player');
-    const position = player.position.clone();
-    this.state.checkpoint.position = position;
-    this.record.save('checkpoint', { position });
+    const physics = player.getObjectByProperty('class', 'EntityPhysics');
+    const position = physics.getPosition();
+    const rotation = physics.getRotation();
+    this.record.save('checkpoint', { position, rotation });
   }
 
   restoreCheckpoint() {
     const player = this.core.scene.getObjectByName('player');
     const physics = player.getObjectByProperty('class', 'EntityPhysics');
     const checkpoint = this.record.load('checkpoint');
+    physics.rigidBody.setLinvel({ x: 0, y: 0, z: 0 });
+    physics.rigidBody.setAngvel({ x: 0, y: 0, z: 0 });
     physics.setPosition(checkpoint.position);
+    physics.setRotation(checkpoint.rotation);
   }
 
   onFullscreenChange = () => {
