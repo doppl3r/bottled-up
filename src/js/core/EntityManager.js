@@ -85,7 +85,7 @@ class EntityManager {
 
   async load(data, onLoad = () => {}) {
     // Fetch scene JSON and add entities to scene
-    const sceneOptions = typeof data === 'string' ? await this.fetchJSON(data) : data;
+    const sceneOptions = (typeof data === 'string') ? await this.fetchJSON(data) : data;
     const entities = [];
     sceneOptions.children?.forEach(childOptions => {
       this.spawn(childOptions, this.core.scene, entities);
@@ -120,6 +120,50 @@ class EntityManager {
     catch { console.error(`Error: ${ url } not found.`); }
     return json;
   }
+
+  createJSON(obj) {
+    const json = {};
+    const templateName = this.findTemplateName(obj.name);
+    const template = this.entityTemplates[templateName];
+
+    // Assign name and template name
+    if (obj.name) json.name = obj.name;
+    if (templateName) {
+      json.template = templateName;
+    }
+
+    // Add local transform properties (position, rotation, scale)
+    if (obj.position) json.position = { x: obj.position.x, y: obj.position.y, z: obj.position.z };
+    if (obj.rotation) json.rotation = { x: obj.rotation.x, y: obj.rotation.y, z: obj.rotation.z };
+    if (obj.scale) json.scale = { x: obj.scale.x, y: obj.scale.y, z: obj.scale.z };
+
+    // Assign 3D object userData to JSON object
+    if (obj.userData) Object.assign(json, obj.userData);
+
+    // Recursively create JSON for child entities
+    obj.children?.forEach(child => {
+      const childJSON = this.createJSON(child);
+      json.children = json.children ?? [];
+      json.children.push(childJSON);
+    });
+    return json;
+  }
+  
+  findTemplateName(name) {
+    const lName = name.toLowerCase();
+    let bestMatch = null;
+    let longestLength = 0;
+    
+    // Find the best match based on the name
+    for (const [key, template] of Object.entries(this.entityTemplates)) {
+      if (lName.includes(key.toLowerCase()) && key.length > longestLength) {
+        bestMatch = key;
+        longestLength = key.length;
+      }
+    }
+    return bestMatch;
+  }
+
 
   spawn(options, parent = this.core.scene, entities = null) {
     // Create and add entity to parent

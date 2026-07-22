@@ -41,7 +41,7 @@ class EntityBallController extends Entity {
       camPitchMin: (Math.PI / -2) + 0.1,
       camPitchMax: (Math.PI / 2) - 0.1,
       camLerp: 0.9,
-      camOrbitHeight: 1.0,
+      camOrbitHeight: 0.5,
       camCollisionLerp: 0.9,
       camCollisionMaxDistance: 5,
       camCollisionMinDistance: 0.5,

@@ -183,6 +183,27 @@ const EntityTemplateRain = {
   ]
 }
 
+const EntityTemplatePhysicsTrimesh = {
+  name: 'trimesh',
+  label: 'Trimesh',
+  class: 'Entity',
+  children: [
+    {
+      class: 'EntityPhysics',
+      rigidBody: {
+        status: 1,
+        colliders: [
+          {
+            shapeDesc: {
+              type: 'trimesh'
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
+
 export const EntityTemplates = {
   EntityTemplateBall,
   EntityTemplateCube,
@@ -192,4 +213,11 @@ export const EntityTemplates = {
   EntityTemplatePlayer,
   EntityTemplateRain,
   EntityTemplateSkybox,
+  EntityTemplatePhysicsTrimesh,
 }
+
+// Assign shorthand names for parsing from .glb object names
+EntityTemplates['LightHemisphere'] = EntityTemplateLightHemisphere;
+EntityTemplates['LightSun'] = EntityTemplateLightSun;
+EntityTemplates['Player'] = EntityTemplatePlayer;
+EntityTemplates['Trimesh'] = EntityTemplatePhysicsTrimesh;

@@ -55,6 +55,13 @@ class Game {
       this.core.start();
     });
 
+    // TODO: Finish createJSON logic and load it like other .json files
+    this.core.assets.load('glb/forge.glb', model => {
+      // Loop through scene
+      const json = this.core.entityManager.createJSON(model);
+      console.log(json);
+    });
+
     // Setup event listeners
     this.addEventListeners();
   }
