@@ -34,6 +34,7 @@
         },
         {
           "class": "EntityPhysics",
+          "url": "glb/dungeon.glb",
           "rigidBody": {
             "status": 1,
             "colliders": [

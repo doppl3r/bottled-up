@@ -37,6 +37,7 @@
         },
         {
           "class": "EntityPhysics",
+          "url": "glb/forge.glb",
           "rigidBody": {
             "status": 1,
             "colliders": [

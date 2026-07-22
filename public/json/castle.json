@@ -31,6 +31,7 @@
         },
         {
           "class": "EntityPhysics",
+          "url": "glb/castle.glb",
           "rigidBody": {
             "status": 1,
             "colliders": [

@@ -59,43 +59,6 @@ const EntityTemplateCube = {
   ]
 }
 
-const EntityTemplatePlane = {
-  name: 'plane',
-  label: 'Plane',
-  class: 'Entity',
-  children: [
-    {
-      class: 'EntityMesh',
-      type: 'Mesh',
-      rotation: { x: -Math.PI / 2, y: 0, z: 0 },
-      geometry: {
-        type: 'PlaneGeometry',
-        arguments: [10, 10, 10, 10],
-      },
-      material: {
-        type: 'MeshBasicMaterial',
-        arguments: [
-          { color: '#ffffff', opacity: 1, transparent: true }
-        ],
-      }
-    },
-    {
-      class: 'EntityPhysics',
-      rigidBody: {
-        status: 1,
-        colliders: [
-          {
-            rotation: { x: -Math.PI / 2, y: 0, z: 0 },
-            shapeDesc: {
-              type: 'trimesh'
-            }
-          }
-        ]
-      }
-    }
-  ]
-}
-
 const EntityTemplateBall = {
   name: 'ball',
   label: 'Ball',
@@ -213,7 +176,6 @@ export const EntityTemplates = {
   EntityTemplateCube,
   EntityTemplateLightHemisphere,
   EntityTemplateLightSun,
-  EntityTemplatePlane,
   EntityTemplatePlayer,
   EntityTemplateRain,
   EntityTemplateSkybox,

@@ -19,11 +19,11 @@
       "children": [
         {
           "class": "EntityModel",
-          "url": "glb/ramps.glb",
-          "position": { "x": 0, "y": -4, "z": 0 }
+          "url": "glb/ramps.glb"
         },
         {
           "class": "EntityPhysics",
+          "url": "glb/ramps.glb",
           "rigidBody": {
             "status": 1,
             "colliders": [

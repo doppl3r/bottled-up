@@ -114,41 +114,12 @@ class PhysicsFactory {
       PhysicsFactory.createCollider(colliderDesc, rigidBody, world);
     }
     else {
-      // Create collider from sibling mesh data
-      PhysicsFactory.createColliderFromSibling(entity, colliderOptions, rigidBody, world);
-    }
-  }
-
-  static createColliderFromSibling(entity, colliderOptions, rigidBody, world) {
-    // Get sibling data after adding entity to parent
-    const onEntityAdded = () => {
-      // Find the first sibling with mesh or model data
-      const sibling = entity.parent.children.find(c => ['EntityModel', 'EntityMesh'].includes(c.class));
-      
-      // Create collider from sibling mesh data by class type
-      if (sibling.class === 'EntityMesh') {
-        PhysicsFactory.updateShapeDescFromMesh(sibling.mesh, colliderOptions);
+      // Create collider from asset mesh data
+      entity.addEventListener('loaded', event => {
+        PhysicsFactory.updateShapeDescFromMesh(event.model, colliderOptions);
         PhysicsFactory.attachCollider(entity, colliderOptions, rigidBody, world);
-      }
-      else if (sibling.class === 'EntityModel') {
-        // Create collider from sibling model data AFTER loading model data
-        const onModelLoaded = () => {
-          PhysicsFactory.updateShapeDescFromMesh(sibling.model, colliderOptions);
-          PhysicsFactory.attachCollider(entity, colliderOptions, rigidBody, world);
-          sibling.removeEventListener('loaded', onModelLoaded);
-        };
-
-        // Add event listener for sibling to load a model asset
-        if (sibling.model) onModelLoaded();
-        else sibling.addEventListener('loaded', onModelLoaded);
-      }
-
-      // Remove event listener to avoid duplicate calls
-      entity.removeEventListener('added', onEntityAdded);
-    };
-
-    // Wait for entity to be added to parent
-    entity.addEventListener('added', onEntityAdded);
+      });
+    }
   }
 
   static updateShapeDescFromMesh = (mesh, colliderOptions) => {

@@ -107,9 +107,12 @@ class Assets extends EventDispatcher {
   }
 
   load(url, callback = () => {}) {
-    // Resolve directly from cache if url is an exact cache key
+    // Return cached asset by name (url) if it exists
     const cached = this.get(url);
-    if (cached) return callback(cached);
+    if (cached) {
+      callback(cached);
+      return;
+    };
 
     // Get file details
     const fileType = this.getFileType(url);
@@ -134,6 +137,10 @@ class Assets extends EventDispatcher {
           console.error(`File type ".${ fileType }" not supported`);
         }
       }
+    }
+    else {
+      // Run callback with existing asset
+      callback(asset);
     }
   }
 

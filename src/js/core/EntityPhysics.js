@@ -1,3 +1,4 @@
+import { clone } from 'three/examples/jsm/utils/SkeletonUtils';
 import { Euler, Quaternion, Vector3 } from 'three';
 import { PhysicsFactory } from './PhysicsFactory.js';
 import { Entity } from './Entity.js';
@@ -53,6 +54,16 @@ class EntityPhysics extends Entity {
         if (colliderOptions.shapeDesc.type === 'cuboid') {
           colliderOptions.shapeDesc.arguments = Object.values(options.parent.scale).map(v => v * 0.5);
         }
+      });
+    }
+
+    // Load trimesh data from asset if defined
+    if (options.url) {
+      core.assets.load(options.url, asset => {
+        const model = clone(asset);
+        this.url = options.url;
+        this.dispatchEvent({ type: 'loaded', model });
+        super.init(options, core);
       });
     }
 
@@ -147,6 +158,7 @@ class EntityPhysics extends Entity {
   serialize() {
     // Serialize entity to JSON
     const json = super.serialize();
+    if (this.url) json.url = this.url;
     json.rigidBody = JSON.parse(JSON.stringify(this.rigidBodyOptions));
     return json;
   }

@@ -1,5 +1,5 @@
-import { Entity } from './Entity.js';
 import { clone } from 'three/examples/jsm/utils/SkeletonUtils';
+import { Entity } from './Entity.js';
 
 /*
   EntityModel is a specialized entity that manages 3D models
@@ -29,28 +29,11 @@ class EntityModel extends Entity {
   init(options, core) {
     core.assets.load(options.url, asset => {
       const model = clone(asset);
-      this.setURL(options.url);
-      this.setModel(model);
+      this.url = options.url;
+      this.model = model;
       this.add(model);
       this.dispatchEvent({ type: 'loaded', model });
       super.init(options, core);
-    });
-  }
-
-  setURL(url) {
-    this.url = url;
-  }
-
-  setModel(model) {
-    // Add 3D model to entity
-    this.model = model;
-
-    // Enable shadows
-    this.model.traverse(child => {
-      if (child.isMesh) {
-        child.castShadow = true;
-        child.receiveShadow = true;
-      }
     });
   }
 
