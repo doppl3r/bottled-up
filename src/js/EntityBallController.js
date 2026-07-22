@@ -41,8 +41,8 @@ class EntityBallController extends Entity {
       camPitchMin: (Math.PI / -2) + 0.1,
       camPitchMax: (Math.PI / 2) - 0.1,
       camLerp: 0.9,
-      camOrbitHeight: 0.25,
-      camCollisionLerp: 0.1,
+      camOrbitHeight: 1.0,
+      camCollisionLerp: 0.9,
       camCollisionMaxDistance: 5,
       camCollisionMinDistance: 0.5,
       camCollisionRadius: 0.1,
@@ -243,16 +243,16 @@ class EntityBallController extends Entity {
     const h = this.camCollisionMaxDistance * Math.cos(this.camPitch);
     const v = this.camCollisionMaxDistance * Math.sin(this.camPitch);
     
-    // Calculate desired camera position
+    // Calculate desired camera position relative to player
     _desiredCamPos.set(
-      _orbitCenter.x + h * Math.sin(this.camAzimuth),
-      _orbitCenter.y + v,
-      _orbitCenter.z + h * Math.cos(this.camAzimuth)
+      this.parent.position.x + h * Math.sin(this.camAzimuth),
+      this.parent.position.y + v,
+      this.parent.position.z + h * Math.cos(this.camAzimuth)
     );
     
-    // Cast sphere from orbit center toward desired camera position using Rapier shape cast
-    _rayDirection.subVectors(_desiredCamPos, _orbitCenter).normalize();
-    const targetCamDistance = this.castCameraCollisionSphere(_orbitCenter, _rayDirection, this.camCollisionMaxDistance);
+    // Cast sphere from player position toward desired camera position using Rapier shape cast
+    _rayDirection.subVectors(_desiredCamPos, this.parent.position).normalize();
+    const targetCamDistance = this.castCameraCollisionSphere(this.parent.position, _rayDirection, this.camCollisionMaxDistance);
     
     // Smoothly lerp current distance toward camera target
     const collisionLerpFactor = 1 - Math.pow(this.camCollisionLerp, loop.delta / 16.67);
@@ -265,7 +265,7 @@ class EntityBallController extends Entity {
     
     // Apply y-offset to orbit center for camera look-at target
     _camLookAtTarget.copy(_orbitCenter);
-    _camLookAtTarget.y += this.camOrbitHeight;
+    _camLookAtTarget.y += this.camOrbitHeight * (this.camDistance / this.camCollisionMaxDistance);
     this.core.camera.lookAt(_camLookAtTarget);
 
     // Resume Entity render behavior
