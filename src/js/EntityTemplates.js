@@ -183,11 +183,15 @@ const EntityTemplateRain = {
   ]
 }
 
-const EntityTemplatePhysicsTrimesh = {
+const EntityTemplateTrimesh = {
   name: 'trimesh',
   label: 'Trimesh',
   class: 'Entity',
   children: [
+    {
+      class: 'EntityModel',
+      url: ''
+    },
     {
       class: 'EntityPhysics',
       rigidBody: {
@@ -213,11 +217,11 @@ export const EntityTemplates = {
   EntityTemplatePlayer,
   EntityTemplateRain,
   EntityTemplateSkybox,
-  EntityTemplatePhysicsTrimesh,
+  EntityTemplateTrimesh,
 }
 
 // Assign shorthand names for parsing from .glb object names
 EntityTemplates['LightHemisphere'] = EntityTemplateLightHemisphere;
 EntityTemplates['LightSun'] = EntityTemplateLightSun;
 EntityTemplates['Player'] = EntityTemplatePlayer;
-EntityTemplates['Trimesh'] = EntityTemplatePhysicsTrimesh;
+EntityTemplates['Trimesh'] = EntityTemplateTrimesh;

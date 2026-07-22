@@ -107,10 +107,14 @@ class Assets extends EventDispatcher {
   }
 
   load(url, callback = () => {}) {
+    // Resolve directly from cache if url is an exact cache key
+    const cached = this.get(url);
+    if (cached) return callback(cached);
+
     // Get file details
-    const fileType = url.substring(url.lastIndexOf('.') + 1);
-    const fileName = url.substring(url.lastIndexOf('/') + 1, url.lastIndexOf('.'));
-    const isQueued = this.queue.find(item => item.name === fileName) !== undefined;
+    const fileType = this.getFileType(url);
+    const fileName = this.getFileName(url);
+    const isQueued = this.isQueued(fileName);
     const asset = this.get(fileName); // Default = undefined
 
     // Add item to the queue
@@ -130,10 +134,6 @@ class Assets extends EventDispatcher {
           console.error(`File type ".${ fileType }" not supported`);
         }
       }
-    }
-    else {
-      // Run callback with existing asset
-      callback(asset);
     }
   }
 
@@ -168,6 +168,18 @@ class Assets extends EventDispatcher {
 
   get(key) {
     return this.cache[key];
+  }
+
+  getFileType(url) {
+    return url.substring(url.lastIndexOf('.') + 1);
+  }
+
+  getFileName(url) {
+    return url.substring(url.lastIndexOf('/') + 1, url.lastIndexOf('.'));
+  }
+
+  isQueued(name) {
+    return this.queue.find(item => item.name === name) !== undefined;
   }
 
   remove(key) {
