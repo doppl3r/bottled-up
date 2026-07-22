@@ -1,3 +1,4 @@
+import { ColliderDesc } from '@dimforge/rapier3d';
 import { Vector3 } from 'three';
 import { Entity } from './core/Entity.js';
 import { Tweens } from './core/Tweens.js';
@@ -40,10 +41,11 @@ class EntityBallController extends Entity {
       camPitchMin: (Math.PI / -2) + 0.1,
       camPitchMax: (Math.PI / 2) - 0.1,
       camLerp: 0.9,
-      camOrbitHeight: 0.5,
-      camCollisionMinDistance: 1.0,
+      camOrbitHeight: 0.25,
+      camCollisionLerp: 0.1,
       camCollisionMaxDistance: 5,
-      camCollisionLerp: 0.9,
+      camCollisionMinDistance: 0.5,
+      camCollisionRadius: 0.1,
       camAzimuthSensitivity: 0.00125,
       camPitchSensitivity: 0.00125,
     }, options);
@@ -70,6 +72,8 @@ class EntityBallController extends Entity {
     this.camCollisionMaxDistance = options.camCollisionMaxDistance;
     this.camCollisionMinDistance = options.camCollisionMinDistance;
     this.camCollisionLerp = options.camCollisionLerp;
+    this.camCollisionRadius = options.camCollisionRadius;
+    this.camCollisionShape = ColliderDesc.ball(options.camCollisionRadius).shape;
 
     // Physics entity reference
     this.entityPhysics = null;
@@ -322,10 +326,10 @@ class EntityBallController extends Entity {
       return maxDistance;
     }
 
-    // Cast the ball shape from shapePos toward desired camera position
+    // Use Rapier to create a small sphere for camera collision detection
     const world = this.core.entityManager.world;
     const rigidBody = this.entityPhysics.rigidBody;
-    const shape = rigidBody.collider(0).shape;
+    const shape = this.camCollisionShape;
     const shapePos = origin;
     const shapeRot = rigidBody.rotation();
     const shapeVel = direction;
@@ -334,8 +338,9 @@ class EntityBallController extends Entity {
     const stopAtPenetration = false; // Continue full sweep
     const filterFlags = undefined;
     const filterGroups = undefined;
-    const filterExcludeCollider = rigidBody.collider(0);
-    const hit = world.castShape(shapePos, shapeRot, shapeVel, shape, targetDistance, maxToi, stopAtPenetration, filterFlags, filterGroups, filterExcludeCollider);
+    const filterExcludeCollider = undefined;
+    const filterExcludeRigidBody = rigidBody;
+    const hit = world.castShape(shapePos, shapeRot, shapeVel, shape, targetDistance, maxToi, stopAtPenetration, filterFlags, filterGroups, filterExcludeCollider, filterExcludeRigidBody);
 
     // Distance traveled before the swept shape touches a collider
     if (hit) {
