@@ -23,7 +23,7 @@ class PhysicsFactory {
 
     // Add colliders to rigid body
     options.colliders?.forEach(colliderOptions => {
-      PhysicsFactory.attachCollider(entity, colliderOptions, rigidBody);
+      PhysicsFactory.attachCollider(entity, colliderOptions, rigidBody, world);
     });
   }
 
@@ -61,9 +61,7 @@ class PhysicsFactory {
   }
 
   static createRigidBody(rigidBodyDesc, world) {
-    const rigidBody = world.createRigidBody(rigidBodyDesc);
-    rigidBody.world = world;
-    return rigidBody;
+    return world.createRigidBody(rigidBodyDesc);
   }
 
   static createColliderDesc(options) {
@@ -105,23 +103,23 @@ class PhysicsFactory {
     return colliderDesc;
   }
 
-  static createCollider(colliderDesc, rigidBody) {
-    return rigidBody.world.createCollider(colliderDesc, rigidBody);
+  static createCollider(colliderDesc, rigidBody, world) {
+    return world.createCollider(colliderDesc, rigidBody);
   }
 
-  static attachCollider(entity, colliderOptions, rigidBody) {
+  static attachCollider(entity, colliderOptions, rigidBody, world) {
     // Create collider immediately
     if (colliderOptions.shapeDesc.arguments) {
       const colliderDesc = PhysicsFactory.createColliderDesc(colliderOptions);
-      PhysicsFactory.createCollider(colliderDesc, rigidBody);
+      PhysicsFactory.createCollider(colliderDesc, rigidBody, world);
     }
     else {
       // Create collider from sibling mesh data
-      PhysicsFactory.createColliderFromSibling(entity, colliderOptions, rigidBody);
+      PhysicsFactory.createColliderFromSibling(entity, colliderOptions, rigidBody, world);
     }
   }
 
-  static createColliderFromSibling(entity, colliderOptions, rigidBody) {
+  static createColliderFromSibling(entity, colliderOptions, rigidBody, world) {
     // Get sibling data after adding entity to parent
     const onEntityAdded = () => {
       // Find the first sibling with mesh or model data
@@ -130,13 +128,13 @@ class PhysicsFactory {
       // Create collider from sibling mesh data by class type
       if (sibling.class === 'EntityMesh') {
         PhysicsFactory.updateShapeDescFromMesh(sibling.mesh, colliderOptions);
-        PhysicsFactory.attachCollider(entity, colliderOptions, rigidBody);
+        PhysicsFactory.attachCollider(entity, colliderOptions, rigidBody, world);
       }
       else if (sibling.class === 'EntityModel') {
         // Create collider from sibling model data AFTER loading model data
         const onModelLoaded = () => {
           PhysicsFactory.updateShapeDescFromMesh(sibling.model, colliderOptions);
-          PhysicsFactory.attachCollider(entity, colliderOptions, rigidBody);
+          PhysicsFactory.attachCollider(entity, colliderOptions, rigidBody, world);
           sibling.removeEventListener('loaded', onModelLoaded);
         };
 

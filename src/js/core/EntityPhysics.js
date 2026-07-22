@@ -30,6 +30,7 @@ class EntityPhysics extends Entity {
     this.quaternion0 = this.quaternion.clone();
     this.rigidBodyOptions = options.rigidBody;
     this.rigidBody;
+    this.world;
 
     // Add event listeners
     this.addEventListener('added', this.onAdded);
@@ -56,7 +57,8 @@ class EntityPhysics extends Entity {
     }
 
     // Add physics component if entity is an instance of EntityPhysics
-    PhysicsFactory.create(this, options.rigidBody, core.entityManager.world);
+    this.world = core.entityManager.world;
+    PhysicsFactory.create(this, options.rigidBody, this.world);
     super.init(options, core);
   }
 
@@ -138,7 +140,7 @@ class EntityPhysics extends Entity {
 
   onParentRemoved = event => {
     // Queue rigid body for removal and remove event listener from parent entity
-    this.rigidBody?.world?.queueRigidBodyRemoval(this.rigidBody);
+    this.world?.queueRigidBodyRemoval(this.rigidBody);
     event.target.removeEventListener('removed', this.onParentRemoved);
   }
 

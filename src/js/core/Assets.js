@@ -1,4 +1,4 @@
-import { Audio, AudioListener, AudioLoader, CubeTextureLoader, EventDispatcher, FileLoader, LoadingManager, MaterialLoader, TextureLoader } from 'three';
+import { Audio, AudioListener, AudioLoader, EventDispatcher, FileLoader, LoadingManager, MaterialLoader, TextureLoader } from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
 import { HDRLoader } from 'three/examples/jsm/loaders/HDRLoader'
