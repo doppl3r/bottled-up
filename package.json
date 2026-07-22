@@ -9,7 +9,7 @@
     "build-extension": "vite build && node files/js/build-extension.js",
     "tauri": "tauri",
     "build-tauri": "tauri build",
-    "build-tauri-icon": "tauri icon public/png/icon256.png",
+    "build-tauri-icon": "tauri icon public/png/icon128.png",
     "dev": "vite",
     "dev-tauri": "tauri dev",
     "export-slices": "node files/js/export-slices.js"
