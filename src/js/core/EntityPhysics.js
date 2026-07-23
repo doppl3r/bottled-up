@@ -57,20 +57,26 @@ class EntityPhysics extends Entity {
       });
     }
 
-    // Load trimesh data from asset if defined
+    // Store reference to the physics world
+    this.world = core.entityManager.world;
+
+    // Create physics component
+    PhysicsFactory.create(this, options.rigidBody, this.world);
+
+    // Load mesh data from asset if defined
     if (options.url) {
       core.assets.load(options.url, asset => {
+        // Clone the loaded asset to create a model instance for this entity
         const model = clone(asset);
         this.url = options.url;
         this.dispatchEvent({ type: 'loaded', model });
         super.init(options, core);
       });
     }
-
-    // Add physics component if entity is an instance of EntityPhysics
-    this.world = core.entityManager.world;
-    PhysicsFactory.create(this, options.rigidBody, this.world);
-    super.init(options, core);
+    else {
+      // Create physics component
+      super.init(options, core);
+    }
   }
 
   update(loop) {

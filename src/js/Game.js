@@ -49,17 +49,23 @@ class Game {
       ...stateSession,
     });
 
-    // Load level then start the game
-    this.core.entityManager.load('json/forge.json', () => {
-      this.core.compositor.resize();
-      this.core.start();
-    });
-
-    // TODO: Finish createJSON logic and load it like other .json files
+    // Load scene from GLB model
     this.core.assets.load('glb/forge.glb', model => {
       // Loop through scene
-      const json = this.core.entityManager.createJSON(model);
-      console.log(json);
+      const json = this.core.entityManager.createModelJSON(model, options => {
+        // Assign mesh URLs to Trimesh children
+        if (options.template === 'Trimesh') {
+          const tempData = this.core.entityManager.cloneTemplate(options.template);
+          tempData.children.forEach(tempChild => tempChild.url = `mesh_${options.name}`);
+          Object.assign(options, tempData);
+        }
+      });
+
+      // Load level from JSON data
+      this.core.entityManager.load(json, () => {
+        this.core.compositor.resize();
+        this.core.start();
+      });
     });
 
     // Setup event listeners

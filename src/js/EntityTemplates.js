@@ -157,6 +157,7 @@ const EntityTemplateTrimesh = {
     },
     {
       class: 'EntityPhysics',
+      url: '',
       rigidBody: {
         status: 1,
         colliders: [

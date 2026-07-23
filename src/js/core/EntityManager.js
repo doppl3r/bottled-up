@@ -1,5 +1,4 @@
 import { EventQueue, World } from '@dimforge/rapier3d';
-import { PhysicsFactory } from './PhysicsFactory.js';
 import { WorldDebugger } from './WorldDebugger.js';
 import { Entity } from './Entity.js';
 import { EntityAudio } from './EntityAudio.js';
@@ -121,7 +120,7 @@ class EntityManager {
     return json;
   }
 
-  createJSON(obj) {
+  createModelJSON(obj, callback = () => {}) {
     const json = {};
     const templateName = this.findTemplateName(obj.name);
     const template = this.entityTemplates[templateName];
@@ -140,12 +139,20 @@ class EntityManager {
     // Assign 3D object userData to JSON object
     if (obj.userData) Object.assign(json, obj.userData);
 
+    // Store mesh as an asset
+    if (obj.isMesh) {
+      this.core.assets.assign(`mesh_${json.name}`, obj);
+    }
+
     // Recursively create JSON for child entities
     obj.children?.forEach(child => {
-      const childJSON = this.createJSON(child);
+      const childJSON = this.createModelJSON(child, callback);
       json.children = json.children ?? [];
       json.children.push(childJSON);
     });
+
+    // Return JSON data
+    callback(json);
     return json;
   }
   
@@ -194,7 +201,7 @@ class EntityManager {
         options.tempData = { ...options };
 
         // Merge template data into options
-        const template = structuredClone(this.entityTemplates[options.template]);
+        const template = this.cloneTemplate(options.template);
         Object.assign(options, template, options.tempData);
       }
       else {
@@ -267,6 +274,10 @@ class EntityManager {
     Object.entries(templates).forEach(([name, template]) => {
       this.registerEntityTemplate(name, template);
     });
+  }
+
+  cloneTemplate(name) {
+    return structuredClone(this.entityTemplates[name]);
   }
 
   debug(state = true) {
