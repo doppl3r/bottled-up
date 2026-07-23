@@ -58,7 +58,7 @@ class Game {
     // Load scene from GLB model
     this.core.assets.load('glb/forge.glb', model => {
       // Loop through scene
-      const json = this.core.entityManager.createModelJSON(model);
+      const json = this.core.entityManager.createJSON(model);
 
       // Load level from JSON data
       this.core.entityManager.load(json, () => {

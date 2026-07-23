@@ -27,15 +27,17 @@ class EntityModel extends Entity {
   }
 
   init(options, core) {
-    const url = options.url || options.parent?.url;
-    core.assets.load(url, asset => {
-      const model = clone(asset);
-      this.url = options.url;
-      this.model = model;
-      this.add(model);
-      this.dispatchEvent({ type: 'loaded', model });
-      super.init(options, core);
-    });
+    const url = options.url || options.parent.url;
+    if (url) {
+      core.assets.load(url, asset => {
+        const model = clone(asset);
+        this.url = options.url;
+        this.model = model;
+        this.add(model);
+        this.dispatchEvent({ type: 'loaded', model });
+        super.init(options, core);
+      });
+    }
   }
 
   serialize() {

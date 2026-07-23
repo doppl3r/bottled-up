@@ -17,6 +17,7 @@ import { EntityLightDirectional } from './EntityLightDirectional.js';
 import { EntityLightHemisphere } from './EntityLightHemisphere.js';
 import { EntityLightPoint } from './EntityLightPoint.js';
 import { EntityLightSun } from './EntityLightSun.js';
+import { EntityTemplates } from './EntityTemplates.js';
 
 /*
   The EntityManager class is responsible for managing all entities within
@@ -58,6 +59,9 @@ class EntityManager {
       EntityLightPoint,
       EntityLightSun,
     });
+
+    // Register core entity templates
+    this.registerEntityTemplates(EntityTemplates);
   }
 
   update(loop) {
@@ -120,9 +124,9 @@ class EntityManager {
     return json;
   }
 
-  createModelJSON(obj) {
+  createJSON(obj) {
     const json = {};
-    const templateName = this.findTemplateName(obj.name);
+    const templateName = this.getTemplateName(obj.name);
     const template = this.entityTemplates[templateName];
 
     // Assign name and template name
@@ -148,7 +152,7 @@ class EntityManager {
 
     // Recursively create JSON for child entities
     obj.children?.forEach(child => {
-      const childJSON = this.createModelJSON(child);
+      const childJSON = this.createJSON(child);
       json.children = json.children ?? [];
       json.children.push(childJSON);
     });
@@ -157,7 +161,7 @@ class EntityManager {
     return json;
   }
   
-  findTemplateName(name) {
+  getTemplateName(name) {
     const lName = name.toLowerCase();
     let bestMatch = null;
     let longestLength = 0;

@@ -4,77 +4,6 @@
   serializable data types.
 */
 
-const EntityTemplateLightHemisphere = {
-  name: 'light-hemisphere',
-  label: 'Light Hemisphere',
-  class: 'EntityLightHemisphere',
-  skyColor: '#ffffff',
-  groundColor: '#aaaaaa',
-  intensity: Math.PI
-}
-
-const EntityTemplateLightSun = {
-  name: 'light-sun',
-  label: 'Light Sun',
-  class: 'EntityLightSun',
-  color: '#ffffff',
-  intensity: Math.PI,
-  time: 12,
-  speed: 0,
-  targetName: 'ball',
-  shadowArea: 64,
-  shadowQuality: 32
-}
-
-const EntityTemplateCube = {
-  name: 'cube',
-  label: 'Cube',
-  class: 'Entity',
-  children: [
-    {
-      class: 'EntityPhysics',
-      rigidBody: {
-        status: 1,
-        colliders: [
-          {
-            shapeDesc: {
-              type: 'cuboid',
-              arguments: [1, 1, 1]
-            }
-          }
-        ]
-      }
-    },
-    {
-      class: 'EntityMesh',
-      geometry: {
-        type: 'BoxGeometry',
-        arguments: [1, 1, 1]
-      },
-      material: {
-        type: 'MeshStandardMaterial',
-        arguments: [{ color: '#ffffff' }],
-      }
-    }
-  ]
-}
-
-const EntityTemplateBall = {
-  name: 'ball',
-  label: 'Ball',
-  class: 'EntityMesh',
-  castShadow: false,
-  receiveShadow: true,
-  geometry: {
-    type: 'SphereGeometry',
-    arguments: [0.25, 16, 16]
-  },
-  material: {
-    type: 'MeshStandardMaterial',
-    arguments: [{ color: '#42bfe8' }],
-  }
-}
-
 const EntityTemplatePlayer = {
   name: 'player',
   label: 'Player',
@@ -84,7 +13,17 @@ const EntityTemplatePlayer = {
       class: 'EntityBallController'
     },
     {
-      template: 'EntityTemplateBall',
+      class: 'EntityMesh',
+      castShadow: false,
+      receiveShadow: true,
+      geometry: {
+        type: 'SphereGeometry',
+        arguments: [0.25, 16, 16]
+      },
+      material: {
+        type: 'MeshStandardMaterial',
+        arguments: [{ color: '#42bfe8' }],
+      },
       children: [
         {
           class: 'EntityDecal',
@@ -118,7 +57,6 @@ const EntityTemplatePlayer = {
   ]
 }
 
-
 const EntityTemplateSkybox = {
   name: 'skybox',
   label: 'Skybox',
@@ -146,43 +84,13 @@ const EntityTemplateRain = {
   ]
 }
 
-const EntityTemplateTrimesh = {
-  name: 'trimesh',
-  label: 'Trimesh',
-  class: 'Entity',
-  children: [
-    {
-      class: 'EntityModel'
-    },
-    {
-      class: 'EntityPhysics',
-      rigidBody: {
-        status: 1,
-        colliders: [
-          {
-            shapeDesc: {
-              type: 'trimesh'
-            }
-          }
-        ]
-      }
-    }
-  ]
-}
-
 export const EntityTemplates = {
-  EntityTemplateBall,
-  EntityTemplateCube,
-  EntityTemplateLightHemisphere,
-  EntityTemplateLightSun,
   EntityTemplatePlayer,
   EntityTemplateRain,
-  EntityTemplateSkybox,
-  EntityTemplateTrimesh,
+  EntityTemplateSkybox
 }
 
 // Assign shorthand names for parsing from .glb object names
-EntityTemplates['LightHemisphere'] = EntityTemplateLightHemisphere;
-EntityTemplates['LightSun'] = EntityTemplateLightSun;
 EntityTemplates['Player'] = EntityTemplatePlayer;
-EntityTemplates['Trimesh'] = EntityTemplateTrimesh;
+EntityTemplates['Rain'] = EntityTemplateRain;
+EntityTemplates['Skybox'] = EntityTemplateSkybox;
