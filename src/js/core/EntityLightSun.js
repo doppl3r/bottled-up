@@ -18,6 +18,7 @@ class EntityLightSun extends Entity {
       targetName: '',
       shadowArea: 64,
       shadowQuality: 64,
+      shadowRadius: 1,
     }, options);
 
     // Inherit Entity properties
@@ -26,6 +27,7 @@ class EntityLightSun extends Entity {
     // Store shadow parameters
     this.shadowQuality = options.shadowQuality;
     this.shadowArea = options.shadowArea;
+    this.shadowRadius = options.shadowRadius;
 
     // Store orbit parameters
     this.time = options.time;
@@ -35,15 +37,16 @@ class EntityLightSun extends Entity {
     this.targetName = options.targetName;
 
     // Create directional light and add with its target as children
-    this.directionalLight = new DirectionalLight(options.color, options.intensity);
-    this.directionalLight.castShadow = true;
-    this.add(this.directionalLight, this.directionalLight.target);
+    this.light = new DirectionalLight(options.color, options.intensity);
+    this.light.castShadow = true;
+    this.light.shadow.radius = this.shadowRadius;
+    this.add(this.light, this.light.target);
 
     // Recalculate shadow area once
     this.updateShadowArea(options.shadowArea);
 
     // Create optional debug helper for shadow camera frustum
-    this.lightHelper = new CameraHelper(this.directionalLight.shadow.camera);
+    this.lightHelper = new CameraHelper(this.light.shadow.camera);
   }
 
   render(loop) {
@@ -60,8 +63,8 @@ class EntityLightSun extends Entity {
 
     // Position light and its target relative to followed entity
     const azimuth = this.azimuth;
-    this.directionalLight.target.position.set(_targetPos.x, _targetPos.y, _targetPos.z);
-    this.directionalLight.position.set(
+    this.light.target.position.set(_targetPos.x, _targetPos.y, _targetPos.z);
+    this.light.position.set(
       _targetPos.x + Math.sin(angle) * Math.sin(azimuth) * (this.shadowArea / 2),
       _targetPos.y + Math.cos(angle) * (this.shadowArea / 2),
       _targetPos.z + Math.sin(angle) * Math.cos(azimuth) * (this.shadowArea / 2),
@@ -73,23 +76,23 @@ class EntityLightSun extends Entity {
 
   updateShadowArea(area) {
     // Configure shadow camera frustum to cover the desired world-space area
-    this.directionalLight.shadow.camera.left = -area / 2;
-    this.directionalLight.shadow.camera.right = area / 2;
-    this.directionalLight.shadow.camera.top = area / 2;
-    this.directionalLight.shadow.camera.bottom = -area / 2;
-    this.directionalLight.shadow.camera.near = 0.1;
-    this.directionalLight.shadow.camera.far = this.shadowArea;
-    this.directionalLight.shadow.camera.updateProjectionMatrix();
+    this.light.shadow.camera.left = -area / 2;
+    this.light.shadow.camera.right = area / 2;
+    this.light.shadow.camera.top = area / 2;
+    this.light.shadow.camera.bottom = -area / 2;
+    this.light.shadow.camera.near = 0.1;
+    this.light.shadow.camera.far = this.shadowArea;
+    this.light.shadow.camera.updateProjectionMatrix();
 
     // Map size = area × texels-per-unit, keeping shadow density constant
     const size = area * this.shadowQuality;
-    this.directionalLight.shadow.mapSize.width = size;
-    this.directionalLight.shadow.mapSize.height = size;
+    this.light.shadow.mapSize.width = size;
+    this.light.shadow.mapSize.height = size;
 
     // Dispose existing shadow map so Three.js recreates it at the new size
-    if (this.directionalLight.shadow.map) {
-      this.directionalLight.shadow.map.dispose();
-      this.directionalLight.shadow.map = null;
+    if (this.light.shadow.map) {
+      this.light.shadow.map.dispose();
+      this.light.shadow.map = null;
     }
   }
 

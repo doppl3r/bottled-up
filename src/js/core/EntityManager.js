@@ -143,7 +143,7 @@ class EntityManager {
     // Assign 3D object userData to JSON object
     if (obj.userData) Object.assign(json, obj.userData);
     
-    // Create asset from Trimesh data
+    // Assign asset from Trimesh data
     if (templateName === 'Trimesh') {
       // Reset local transform to default values
       obj.position.set(0, 0, 0);

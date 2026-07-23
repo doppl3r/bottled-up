@@ -446,8 +446,8 @@ class EntityBallController extends Entity {
   onMouseMove = (event) => {
     if (this.hasPointerLock) {
       // Set threshold limits (33% of window)
-      const isHorizontalSpike = Math.abs(event.movementX) > window.innerWidth / 2;
-      const isVerticalSpike = Math.abs(event.movementY) > window.innerHeight / 2;
+      const isHorizontalSpike = Math.abs(event.movementX) > window.innerWidth / 3;
+      const isVerticalSpike = Math.abs(event.movementY) > window.innerHeight / 3;
       
       // Check if mouse movement exceeds window threshold
       if (!isHorizontalSpike && !isVerticalSpike) {

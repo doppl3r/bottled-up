@@ -11,12 +11,16 @@ class EntityModel extends Entity {
     // Set default options
     options = Object.assign({
       class: 'EntityModel',
+      castShadow: true,
+      receiveShadow: true
     }, options);
 
     // Inherit Entity properties
     super(options);
 
     // Declare entity components
+    this.castShadow = options.castShadow;
+    this.receiveShadow = options.receiveShadow;
     this.model;
     this.url;
   }
@@ -31,6 +35,15 @@ class EntityModel extends Entity {
     if (url) {
       core.assets.load(url, asset => {
         const model = clone(asset);
+
+        // Apply shadow settings to all mesh children of the model
+        model.traverse(child => {
+          if (child.isMesh) {
+            child.castShadow = this.castShadow;
+            child.receiveShadow = this.receiveShadow;
+          }
+        });
+
         this.url = options.url;
         this.model = model;
         this.add(model);

@@ -1,4 +1,4 @@
-import { EventDispatcher } from 'three';
+import { BasicShadowMap, EventDispatcher, PCFShadowMap } from 'three';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js';
@@ -25,6 +25,7 @@ class Compositor extends EventDispatcher {
     // Add effects to composer
     this.effectComposer = new EffectComposer(renderer);
     this.effectComposer.renderer.shadowMap.enabled = true;
+    this.effectComposer.renderer.shadowMap.type = BasicShadowMap;
     this.effectComposer.addPass(this.renderPass); // Renderer
     this.effectComposer.addPass(this.outputPass); // Gamma/sRGB correction
 
