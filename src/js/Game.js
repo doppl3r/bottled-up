@@ -49,17 +49,16 @@ class Game {
       ...stateSession,
     });
 
+    // Load level then start the game
+    /* this.core.entityManager.load('json/forge.json', () => {
+      this.core.compositor.resize();
+      this.core.start();
+    }); */
+
     // Load scene from GLB model
     this.core.assets.load('glb/forge.glb', model => {
       // Loop through scene
-      const json = this.core.entityManager.createModelJSON(model, options => {
-        // Assign mesh URLs to Trimesh children
-        if (options.template === 'Trimesh') {
-          const tempData = this.core.entityManager.cloneTemplate(options.template);
-          tempData.children.forEach(tempChild => tempChild.url = `mesh_${options.name}`);
-          Object.assign(options, tempData);
-        }
-      });
+      const json = this.core.entityManager.createModelJSON(model);
 
       // Load level from JSON data
       this.core.entityManager.load(json, () => {
@@ -94,7 +93,7 @@ class Game {
   }
 
   saveCheckpoint() {
-    const player = this.core.scene.getObjectByName('player');
+    const player = this.core.scene.getObjectByName('Player');
     const physics = player.getObjectByProperty('class', 'EntityPhysics');
     const position = physics.getPosition();
     const rotation = physics.getRotation();
@@ -102,7 +101,7 @@ class Game {
   }
 
   restoreCheckpoint() {
-    const player = this.core.scene.getObjectByName('player');
+    const player = this.core.scene.getObjectByName('Player');
     const physics = player.getObjectByProperty('class', 'EntityPhysics');
     const checkpoint = this.record.load('checkpoint');
     physics.rigidBody.setLinvel({ x: 0, y: 0, z: 0 });

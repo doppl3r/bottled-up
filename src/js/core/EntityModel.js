@@ -27,7 +27,8 @@ class EntityModel extends Entity {
   }
 
   init(options, core) {
-    core.assets.load(options.url, asset => {
+    const url = options.url || options.parent?.url;
+    core.assets.load(url, asset => {
       const model = clone(asset);
       this.url = options.url;
       this.model = model;
@@ -40,7 +41,7 @@ class EntityModel extends Entity {
   serialize() {
     // Serialize entity to JSON
     const json = super.serialize();
-    json.url = this.url;
+    if (this.url) json.url = this.url;
     return json;
   }
 }

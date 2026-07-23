@@ -120,7 +120,7 @@ class EntityManager {
     return json;
   }
 
-  createModelJSON(obj, callback = () => {}) {
+  createModelJSON(obj) {
     const json = {};
     const templateName = this.findTemplateName(obj.name);
     const template = this.entityTemplates[templateName];
@@ -141,18 +141,19 @@ class EntityManager {
 
     // Store mesh as an asset
     if (obj.isMesh) {
-      this.core.assets.assign(`mesh_${json.name}`, obj);
+      const url = `mesh_${json.name}`;
+      this.core.assets.assign(url, obj);
+      json.url = url;
     }
 
     // Recursively create JSON for child entities
     obj.children?.forEach(child => {
-      const childJSON = this.createModelJSON(child, callback);
+      const childJSON = this.createModelJSON(child);
       json.children = json.children ?? [];
       json.children.push(childJSON);
     });
 
     // Return JSON data
-    callback(json);
     return json;
   }
   

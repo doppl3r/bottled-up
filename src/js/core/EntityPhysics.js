@@ -64,8 +64,9 @@ class EntityPhysics extends Entity {
     PhysicsFactory.create(this, options.rigidBody, this.world);
 
     // Load mesh data from asset if defined
-    if (options.url) {
-      core.assets.load(options.url, asset => {
+    const url = options.url || options.parent?.url;
+    if (url) {
+      core.assets.load(url, asset => {
         // Clone the loaded asset to create a model instance for this entity
         const model = clone(asset);
         this.url = options.url;

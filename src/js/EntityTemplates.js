@@ -152,12 +152,10 @@ const EntityTemplateTrimesh = {
   class: 'Entity',
   children: [
     {
-      class: 'EntityModel',
-      url: ''
+      class: 'EntityModel'
     },
     {
       class: 'EntityPhysics',
-      url: '',
       rigidBody: {
         status: 1,
         colliders: [
