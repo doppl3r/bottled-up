@@ -1,5 +1,6 @@
 import { EventQueue, World } from '@dimforge/rapier3d';
 import { WorldDebugger } from './WorldDebugger.js';
+import { MeshFactory } from './MeshFactory.js';
 import { Entity } from './Entity.js';
 import { EntityAudio } from './EntityAudio.js';
 import { EntityDecal } from './EntityDecal.js';
@@ -124,7 +125,7 @@ class EntityManager {
     return json;
   }
 
-  createJSON(obj) {
+  convertModelToJSON(obj) {
     const json = {};
     const templateName = this.getTemplateName(obj.name);
     const template = this.entityTemplates[templateName];
@@ -142,9 +143,21 @@ class EntityManager {
 
     // Assign 3D object userData to JSON object
     if (obj.userData) Object.assign(json, obj.userData);
+    
+    // Create asset from Trimesh data
+    if (templateName === 'Trimesh') {
+      // Merge mesh objects
+      if (obj.children.length > 0) {
+        const { geometry, materials } = MeshFactory.mergeObjectMeshes(obj);
+        obj = new MeshFactory.Mesh(geometry, materials);
+      }
 
-    // Store mesh as an asset
-    if (obj.isMesh) {
+      // Reset local transform to default values
+      obj.position.set(0, 0, 0);
+      obj.rotation.set(0, 0, 0);
+      obj.scale.set(1, 1, 1);
+
+      // Store mesh as an asset
       const url = `mesh_${json.name}`;
       this.core.assets.assign(url, obj);
       json.url = url;
@@ -152,7 +165,7 @@ class EntityManager {
 
     // Recursively create JSON for child entities
     obj.children?.forEach(child => {
-      const childJSON = this.createJSON(child);
+      const childJSON = this.convertModelToJSON(child);
       json.children = json.children ?? [];
       json.children.push(childJSON);
     });

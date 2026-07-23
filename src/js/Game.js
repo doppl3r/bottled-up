@@ -49,16 +49,10 @@ class Game {
       ...stateSession,
     });
 
-    // Load level then start the game
-    /* this.core.entityManager.load('json/forge.json', () => {
-      this.core.compositor.resize();
-      this.core.start();
-    }); */
-
     // Load scene from GLB model
-    this.core.assets.load('glb/forge.glb', model => {
+    this.core.assets.load('glb/forge-1.glb', model => {
       // Loop through scene
-      const json = this.core.entityManager.createJSON(model);
+      const json = this.core.entityManager.convertModelToJSON(model);
 
       // Load level from JSON data
       this.core.entityManager.load(json, () => {
