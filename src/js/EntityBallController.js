@@ -1,5 +1,5 @@
 import { ColliderDesc } from '@dimforge/rapier3d';
-import { Vector3 } from 'three';
+import { Vector2, Vector3 } from 'three';
 import { Entity } from './core/Entity.js';
 import { Tweens } from './core/Tweens.js';
 
@@ -9,6 +9,7 @@ import { Tweens } from './core/Tweens.js';
 */
 
 // Module-scoped reusables to avoid per-frame allocations
+const _mouseMovement = new Vector2();
 const _camForward = new Vector3();
 const _camRight = new Vector3();
 const _camLookAtTarget = new Vector3();
@@ -445,18 +446,22 @@ class EntityBallController extends Entity {
   onMouseMove = (event) => {
     if (this.hasPointerLock) {
       // Set threshold limits (33% of window)
-      const isHorizontalSpike = Math.abs(event.movementX) > window.innerWidth / 3;
-      const isVerticalSpike = Math.abs(event.movementY) > window.innerHeight / 3;
+      const isHorizontalSpike = Math.abs(event.movementX) > window.innerWidth / 2;
+      const isVerticalSpike = Math.abs(event.movementY) > window.innerHeight / 2;
       
-      // Check if mouse exceeds window threshold
-      if (isHorizontalSpike || isVerticalSpike) {
+      // Check if mouse movement exceeds window threshold
+      if (!isHorizontalSpike && !isVerticalSpike) {
+        // Set raw movement deltas from pointer lock
+        _mouseMovement.set(event.movementX, event.movementY);
+      }
+      else {
         console.log('onMouseMove: Mouse spike occurred');
-        return;
       }
 
+
       // Pointer lock: use raw movement deltas directly
-      this.camAzimuth -= event.movementX * this.camAzimuthSensitivity;
-      this.camPitch = Math.max(this.camPitchMin, Math.min(this.camPitchMax, this.camPitch + event.movementY * this.camPitchSensitivity));
+      this.camAzimuth -= _mouseMovement.x * this.camAzimuthSensitivity;
+      this.camPitch = Math.max(this.camPitchMin, Math.min(this.camPitchMax, this.camPitch + _mouseMovement.y * this.camPitchSensitivity));
     }
     else if (this.isDragging) {
       // Fallback drag: compute delta from last stored position

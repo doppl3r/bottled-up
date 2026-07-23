@@ -1,6 +1,5 @@
 import { EventQueue, World } from '@dimforge/rapier3d';
 import { WorldDebugger } from './WorldDebugger.js';
-import { MeshFactory } from './MeshFactory.js';
 import { Entity } from './Entity.js';
 import { EntityAudio } from './EntityAudio.js';
 import { EntityDecal } from './EntityDecal.js';
@@ -146,12 +145,6 @@ class EntityManager {
     
     // Create asset from Trimesh data
     if (templateName === 'Trimesh') {
-      // Merge mesh objects
-      if (obj.children.length > 0) {
-        const { geometry, materials } = MeshFactory.mergeObjectMeshes(obj);
-        obj = new MeshFactory.Mesh(geometry, materials);
-      }
-
       // Reset local transform to default values
       obj.position.set(0, 0, 0);
       obj.rotation.set(0, 0, 0);
@@ -162,13 +155,14 @@ class EntityManager {
       this.core.assets.assign(url, obj);
       json.url = url;
     }
-
-    // Recursively create JSON for child entities
-    obj.children?.forEach(child => {
-      const childJSON = this.convertModelToJSON(child);
-      json.children = json.children ?? [];
-      json.children.push(childJSON);
-    });
+    else {
+      // Recursively create JSON for child entities
+      obj.children?.forEach(child => {
+        const childJSON = this.convertModelToJSON(child);
+        json.children = json.children ?? [];
+        json.children.push(childJSON);
+      });
+    }
 
     // Return JSON data
     return json;
