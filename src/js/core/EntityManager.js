@@ -151,7 +151,7 @@ class EntityManager {
       obj.scale.set(1, 1, 1);
 
       // Store mesh as an asset
-      const url = `mesh_${json.name}`;
+      const url = obj.uuid;
       this.core.assets.assign(url, obj);
       json.url = url;
     }

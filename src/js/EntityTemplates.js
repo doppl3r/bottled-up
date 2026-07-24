@@ -62,12 +62,12 @@ const EntityTemplateSkybox = {
   label: 'Skybox',
   class: 'EntitySkybox',
   urls: [
-    'png/skybox-1-px.png',
-    'png/skybox-1-nx.png',
-    'png/skybox-1-py.png',
-    'png/skybox-1-ny.png',
-    'png/skybox-1-pz.png',
-    'png/skybox-1-nz.png',
+    'png/skybox-forge-1-px.png',
+    'png/skybox-forge-1-nx.png',
+    'png/skybox-forge-1-py.png',
+    'png/skybox-forge-1-ny.png',
+    'png/skybox-forge-1-pz.png',
+    'png/skybox-forge-1-nz.png'
   ]
 }
 
