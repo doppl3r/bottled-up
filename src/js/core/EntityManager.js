@@ -146,7 +146,7 @@ class EntityManager {
     if (obj.userData) Object.assign(json, obj.userData);
     
     // Assign asset from Trimesh data
-    if (templateName === 'Trimesh' || templateName === 'Prop') {
+    if (templateName === 'Trimesh' || templateName === 'Model') {
       // Reset local transform to default values
       obj.position.set(0, 0, 0);
       obj.rotation.set(0, 0, 0);
