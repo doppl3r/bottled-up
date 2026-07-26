@@ -168,7 +168,7 @@ class EntityBallController extends Entity {
     // Taper input force as speed approaches max movement speed using dot-product
     if (_forceDir.lengthSq() > 0) {
       const linvel = this.entityPhysics.rigidBody.linvel();
-      const speedInDir = linvel.x * _forceDir.x + linvel.z * _forceDir.z; // Y is always 0 in forceDir
+      const speedInDir = (linvel.x * _forceDir.x) + (linvel.z * _forceDir.z); // Y is always 0 in forceDir
       const scale = Math.max(0, 1 - speedInDir / this.moveMaxSpeed);
       _moveImpulse.copy(_forceDir).multiplyScalar(this.moveForce * scale * (loop.delta / 1000) * mass);
       this.entityPhysics.rigidBody.applyImpulse(_moveImpulse, true);

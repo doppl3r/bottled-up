@@ -7,6 +7,7 @@ import { EntityMaterial } from './EntityMaterial.js';
 import { EntityMesh } from './EntityMesh.js';
 import { EntityMixer } from './EntityMixer.js';
 import { EntityModel } from './EntityModel.js';
+import { EntityText } from './EntityText.js';
 import { EntityTexture } from './EntityTexture.js';
 import { EntityTimer } from './EntityTimer.js';
 import { EntityParticles } from './EntityParticles.js';
@@ -48,6 +49,7 @@ class EntityManager {
       EntityMixer,
       EntityMesh,
       EntityModel,
+      EntityText,
       EntityTexture,
       EntityTimer,
       EntityParticles,

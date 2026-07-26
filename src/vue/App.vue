@@ -9,18 +9,19 @@
 
   // Initialize Vue components
   const i18n = useI18n();
-  const canvas = ref();
   const progress = ref({ url: '', itemsLoaded: 0, itemsTotal: 0 });
-
+  
   // Initialize game
-  let game = window.game = new Game();
+  const gameRef = ref();
+  const game = window.game = new Game();
   game.init();
   game.core.assets.addEventListener('onProgress', e => progress.value = e);
 
   // Initialize app after canvas has been mounted
   onMounted(() => {
-    // Replace canvas element
-    canvas.value.replaceWith(game.core.canvas);
+    // Replace Vue canvas element
+    gameRef.value.prepend(game.core.compositor.effectComposer.renderer.domElement);
+    gameRef.value.prepend(game.core.compositor.rendererCSS.domElement);
   });
 
   onUnmounted(() => {
@@ -29,11 +30,8 @@
 </script>
 
 <template>
-  <!-- Core canvas -->
-  <canvas ref="canvas"></canvas>
-
   <!-- Floating menus -->
-  <div class="game-ui">
+  <div class="game" ref="gameRef">
     <!-- Loading bar -->
     <ProgressBar :progress="progress" />
   </div>

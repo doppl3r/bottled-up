@@ -1,5 +1,6 @@
 import { BasicShadowMap, EventDispatcher, PCFShadowMap } from 'three';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
+import { CSS2DRenderer } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js';
 import Stats from 'three/examples/jsm/libs/stats.module.js';
@@ -29,6 +30,16 @@ class Compositor extends EventDispatcher {
     this.effectComposer.addPass(this.renderPass); // Renderer
     this.effectComposer.addPass(this.outputPass); // Gamma/sRGB correction
 
+    // Initialize CSS2DRenderer
+    this.rendererCSS = new CSS2DRenderer();
+    this.rendererCSS.domElement.className = 'CSS2DRenderer';
+    this.rendererCSS.domElement.style.position = 'absolute';
+    this.rendererCSS.domElement.style.pointerEvents = 'none';
+    this.rendererCSS.domElement.style.top = '0px';
+    this.rendererCSS.domElement.style.right = '0px';
+    this.rendererCSS.domElement.style.bottom = '0px';
+    this.rendererCSS.domElement.style.left = '0px';
+
     // Add stats
     this.stats = new Stats();
     this.stats.dom.style = 'position: fixed; bottom: 0px; left: 0px; cursor: pointer; opacity: 0.9; z-index: 10000;';
@@ -45,6 +56,7 @@ class Compositor extends EventDispatcher {
     // Render scene with all post processing effects
     this.dispatchEvent(_eventBeforeRender);
     this.effectComposer.render();
+    this.rendererCSS.render(this.renderPass.scene, this.renderPass.camera);
     this.dispatchEvent(_eventRendered);
 
     // End stats recording
@@ -80,6 +92,9 @@ class Compositor extends EventDispatcher {
     // Update renderer size
     this.effectComposer.renderer.setSize(width, height);
     this.effectComposer.setSize(width, height);
+
+    // Update CSS2DRenderer size
+    this.rendererCSS.setSize(width, height);
   }
 
   captureScreenshot() {

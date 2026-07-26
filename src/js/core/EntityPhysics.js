@@ -153,13 +153,13 @@ class EntityPhysics extends Entity {
     this.saveState();
 
     // Add event listener to parent entity
-    event.target.parent.addEventListener('removed', this.onParentRemoved);
+    this.parent.addEventListener('removed', this.onParentRemoved);
   }
 
   onParentRemoved = event => {
     // Queue rigid body for removal and remove event listener from parent entity
     this.world?.queueRigidBodyRemoval(this.rigidBody);
-    event.target.removeEventListener('removed', this.onParentRemoved);
+    this.parent.removeEventListener('removed', this.onParentRemoved);
   }
 
   serialize() {
