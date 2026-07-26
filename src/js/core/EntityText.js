@@ -20,16 +20,15 @@ class EntityText extends Entity {
 
     // Ensure this text is removed after parent is removed
     this.addEventListener('added', this.onAdded);
+    this.addEventListener('rootRemoved', this.onRootRemoved);
   }
 
   onAdded = event => {
     this.add(this.textObject);
-    this.parent.addEventListener('removed', this.onParentRemoved);
   }
-  
-  onParentRemoved = event => {
+
+  onRootRemoved = event => {
     this.remove(this.textObject);
-    this.parent.removeEventListener('removed', this.onParentRemoved);
   }
 
   setText(text) {

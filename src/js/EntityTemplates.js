@@ -57,6 +57,30 @@ const EntityTemplatePlayer = {
   ]
 }
 
+const EntityTemplatePrompt = {
+  name: 'prompt',
+  label: 'Prompt',
+  class: 'EntityPrompt',
+  keyCode: 'Space',
+  children: [
+    {
+      class: 'EntityPhysics',
+      rigidBody: {
+        status: 1,
+        colliders: [
+          {
+            isSensor: true,
+            shapeDesc: {
+              type: 'ball',
+              arguments: [0.25]
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
+
 const EntityTemplateSkybox = {
   name: 'skybox',
   label: 'Skybox',
@@ -86,11 +110,13 @@ const EntityTemplateRain = {
 
 export const EntityTemplates = {
   EntityTemplatePlayer,
+  EntityTemplatePrompt,
   EntityTemplateRain,
   EntityTemplateSkybox
 }
 
 // Assign shorthand names for parsing from .glb object names
 EntityTemplates['Player'] = EntityTemplatePlayer;
+EntityTemplates['Prompt'] = EntityTemplatePrompt;
 EntityTemplates['Rain'] = EntityTemplateRain;
 EntityTemplates['Skybox'] = EntityTemplateSkybox;

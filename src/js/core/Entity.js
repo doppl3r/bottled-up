@@ -12,6 +12,7 @@ const _eventBeforeRender = { type: 'beforeRender', loop: null };
 const _eventBeforeUpdate = { type: 'beforeUpdate', loop: null };
 const _eventRendered = { type: 'rendered', loop: null };
 const _eventUpdated = { type: 'updated', loop: null };
+const _eventRootRemoved = { type: 'rootRemoved', root: null };
 
 class Entity extends Object3D {
   constructor(options) {
@@ -44,6 +45,9 @@ class Entity extends Object3D {
     this.position.set(options.position.x, options.position.y, options.position.z);
     this.rotation.set(options.rotation.x, options.rotation.y, options.rotation.z);
     this.scale.set(options.scale.x, options.scale.y, options.scale.z);
+
+    // Add event listener(s)
+    this.addEventListener('removed', this.onRemoved);
   }
 
   init(options, entityManager) {
@@ -76,6 +80,16 @@ class Entity extends Object3D {
     // Dispatch 'rendered' events after updating
     _eventRendered.loop = loop;
     this.dispatchEvent(_eventRendered);
+  }
+
+  onRemoved = event => {
+    // Notify descendant entities of root removal
+    _eventRootRemoved.root = this;
+    this.traverse(child => {
+      if (child.isEntity) {
+        child.dispatchEvent(_eventRootRemoved);
+      }
+    });
   }
 
   serialize() {
