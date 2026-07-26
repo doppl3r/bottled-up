@@ -12,8 +12,6 @@ class EntityPlayer extends Entity {
   }
 
   static template = {
-    name: 'player',
-    label: 'Player',
     children: [
       {
         class: 'EntityBallController'

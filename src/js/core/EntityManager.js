@@ -132,10 +132,6 @@ class EntityManager {
     
     // Assign name and template name
     if (obj.name) json.name = obj.name;
-    
-    // Assign entity class name (for template creation)
-    const className = this.findClassName(obj.name);
-    if (className) json.class = className;
 
     // Add local transform properties (position, rotation, scale)
     if (obj.position) json.position = { x: obj.position.x, y: obj.position.y, z: obj.position.z };
@@ -145,6 +141,10 @@ class EntityManager {
     // Assign 3D object userData to JSON object
     if (obj.userData) Object.assign(json, obj.userData);
     
+    // Assign entity class name (for template creation)
+    const className = this.findClassName(obj.name);
+    if (className) json.class = className;
+
     // Assign asset from Trimesh data
     if (className === 'EntityTrimesh' || className === 'EntityModel') {
       // Reset local transform to default values
@@ -207,12 +207,13 @@ class EntityManager {
   }
 
   create(options) {
-    // Update options from class template
+    // Merge options from class template
     if (options.class) {
       const entityTemplate = this.entityClasses[options.class].template;
       if (entityTemplate) {
         const template = structuredClone(entityTemplate);
-        Object.assign(options, template);
+        Object.assign(template, options); // Merge options into cloned template
+        Object.assign(options, template); // Merge template back into options
       }
     }
 

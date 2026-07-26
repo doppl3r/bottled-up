@@ -51,9 +51,6 @@ class EntityRain extends EntityParticles {
   }
 
   static template = {
-    name: 'rain',
-    label: 'Rain',
-    class: 'EntityRain',
     attenuation: 0.5,
     capacity: 100,
     range: 100,

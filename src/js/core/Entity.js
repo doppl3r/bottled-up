@@ -90,6 +90,10 @@ class Entity extends Object3D {
     });
   }
 
+  get(className) {
+    return this.children.find(child => child.class === className);
+  }
+
   serialize() {
     // Serialize entity to JSON
     const jsonData = {

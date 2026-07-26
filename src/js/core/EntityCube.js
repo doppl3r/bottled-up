@@ -12,8 +12,6 @@ class EntityCube extends Entity {
   }
 
   static template = {
-    name: 'cube',
-    label: 'Cube',
     children: [
       {
         class: 'EntityPhysics',

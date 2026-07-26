@@ -64,8 +64,6 @@ class EntitySkybox extends Entity {
   }
 
   static template = {
-    name: 'skybox',
-    label: 'Skybox',
     urls: [
       'png/skybox-forge-1-px.png',
       'png/skybox-forge-1-nx.png',

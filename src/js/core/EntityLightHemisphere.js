@@ -29,8 +29,6 @@ class EntityLightHemisphere extends Entity {
   }
 
   static template = {
-    name: 'light-hemisphere',
-    label: 'Light Hemisphere',
     skyColor: '#ffffff',
     groundColor: '#aaaaaa',
     intensity: Math.PI

@@ -13,9 +13,6 @@ class EntityPrompt extends Entity {
   }
 
   static template = {
-    name: 'prompt',
-    label: 'Prompt',
-    keyCode: 'Space',
     children: [
       {
         class: 'EntityPhysics',

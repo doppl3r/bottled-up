@@ -12,9 +12,6 @@ class EntityBall extends Entity {
   }
 
   static template = {
-    name: 'ball',
-    label: 'Ball',
-    class: 'Entity',
     children: [
       {
         class: 'EntityMesh',

@@ -12,8 +12,6 @@ class EntityTrimesh extends Entity {
   }
 
   static template = {
-    name: 'trimesh',
-    label: 'Trimesh',
     children: [
       {
         class: 'EntityModel'

@@ -103,8 +103,6 @@ class EntityLightSun extends Entity {
   }
 
   static template = {
-    name: 'light-sun',
-    label: 'Light Sun',
     class: 'EntityLightSun',
     color: '#ffffff',
     intensity: Math.PI,
