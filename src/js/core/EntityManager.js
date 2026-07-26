@@ -2,6 +2,7 @@ import { EventQueue, World } from '@dimforge/rapier3d';
 import { WorldDebugger } from './WorldDebugger.js';
 import { Entity } from './Entity.js';
 import { EntityAudio } from './EntityAudio.js';
+import { EntityBall } from './EntityBall.js';
 import { EntityDecal } from './EntityDecal.js';
 import { EntityMaterial } from './EntityMaterial.js';
 import { EntityMesh } from './EntityMesh.js';
@@ -18,7 +19,7 @@ import { EntityLightDirectional } from './EntityLightDirectional.js';
 import { EntityLightHemisphere } from './EntityLightHemisphere.js';
 import { EntityLightPoint } from './EntityLightPoint.js';
 import { EntityLightSun } from './EntityLightSun.js';
-import { EntityTemplates } from './EntityTemplates.js';
+import { EntityTrimesh } from './EntityTrimesh.js';
 
 /*
   The EntityManager class is responsible for managing all entities within
@@ -37,13 +38,13 @@ class EntityManager {
     this.world.queueRigidBodyRemoval = rb => this.world.rigidBodyRemovalQueue.push(rb);
     this.worldDebugger = new WorldDebugger(this.world); // Add to scene to enable
     this.eventQueue = new EventQueue(true);
-    this.entityTemplates = {};
     this.entityClasses = {};
 
     // Register core entity classes
     this.registerEntityClasses({
       Entity,
       EntityAudio,
+      EntityBall,
       EntityDecal,
       EntityMaterial,
       EntityMixer,
@@ -60,10 +61,8 @@ class EntityManager {
       EntityLightHemisphere,
       EntityLightPoint,
       EntityLightSun,
+      EntityTrimesh,
     });
-
-    // Register core entity templates
-    this.registerEntityTemplates(EntityTemplates);
   }
 
   update(loop) {
@@ -128,14 +127,10 @@ class EntityManager {
 
   convertModelToJSON(obj) {
     const json = {};
-    const templateName = this.findTemplateName(obj.name);
-    const template = this.entityTemplates[templateName];
+    const className = this.findClassName(obj.name);
 
     // Assign name and template name
     if (obj.name) json.name = obj.name;
-    if (templateName) {
-      json.template = templateName;
-    }
 
     // Add local transform properties (position, rotation, scale)
     if (obj.position) json.position = { x: obj.position.x, y: obj.position.y, z: obj.position.z };
@@ -144,9 +139,16 @@ class EntityManager {
 
     // Assign 3D object userData to JSON object
     if (obj.userData) Object.assign(json, obj.userData);
+
+    // Assign class template if available
+    if (className) {
+      json.class = className;
+      const template = this.entityClasses[json.class].template;
+      Object.assign(json, template);
+    }
     
     // Assign asset from Trimesh data
-    if (templateName === 'Trimesh' || templateName === 'Model') {
+    if (className === 'EntityTrimesh' || className === 'EntityModel') {
       // Reset local transform to default values
       obj.position.set(0, 0, 0);
       obj.rotation.set(0, 0, 0);
@@ -169,14 +171,14 @@ class EntityManager {
     // Return JSON data
     return json;
   }
-  
-  findTemplateName(name) {
+
+  findClassName(name) {
     const lName = name.toLowerCase();
     let bestMatch = null;
     let longestLength = 0;
     
     // Find the best match based on the name
-    for (const [key, template] of Object.entries(this.entityTemplates)) {
+    for (const [key, className] of Object.entries(this.entityClasses)) {
       if (lName.includes(key.toLowerCase()) && key.length > longestLength) {
         bestMatch = key;
         longestLength = key.length;
@@ -184,7 +186,6 @@ class EntityManager {
     }
     return bestMatch;
   }
-
 
   spawn(options, parent = this.core.scene, entities = null) {
     // Create and add entity to parent
@@ -208,20 +209,10 @@ class EntityManager {
   }
 
   create(options) {
-    // Update options from template if specified
-    if (options.template) {
-      if (this.entityTemplates[options.template]) {
-        // Store original template data (for serialization)
-        options.tempData = { ...options };
-
-        // Merge template data into options
-        const template = this.cloneTemplate(options.template);
-        Object.assign(options, template, options.tempData);
-      }
-      else {
-        console.error(`Entity template "${options.template}" does not exist.`, options);
-        return;
-      }
+    // Apply entity class template if available
+    if (this.entityClasses[options.class]?.template) {
+      const template = this.entityClasses[options.class].template;
+      options = Object.assign(template, options);
     }
 
     // Create entity from registered class object
@@ -278,20 +269,6 @@ class EntityManager {
     Object.entries(entities).forEach(([name, entityClass]) => {
       this.registerEntityClass(name, entityClass);
     });
-  }
-
-  registerEntityTemplate(name, template) {
-    this.entityTemplates[name] = template;
-  }
-
-  registerEntityTemplates(templates = {}) {
-    Object.entries(templates).forEach(([name, template]) => {
-      this.registerEntityTemplate(name, template);
-    });
-  }
-
-  cloneTemplate(name) {
-    return structuredClone(this.entityTemplates[name]);
   }
 
   debug(state = true) {

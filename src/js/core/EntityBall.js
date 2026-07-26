@@ -1,6 +1,6 @@
-import { Entity } from './core/Entity.js';
+import { Entity } from './Entity.js';
 
-class EntityPlayer extends Entity {
+class EntityBall extends Entity {
   constructor(options) {
     // Set default options
     options = Object.assign({
@@ -12,12 +12,10 @@ class EntityPlayer extends Entity {
   }
 
   static template = {
-    name: 'player',
-    label: 'Player',
+    name: 'ball',
+    label: 'Ball',
+    class: 'Entity',
     children: [
-      {
-        class: 'EntityBallController'
-      },
       {
         class: 'EntityMesh',
         castShadow: false,
@@ -29,22 +27,12 @@ class EntityPlayer extends Entity {
         material: {
           type: 'MeshStandardMaterial',
           arguments: [{ color: '#42bfe8' }],
-        },
-        children: [
-          {
-            class: 'EntityDecal',
-            url: 'png/smile.png',
-            position: { x: 0, y: 0, z: 0.25 },
-            normal: { x: 0, y: 0, z: 1 },
-            scale: { x: 0.5, y: 0.5, z: 0.5 }
-          }
-        ]
+        }
       },
       {
         class: 'EntityPhysics',
         rigidBody: {
-          status: 0,
-          softCcdPrediction: 1.0,
+          status: 1,
           colliders: [
             {
               shapeDesc: {
@@ -54,14 +42,9 @@ class EntityPlayer extends Entity {
             }
           ]
         }
-      },
-      {
-        class: 'EntityShadow',
-        distance: 64,
-        scale: { x: 0.5, y: 0.5, z: 0.5 }
       }
     ]
   }
 }
 
-export { EntityPlayer }
+export { EntityBall }

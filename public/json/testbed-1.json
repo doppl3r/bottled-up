@@ -2,10 +2,10 @@
   "name": "testbed-1",
   "children": [
     {
-      "template": "EntityTemplateLightHemisphere"
+      "class": "EntityLightHemisphere"
     },
     {
-      "template": "EntityTemplatePlayer",
+      "class": "EntityPlayer",
       "position": {
         "x": 0,
         "y": 4,

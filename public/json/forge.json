@@ -2,13 +2,13 @@
   "name": "forge",
   "children": [
     {
-      "template": "EntityTemplateLightHemisphere",
+      "class": "EntityLightHemisphere",
       "skyColor": "#ffffff",
       "groundColor": "#aaaaaa",
       "intensity": 3.14
     },
     {
-      "template": "EntityTemplateSkybox",
+      "class": "EntitySkybox",
       "urls": [
         "png/skybox-forge-1-px.png",
         "png/skybox-forge-1-nx.png",
@@ -19,7 +19,7 @@
       ]
     },
     {
-      "template": "EntityTemplatePlayer",
+      "class": "EntityPlayer",
       "position": {
         "x": 0,
         "y": 0.25,

@@ -19,6 +19,14 @@ class EntityLightHemisphere extends Entity {
     this.add(this.light);
   }
 
+  static template = {
+    name: 'light-hemisphere',
+    label: 'Light Hemisphere',
+    skyColor: '#ffffff',
+    groundColor: '#aaaaaa',
+    intensity: Math.PI
+  }
+
   serialize() {
     // Serialize entity to JSON
     const json = super.serialize();

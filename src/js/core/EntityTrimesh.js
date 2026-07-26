@@ -1,11 +1,10 @@
-import { Entity } from './core/Entity.js';
+import { Entity } from './Entity.js';
 
-class EntityPrompt extends Entity {
+class EntityTrimesh extends Entity {
   constructor(options) {
     // Set default options
     options = Object.assign({
-      code: 'KeyE',
-      type: 'keydown',
+      
     }, options);
 
     // Inherit Entity properties
@@ -13,20 +12,20 @@ class EntityPrompt extends Entity {
   }
 
   static template = {
-    name: 'prompt',
-    label: 'Prompt',
-    keyCode: 'Space',
+    name: 'trimesh',
+    label: 'Trimesh',
     children: [
+      {
+        class: 'EntityModel'
+      },
       {
         class: 'EntityPhysics',
         rigidBody: {
           status: 1,
           colliders: [
             {
-              isSensor: true,
               shapeDesc: {
-                type: 'ball',
-                arguments: [0.25]
+                type: 'trimesh'
               }
             }
           ]
@@ -36,4 +35,4 @@ class EntityPrompt extends Entity {
   }
 }
 
-export { EntityPrompt }
+export { EntityTrimesh }

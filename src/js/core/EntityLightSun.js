@@ -49,6 +49,19 @@ class EntityLightSun extends Entity {
     this.lightHelper = new CameraHelper(this.light.shadow.camera);
   }
 
+  static template = {
+    name: 'light-sun',
+    label: 'Light Sun',
+    class: 'EntityLightSun',
+    color: '#ffffff',
+    intensity: Math.PI,
+    time: 12,
+    speed: 0,
+    targetName: 'ball',
+    shadowArea: 64,
+    shadowQuality: 32
+  }
+
   render(loop) {
     // Compute orbit angle: time=12 → angle=0 (above), time=0/24 → angle=±π (below)
     const elapsed = loop.timestamp / 1000;

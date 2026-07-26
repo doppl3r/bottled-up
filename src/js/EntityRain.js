@@ -32,6 +32,19 @@ class EntityRain extends EntityParticles {
     }
   }
 
+  static template = {
+    name: 'rain',
+    label: 'Rain',
+    class: 'EntityRain',
+    attenuation: 0.5,
+    capacity: 100,
+    range: 100,
+    speed: 0.01,
+    urls: [
+      'png/icon16.png'
+    ]
+  }
+
   init(options, core) {
     core.camera.layers.enable(1);
     super.init(options, core);

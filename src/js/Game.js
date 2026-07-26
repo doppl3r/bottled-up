@@ -2,7 +2,6 @@ import { reactive } from 'vue';
 import { Core } from './core/Core.js';
 import { Record } from './core/Record.js';
 import { EntityClasses } from './EntityClasses.js';
-import { EntityTemplates } from './EntityTemplates.js'
 import { isTauri } from '@tauri-apps/api/core';
 import { getCurrentWindow } from '@tauri-apps/api/window';
 
@@ -27,7 +26,6 @@ class Game {
     // Initialize game components
     this.core = new Core();
     this.core.entityManager.registerEntityClasses(EntityClasses);
-    this.core.entityManager.registerEntityTemplates(EntityTemplates);
     this.record = new Record('boxel-4d', stateStorage);
     this.visible = true;
   }
@@ -50,7 +48,7 @@ class Game {
     });
 
     // Load scene from GLB model
-    this.core.assets.load('glb/forge-1.glb', model => {
+    this.core.assets.load('glb/castle-1.glb', model => {
       // Loop through scene
       const json = this.core.entityManager.convertModelToJSON(model);
 
@@ -87,7 +85,7 @@ class Game {
   }
 
   saveCheckpoint() {
-    const player = this.core.scene.getObjectByName('Player');
+    const player = this.core.scene.getObjectByName('EntityPlayer');
     const physics = player.getObjectByProperty('class', 'EntityPhysics');
     const position = physics.getPosition();
     const rotation = physics.getRotation();
@@ -95,7 +93,7 @@ class Game {
   }
 
   restoreCheckpoint() {
-    const player = this.core.scene.getObjectByName('Player');
+    const player = this.core.scene.getObjectByName('EntityPlayer');
     const physics = player.getObjectByProperty('class', 'EntityPhysics');
     const checkpoint = this.record.load('checkpoint');
     physics.rigidBody.setLinvel({ x: 0, y: 0, z: 0 });

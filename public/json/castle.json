@@ -2,18 +2,18 @@
   "name": "castle",
   "children": [
     {
-      "template": "EntityTemplateLightHemisphere",
+      "class": "EntityLightHemisphere",
       "intensity": 1.57
     },
     {
-      "template": "EntityTemplateLightSun",
+      "class": "EntityLightSun",
       "intensity": 1.57
     },
     {
-      "template": "EntityTemplateSkybox"
+      "class": "EntitySkybox"
     },
     {
-      "template": "EntityTemplatePlayer",
+      "class": "EntityPlayer",
       "position": {
         "x": 0,
         "y": 0,
