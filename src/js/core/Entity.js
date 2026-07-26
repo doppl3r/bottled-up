@@ -28,7 +28,6 @@ class Entity extends Object3D {
       position: { x: 0, y: 0, z: 0 },
       rotation: { x: 0, y: 0, z: 0 },
       scale: { x: 1, y: 1, z: 1 },
-      tempData: {},
       metaData: {},
       userData: {},
     }, options);
@@ -39,7 +38,6 @@ class Entity extends Object3D {
     this.name = options.name;
     this.label = options.label;
     this.class = options.class;
-    this.tempData = options.tempData;
     this.metaData = options.metaData;
     this.userData = options.userData;
     this.position.set(options.position.x, options.position.y, options.position.z);
@@ -107,27 +105,16 @@ class Entity extends Object3D {
       jsonData.userData = JSON.parse(JSON.stringify(this.userData));
     }
 
-    // Check if entity is using template data
-    if (Object.keys(this.tempData).length > 0) {
-      // Assign json data from template with user data
-      const templateData = { ...this.tempData };
-      if (jsonData.userData) templateData.userData = jsonData.userData;
-      
-      // Return serialized template without children
-      return templateData;
-    }
-    else {
-      // Serialize children
-      this.children.forEach(child => {
-        if (child.isEntity) {
-          jsonData.children = jsonData.children || [];
-          jsonData.children.push(child.serialize());
-        }
-      });
+    // Serialize children
+    this.children.forEach(child => {
+      if (child.isEntity) {
+        jsonData.children = jsonData.children || [];
+        jsonData.children.push(child.serialize());
+      }
+    });
 
-      // Return full JSON data
-      return jsonData;
-    }
+    // Return full JSON data
+    return jsonData;
   }
 }
 

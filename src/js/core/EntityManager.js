@@ -3,6 +3,7 @@ import { WorldDebugger } from './WorldDebugger.js';
 import { Entity } from './Entity.js';
 import { EntityAudio } from './EntityAudio.js';
 import { EntityBall } from './EntityBall.js';
+import { EntityCube } from './EntityCube.js';
 import { EntityDecal } from './EntityDecal.js';
 import { EntityMaterial } from './EntityMaterial.js';
 import { EntityMesh } from './EntityMesh.js';
@@ -45,6 +46,7 @@ class EntityManager {
       Entity,
       EntityAudio,
       EntityBall,
+      EntityCube,
       EntityDecal,
       EntityMaterial,
       EntityMixer,
@@ -127,10 +129,13 @@ class EntityManager {
 
   convertModelToJSON(obj) {
     const json = {};
-    const className = this.findClassName(obj.name);
-
+    
     // Assign name and template name
     if (obj.name) json.name = obj.name;
+    
+    // Assign entity class name (for template creation)
+    const className = this.findClassName(obj.name);
+    if (className) json.class = className;
 
     // Add local transform properties (position, rotation, scale)
     if (obj.position) json.position = { x: obj.position.x, y: obj.position.y, z: obj.position.z };
@@ -139,13 +144,6 @@ class EntityManager {
 
     // Assign 3D object userData to JSON object
     if (obj.userData) Object.assign(json, obj.userData);
-
-    // Assign class template if available
-    if (className) {
-      json.class = className;
-      const template = this.entityClasses[json.class].template;
-      Object.assign(json, template);
-    }
     
     // Assign asset from Trimesh data
     if (className === 'EntityTrimesh' || className === 'EntityModel') {
@@ -209,10 +207,13 @@ class EntityManager {
   }
 
   create(options) {
-    // Apply entity class template if available
-    if (this.entityClasses[options.class]?.template) {
-      const template = this.entityClasses[options.class].template;
-      options = Object.assign(template, options);
+    // Update options from class template
+    if (options.class) {
+      const entityTemplate = this.entityClasses[options.class].template;
+      if (entityTemplate) {
+        const template = structuredClone(entityTemplate);
+        Object.assign(options, template);
+      }
     }
 
     // Create entity from registered class object

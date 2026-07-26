@@ -116,7 +116,6 @@ class PhysicsFactory {
     else {
       // Create collider from asset mesh data
       entity.addEventListener('loaded', event => {
-        console.log(event);
         PhysicsFactory.updateShapeDescFromMesh(event.model, colliderOptions);
         PhysicsFactory.attachCollider(entity, colliderOptions, rigidBody, world);
       });
