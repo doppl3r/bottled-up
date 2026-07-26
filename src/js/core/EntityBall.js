@@ -19,22 +19,22 @@ class EntityBall extends Entity {
         receiveShadow: true,
         geometry: {
           type: 'SphereGeometry',
-          arguments: [0.25, 16, 16]
+          arguments: [0.5, 16, 16]
         },
         material: {
           type: 'MeshStandardMaterial',
-          arguments: [{ color: '#42bfe8' }],
+          arguments: [{ color: '#ffffff' }],
         }
       },
       {
         class: 'EntityPhysics',
         rigidBody: {
-          status: 1,
+          status: 0,
           colliders: [
             {
               shapeDesc: {
                 type: 'ball',
-                arguments: [0.25]
+                arguments: [0.5]
               }
             }
           ]

@@ -85,16 +85,16 @@ class Game {
   }
 
   saveCheckpoint() {
-    const player = this.core.scene.getObjectByName('EntityPlayer');
-    const physics = player.getObjectByProperty('class', 'EntityPhysics');
+    const player = this.core.scene.getObjectByProperty('class', 'EntityPlayer');
+    const physics = player.get('EntityPhysics');
     const position = physics.getPosition();
     const rotation = physics.getRotation();
     this.record.save('checkpoint', { position, rotation });
   }
 
   restoreCheckpoint() {
-    const player = this.core.scene.getObjectByName('EntityPlayer');
-    const physics = player.getObjectByProperty('class', 'EntityPhysics');
+    const player = this.core.scene.getObjectByProperty('class', 'EntityPlayer');
+    const physics = player.get('EntityPhysics');
     const checkpoint = this.record.load('checkpoint');
     physics.rigidBody.setLinvel({ x: 0, y: 0, z: 0 });
     physics.rigidBody.setAngvel({ x: 0, y: 0, z: 0 });

@@ -16,12 +16,12 @@ class EntityCube extends Entity {
       {
         class: 'EntityPhysics',
         rigidBody: {
-          status: 1,
+          status: 0,
           colliders: [
             {
               shapeDesc: {
                 type: 'cuboid',
-                arguments: [1, 1, 1]
+                arguments: [0.5, 0.5, 0.5]
               }
             }
           ]
