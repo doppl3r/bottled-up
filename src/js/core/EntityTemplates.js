@@ -118,11 +118,23 @@ const EntityTemplateTrimesh = {
   ]
 }
 
+const EntityTemplateProp = {
+  name: 'prop',
+  label: 'Prop',
+  class: 'Entity',
+  children: [
+    {
+      class: 'EntityModel'
+    }
+  ]
+}
+
 export const EntityTemplates = {
   EntityTemplateBall,
   EntityTemplateCube,
   EntityTemplateLightHemisphere,
   EntityTemplateLightSun,
+  EntityTemplateProp,
   EntityTemplateTrimesh,
 }
 
@@ -131,4 +143,5 @@ EntityTemplates['Ball'] = EntityTemplateBall;
 EntityTemplates['Cube'] = EntityTemplateCube;
 EntityTemplates['LightHemisphere'] = EntityTemplateLightHemisphere;
 EntityTemplates['LightSun'] = EntityTemplateLightSun;
+EntityTemplates['Prop'] = EntityTemplateProp;
 EntityTemplates['Trimesh'] = EntityTemplateTrimesh;

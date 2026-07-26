@@ -128,7 +128,7 @@ class EntityManager {
 
   convertModelToJSON(obj) {
     const json = {};
-    const templateName = this.getTemplateName(obj.name);
+    const templateName = this.findTemplateName(obj.name);
     const template = this.entityTemplates[templateName];
 
     // Assign name and template name
@@ -146,7 +146,7 @@ class EntityManager {
     if (obj.userData) Object.assign(json, obj.userData);
     
     // Assign asset from Trimesh data
-    if (templateName === 'Trimesh') {
+    if (templateName === 'Trimesh' || templateName === 'Prop') {
       // Reset local transform to default values
       obj.position.set(0, 0, 0);
       obj.rotation.set(0, 0, 0);
@@ -170,7 +170,7 @@ class EntityManager {
     return json;
   }
   
-  getTemplateName(name) {
+  findTemplateName(name) {
     const lName = name.toLowerCase();
     let bestMatch = null;
     let longestLength = 0;
@@ -219,7 +219,7 @@ class EntityManager {
         Object.assign(options, template, options.tempData);
       }
       else {
-        console.error(`Entity template "${options.template}" does not exist.`);
+        console.error(`Entity template "${options.template}" does not exist.`, options);
         return;
       }
     }
@@ -232,7 +232,7 @@ class EntityManager {
       return entity;
     }
     else {
-      console.error(`Entity class "${ options.class }" does not exist.`);
+      console.error(`Entity class "${ options.class }" does not exist.`, options);
       return;
     }
   }
