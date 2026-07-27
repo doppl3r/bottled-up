@@ -11,6 +11,10 @@ class EntityTrimesh extends Entity {
     super(options);
   }
 
+  init(options, core) {
+    super.init(options, core);
+  }
+
   static template = {
     children: [
       {

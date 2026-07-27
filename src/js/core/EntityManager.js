@@ -147,10 +147,10 @@ class EntityManager {
 
     // Assign asset from Trimesh data
     if (className === 'EntityTrimesh' || className === 'EntityModel') {
-      // Reset local transform to default values
-      obj.position.set(0, 0, 0);
-      obj.rotation.set(0, 0, 0);
-      obj.scale.set(1, 1, 1);
+      // Reset local transforms
+      json.position = { x: 0, y: 0, z: 0 };
+      json.rotation = { x: 0, y: 0, z: 0 };
+      json.scale = { x: 1, y: 1, z: 1 };
 
       // Store mesh as an asset
       const url = obj.uuid;
