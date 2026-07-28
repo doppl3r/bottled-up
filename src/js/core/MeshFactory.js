@@ -96,7 +96,8 @@ class MeshFactory {
     // Return singular geometry and materials array
     geometry = mergeGeometries(geometries, true);
     geometry = mergeVertices(geometry);
-    return { geometry, materials };
+    const mesh = new Mesh(geometry, materials);
+    return mesh;
   }
 
   static normalizeAttributes(geometries, discardMissingKeys = false) {

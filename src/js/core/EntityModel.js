@@ -3,7 +3,6 @@ import { Entity } from './Entity.js';
 
 /*
   EntityModel is a specialized entity that manages 3D models
-  for parent entities.
 */
 
 class EntityModel extends Entity {
@@ -31,7 +30,7 @@ class EntityModel extends Entity {
   }
 
   init(options, core) {
-    const url = options.url || options.parent.url;
+    const url = options.url;
     if (url) {
       core.assets.load(url, asset => {
         const model = clone(asset);

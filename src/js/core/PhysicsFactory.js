@@ -1,6 +1,5 @@
 import { Euler, Quaternion, Vector3 } from 'three';
 import { ActiveCollisionTypes, ActiveEvents, ColliderDesc, RigidBodyDesc, RigidBodyType, TriMeshFlags } from '@dimforge/rapier3d';
-import { MeshFactory } from './MeshFactory.js';
 
 /*
   PhysicsFactory is a static factory class responsible for creating
@@ -109,24 +108,9 @@ class PhysicsFactory {
 
   static attachCollider(entity, colliderOptions, rigidBody, world) {
     // Create collider immediately
-    if (colliderOptions.shapeDesc.arguments) {
-      const colliderDesc = PhysicsFactory.createColliderDesc(colliderOptions);
-      PhysicsFactory.createCollider(colliderDesc, rigidBody, world);
-    }
-    else {
-      // Create collider from asset mesh data
-      entity.addEventListener('loaded', event => {
-        PhysicsFactory.updateShapeDescFromMesh(event.model, colliderOptions);
-        PhysicsFactory.attachCollider(entity, colliderOptions, rigidBody, world);
-      });
-    }
+    const colliderDesc = PhysicsFactory.createColliderDesc(colliderOptions);
+    PhysicsFactory.createCollider(colliderDesc, rigidBody, world);
   }
-
-  static updateShapeDescFromMesh = (mesh, colliderOptions) => {
-    // Build collider from mesh then resume collider setup
-    const { geometry } = MeshFactory.mergeObjectMeshes(mesh);
-    colliderOptions.shapeDesc.arguments = [geometry.attributes.position.array, geometry.index.array, TriMeshFlags['FIX_INTERNAL_EDGES']];
-  };
 
   static createController(entity, options, world) {
     // Set base options

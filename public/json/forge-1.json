@@ -1,8 +1,11 @@
 {
-  "name": "testbed-1",
+  "name": "forge",
   "children": [
     {
-      "class": "EntityLightHemisphere"
+      "class": "EntityLightHemisphere",
+      "skyColor": "#ffffff",
+      "groundColor": "#aaaaaa",
+      "intensity": 3.14
     },
     {
       "class": "EntitySkybox",
@@ -19,22 +22,22 @@
       "class": "EntityPlayer",
       "position": {
         "x": 0,
-        "y": 4.5,
+        "y": 0.25,
         "z": 0
       }
     },
     {
-      "name": "dungeon",
-      "label": "Dungeon",
+      "name": "forge",
+      "label": "Forge",
       "class": "Entity",
       "children": [
         {
           "class": "EntityModel",
-          "url": "glb/dungeon.glb"
+          "url": "glb/forge-1.glb"
         },
         {
           "class": "EntityPhysics",
-          "url": "glb/dungeon.glb",
+          "url": "glb/forge-1.glb",
           "rigidBody": {
             "status": 1,
             "colliders": [

@@ -1,6 +1,8 @@
 import { clone } from 'three/examples/jsm/utils/SkeletonUtils';
 import { Euler, Quaternion, Vector3 } from 'three';
+import { TriMeshFlags } from '@dimforge/rapier3d';
 import { PhysicsFactory } from './PhysicsFactory.js';
+import { MeshFactory } from './MeshFactory.js';
 import { Entity } from './Entity.js';
 
 /*
@@ -60,22 +62,34 @@ class EntityPhysics extends Entity {
     // Store reference to the physics world
     this.world = core.entityManager.world;
 
-    // Create physics component
-    PhysicsFactory.create(this, options.rigidBody, this.world);
-
     // Load mesh data from asset if defined
-    const url = options.url || options.parent.url;
+    const url = options.url;
     if (url) {
       core.assets.load(url, asset => {
         // Clone the loaded asset to create a model instance for this entity
         const model = clone(asset);
+        const mesh = MeshFactory.mergeObjectMeshes(model);
         this.url = options.url;
-        this.dispatchEvent({ type: 'loaded', model });
+
+        // Add merged mesh data to collider shape 
+        options.rigidBody.colliders?.forEach(colliderOptions => {
+          colliderOptions.shapeDesc.arguments = [
+            mesh.geometry.attributes.position.array,
+            mesh.geometry.index.array,
+            TriMeshFlags['FIX_INTERNAL_EDGES']];
+        });
+
+        // Create rigid body
+        PhysicsFactory.create(this, options.rigidBody, this.world);
+
+        // Dispatch 'loaded' event after creating the rigid body
+        this.dispatchEvent({ type: 'loaded', mesh });
         super.init(options, core);
       });
     }
     else {
-      // Create physics component
+      // Create physics component immediately
+      PhysicsFactory.create(this, options.rigidBody, this.world);
       super.init(options, core);
     }
   }

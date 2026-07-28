@@ -4,7 +4,7 @@ class EntityTrimesh extends Entity {
   constructor(options) {
     // Set default options
     options = Object.assign({
-      
+      url: ''
     }, options);
 
     // Inherit Entity properties
@@ -12,6 +12,12 @@ class EntityTrimesh extends Entity {
   }
 
   init(options, core) {
+    // Propagate url to all child entities
+    options.children.forEach(childOptions => {
+      childOptions.url = options.url;
+    });
+
+    // Resume base entity initialization
     super.init(options, core);
   }
 

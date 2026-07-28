@@ -1,43 +1,37 @@
 {
-  "name": "forge",
+  "name": "castle",
   "children": [
     {
       "class": "EntityLightHemisphere",
-      "skyColor": "#ffffff",
-      "groundColor": "#aaaaaa",
-      "intensity": 3.14
+      "intensity": 1.57
     },
     {
-      "class": "EntitySkybox",
-      "urls": [
-        "png/skybox-forge-1-px.png",
-        "png/skybox-forge-1-nx.png",
-        "png/skybox-forge-1-py.png",
-        "png/skybox-forge-1-ny.png",
-        "png/skybox-forge-1-pz.png",
-        "png/skybox-forge-1-nz.png"
-      ]
+      "class": "EntityLightSun",
+      "intensity": 1.57
+    },
+    {
+      "class": "EntitySkybox"
     },
     {
       "class": "EntityPlayer",
       "position": {
         "x": 0,
-        "y": 0.25,
-        "z": 0
+        "y": 0,
+        "z": 0.5
       }
     },
     {
-      "name": "forge",
-      "label": "Forge",
+      "name": "castle",
+      "label": "Castle",
       "class": "Entity",
       "children": [
         {
           "class": "EntityModel",
-          "url": "glb/forge.glb"
+          "url": "glb/castle-1.glb"
         },
         {
           "class": "EntityPhysics",
-          "url": "glb/forge.glb",
+          "url": "glb/castle-1.glb",
           "rigidBody": {
             "status": 1,
             "colliders": [
