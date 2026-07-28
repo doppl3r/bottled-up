@@ -3,6 +3,7 @@
 */
 
 import { mergeGeometries, mergeVertices } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
+import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 import {
   BoxGeometry, BufferAttribute, BufferGeometry, CapsuleGeometry, CircleGeometry,
   ConeGeometry, CylinderGeometry,  DodecahedronGeometry, EdgesGeometry,
@@ -170,6 +171,7 @@ class MeshFactory {
   static PolyhedronGeometry = PolyhedronGeometry;
   static RawShaderMaterial = RawShaderMaterial;
   static RingGeometry = RingGeometry;
+  static RoundedBoxGeometry = RoundedBoxGeometry;
   static ShaderMaterial = ShaderMaterial;
   static ShadowMaterial = ShadowMaterial;
   static ShapeGeometry = ShapeGeometry;

@@ -7,7 +7,7 @@ class EntityLightHemisphere extends Entity {
     options = Object.assign({
       class: 'EntityLightHemisphere',
       skyColor: '#ffffff',
-      groundColor: '#eeeeee',
+      groundColor: '#aaaaaa',
       intensity: Math.PI
     }, options);
 

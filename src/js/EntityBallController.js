@@ -37,6 +37,7 @@ class EntityBallController extends Entity {
       dashTimerDuration: 3000,
       jumpBufferDuration: 100,
       jumpHeight: 2.5,
+      jumpSpin: 0.0,
       maxSlopeAngle: 45,
       camPitchDefault: Math.PI / 8,
       camPitchMin: (Math.PI / -2) + 0.1,
@@ -61,6 +62,7 @@ class EntityBallController extends Entity {
     this.dashSpeed = options.dashSpeed;
     this.dashTimerDuration = options.dashTimerDuration;
     this.jumpHeight = options.jumpHeight;
+    this.jumpSpin = options.jumpSpin;
     this.jumpBufferDuration = options.jumpBufferDuration;
     this.maxSlopeAngleRad = options.maxSlopeAngle * Math.PI / 180;
     this.camPitchDefault = options.camPitchDefault;
@@ -204,12 +206,20 @@ class EntityBallController extends Entity {
     if (this.jumpBufferElapsed > 0 && this.canJump) {
       // Reset vertical velocity so slope-climb/falling speed doesn't stack with the jump impulse
       const linvel = this.entityPhysics.rigidBody.linvel();
+      const mass = this.entityPhysics.rigidBody.mass();
       this.entityPhysics.rigidBody.setLinvel({ x: linvel.x, y: 0, z: linvel.z }, true);
+
+      // Add forward spin (angular velocity) perpendicular to movement direction
+      const spinAxis = new Vector3(_forceDir.z, 0, -_forceDir.x); // Perpendicular to movement in XZ plane
+      this.entityPhysics.rigidBody.applyTorqueImpulse({ 
+        x: spinAxis.x * this.jumpSpin * mass, 
+        y: spinAxis.y * this.jumpSpin * mass, 
+        z: spinAxis.z * this.jumpSpin * mass 
+      }, true);
 
       // Calculate jump impulse from the desired jump height
       const gravity = this.core.entityManager.world.gravity;
       const gravityMagnitude = Math.sqrt(gravity.x ** 2 + gravity.y ** 2 + gravity.z ** 2);
-      const mass = this.entityPhysics.rigidBody.mass();
       const requiredVelocity = Math.sqrt(2 * gravityMagnitude * this.jumpHeight);
       const jumpImpulse = requiredVelocity * mass;
 
@@ -457,7 +467,6 @@ class EntityBallController extends Entity {
       else {
         console.log('onMouseMove: Mouse spike occurred');
       }
-
 
       // Pointer lock: use raw movement deltas directly
       this.camAzimuth -= _mouseMovement.x * this.camAzimuthSensitivity;
