@@ -148,11 +148,6 @@ class EntityManager {
     // Store url reference if specified in template
     const template = this.entityClasses[className]?.template;
     if (template?.url !== undefined) {
-      // Reset local transforms
-      json.position = { x: 0, y: 0, z: 0 };
-      json.rotation = { x: 0, y: 0, z: 0 };
-      json.scale = { x: 1, y: 1, z: 1 };
-
       // Store mesh as an asset
       this.core.assets.assign(obj.uuid, obj);
       json.url = obj.uuid;
