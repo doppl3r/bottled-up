@@ -129,33 +129,33 @@ class EntityManager {
 
   convertModelToJSON(obj) {
     const json = {};
-    
-    // Assign name and template name
-    if (obj.name) json.name = obj.name;
 
     // Add local transform properties (position, rotation, scale)
     if (obj.position) json.position = { x: obj.position.x, y: obj.position.y, z: obj.position.z };
     if (obj.rotation) json.rotation = { x: obj.rotation.x, y: obj.rotation.y, z: obj.rotation.z };
     if (obj.scale) json.scale = { x: obj.scale.x, y: obj.scale.y, z: obj.scale.z };
 
-    // Assign 3D object userData to JSON object
+    // Assign name
+    if (obj.name) json.name = obj.name;
+
+    // Assign 3D object userData to JSON object (may override json name)
     if (obj.userData) Object.assign(json, obj.userData);
     
     // Assign entity class name (for template creation)
     const className = this.findClassName(obj.name);
     if (className) json.class = className;
 
-    // Assign asset from Trimesh data
-    if (className === 'EntityTrimesh' || className === 'EntityModel') {
+    // Store url reference if specified in template
+    const template = this.entityClasses[className]?.template;
+    if (template?.url !== undefined) {
       // Reset local transforms
       json.position = { x: 0, y: 0, z: 0 };
       json.rotation = { x: 0, y: 0, z: 0 };
       json.scale = { x: 1, y: 1, z: 1 };
 
       // Store mesh as an asset
-      const url = obj.uuid;
-      this.core.assets.assign(url, obj);
-      json.url = url;
+      this.core.assets.assign(obj.uuid, obj);
+      json.url = obj.uuid;
     }
     else {
       // Recursively create JSON for child entities

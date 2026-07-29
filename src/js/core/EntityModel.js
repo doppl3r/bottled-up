@@ -56,6 +56,10 @@ class EntityModel extends Entity {
     if (this.url) json.url = this.url;
     return json;
   }
+
+  static template = {
+    url: ''
+  }
 }
 
 export { EntityModel };

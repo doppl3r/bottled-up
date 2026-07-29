@@ -22,12 +22,15 @@ class EntityTrimesh extends Entity {
   }
 
   static template = {
+    url: '',
     children: [
       {
-        class: 'EntityModel'
+        class: 'EntityModel',
+        url: ''
       },
       {
         class: 'EntityPhysics',
+        url: '',
         rigidBody: {
           status: 1,
           colliders: [
