@@ -40,25 +40,6 @@ class EntityPhysics extends Entity {
   }
 
   init(options, core) {
-    // Inherit position from parent options
-    if (options.rigidBody.position === undefined && options.parent.position) {
-      options.rigidBody.position = options.parent.position;
-    }
-
-    // Inherit rotation from parent options
-    if (options.rigidBody.rotation === undefined && options.parent.rotation) {
-      options.rigidBody.rotation = options.parent.rotation;
-    }
-
-    // Inherit scale from parent options
-    if (options.parent.scale) {
-      options.rigidBody.colliders?.forEach(colliderOptions => {
-        if (colliderOptions.shapeDesc.type === 'cuboid') {
-          colliderOptions.shapeDesc.arguments = Object.values(options.parent.scale).map(v => v * 0.5);
-        }
-      });
-    }
-
     // Store reference to the physics world
     this.world = core.entityManager.world;
 
@@ -162,6 +143,10 @@ class EntityPhysics extends Entity {
   }
 
   onAdded = event => {
+    // Inherit position from parent properties
+    this.setPosition(this.parent.position);
+    this.setRotation(this.parent.rotation);
+
     // Save initial state
     this.saveState();
 

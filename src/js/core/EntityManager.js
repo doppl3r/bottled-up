@@ -197,7 +197,6 @@ class EntityManager {
 
       // Continue loading child entities recursively
       options.children?.forEach(childOptions => {
-        childOptions.parent = options;
         this.spawn(childOptions, entity, entities);
       });
 
