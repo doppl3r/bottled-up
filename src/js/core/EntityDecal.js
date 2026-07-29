@@ -158,8 +158,7 @@ class EntityDecal extends Entity {
         // Clone geometry to avoid mutating the original
         const geo = child.geometry.clone();
 
-        // Bake transform relative to root (NOT full world matrix), so the
-        // merged geometry moves/rotates with root via normal parenting
+        // Bake transform relative to root (NOT full world matrix)
         _relativeMatrix.multiplyMatrices(rootMatrixInverse, child.matrixWorld);
         geo.applyMatrix4(_relativeMatrix);
         geometries.push(geo);

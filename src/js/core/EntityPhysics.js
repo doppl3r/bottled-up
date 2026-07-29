@@ -65,9 +65,8 @@ class EntityPhysics extends Entity {
     // Load mesh data from asset if defined
     const url = options.url;
     if (url) {
-      core.assets.load(url, asset => {
+      core.assets.load(url, model => {
         // Clone the loaded asset to create a model instance for this entity
-        const model = clone(asset);
         const mesh = MeshFactory.mergeObjectMeshes(model);
         this.url = options.url;
 
