@@ -30,6 +30,7 @@ class Entity extends Object3D {
       scale: { x: 1, y: 1, z: 1 },
       metaData: {},
       userData: {},
+      visible: true
     }, options);
 
     // Declare entity properties
@@ -43,6 +44,7 @@ class Entity extends Object3D {
     this.position.set(options.position.x, options.position.y, options.position.z);
     this.rotation.set(options.rotation.x, options.rotation.y, options.rotation.z);
     this.scale.set(options.scale.x, options.scale.y, options.scale.z);
+    this.visible = options.visible;
 
     // Add event listener(s)
     this.addEventListener('removed', this.onRemoved);
