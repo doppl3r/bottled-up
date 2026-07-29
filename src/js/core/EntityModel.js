@@ -32,7 +32,15 @@ class EntityModel extends Entity {
   init(options, core) {
     const url = options.url;
     if (url) {
-      core.assets.load(url, model => {
+      core.assets.load(url, asset => {
+        // Clone the loaded asset so we don't mutate or reparent the shared cached instance
+        const model = clone(asset);
+
+        // The wrapping entity (e.g. EntityTrimesh)
+        model.position.set(0, 0, 0);
+        model.rotation.set(0, 0, 0);
+        model.scale.set(1, 1, 1);
+
         // Apply shadow settings to all mesh children of the model
         model.traverse(child => {
           if (child.isMesh) {

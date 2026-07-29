@@ -23,15 +23,29 @@
     {
       "name": "castle",
       "label": "Castle",
-      "class": "Entity",
+      "class": "EntityTrimesh",
+      "url": "glb/castle-1.glb",
+      "position": {
+        "x": 0,
+        "y": -10,
+        "z": 0
+      },
+      "rotation": {
+        "x": 0.25,
+        "y": 0.25,
+        "z": 0.25
+      },
+      "scale": {
+        "x": 0.25,
+        "y": 0.25,
+        "z": 0.25
+      },
       "children": [
         {
-          "class": "EntityModel",
-          "url": "glb/castle-1.glb"
+          "class": "EntityModel"
         },
         {
           "class": "EntityPhysics",
-          "url": "glb/castle-1.glb",
           "rigidBody": {
             "status": 1,
             "colliders": [

@@ -46,8 +46,21 @@ class EntityPhysics extends Entity {
     // Load mesh data from asset if defined
     const url = options.url;
     if (url) {
-      core.assets.load(url, model => {
-        // Clone the loaded asset to create a model instance for this entity
+      core.assets.load(url, asset => {
+        // Clone the loaded asset
+        const model = clone(asset);
+
+        // Reset object matrix before merging meshes
+        model.position.set(0, 0, 0);
+        model.rotation.set(0, 0, 0);
+
+        // Apply parent scale
+        if (this.parent) model.scale.copy(this.parent.scale);
+
+        // Update the clone's world matrix to reflect the applied transform
+        model.updateWorldMatrix(true, true);
+
+        // Merge geometry from the (disposable) cloned model
         const mesh = MeshFactory.mergeObjectMeshes(model);
         this.url = options.url;
 
@@ -61,6 +74,9 @@ class EntityPhysics extends Entity {
 
         // Create rigid body
         PhysicsFactory.create(this, options.rigidBody, this.world);
+
+        // Resync transform
+        this.syncTransformFromParent();
 
         // Dispatch 'loaded' event after creating the rigid body
         this.dispatchEvent({ type: 'loaded', mesh });
@@ -142,10 +158,16 @@ class EntityPhysics extends Entity {
     this.quaternion.copy(rotation);
   }
 
-  onAdded = event => {
-    // Inherit position from parent properties
+  syncTransformFromParent() {
+    // Inherit parent transform if available
+    if (!this.parent) return;
     this.setPosition(this.parent.position);
     this.setRotation(this.parent.rotation);
+  }
+
+  onAdded = event => {
+    // Inherit transform from parent properties
+    this.syncTransformFromParent();
 
     // Save initial state
     this.saveState();

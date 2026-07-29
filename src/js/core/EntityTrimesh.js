@@ -12,9 +12,16 @@ class EntityTrimesh extends Entity {
   }
 
   init(options, core) {
-    // Propagate url to all child entities
+    // Propagate properties to all child entities
     options.children.forEach(childOptions => {
+      // Set child entity url to match parent entity url
       childOptions.url = options.url;
+
+      // Set initial transform for child entities
+      if (childOptions.class === 'EntityPhysics') {
+        childOptions.rigidBody.position = this.position;
+        childOptions.rigidBody.rotation = this.rotation;
+      }
     });
 
     // Resume base entity initialization

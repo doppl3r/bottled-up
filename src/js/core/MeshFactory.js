@@ -70,11 +70,6 @@ class MeshFactory {
     let geometries = [];
     let materials = [];
 
-    // Reset object matrix before merging meshes
-    object3D.position.set(0, 0, 0);
-    object3D.rotation.set(0, 0, 0);
-    object3D.scale.set(1, 1, 1);
-    object3D.updateMatrixWorld();
 
     // Traverse and add geometries/materials to array
     object3D.traverse(obj => {
