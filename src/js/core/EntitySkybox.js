@@ -65,12 +65,12 @@ class EntitySkybox extends Entity {
 
   static template = {
     urls: [
-      'png/skybox-forge-1-px.png',
-      'png/skybox-forge-1-nx.png',
-      'png/skybox-forge-1-py.png',
-      'png/skybox-forge-1-ny.png',
-      'png/skybox-forge-1-pz.png',
-      'png/skybox-forge-1-nz.png'
+      'png/village-skybox-px.png',
+      'png/village-skybox-nx.png',
+      'png/village-skybox-py.png',
+      'png/village-skybox-ny.png',
+      'png/village-skybox-pz.png',
+      'png/village-skybox-nz.png'
     ]
   }
 }
