@@ -13,6 +13,9 @@
       }
     },
     {
+      "class": "EntityCube"
+    },
+    {
       "name": "level",
       "label": "Level",
       "class": "Entity",
