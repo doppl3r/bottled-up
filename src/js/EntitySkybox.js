@@ -1,5 +1,5 @@
 import { CubeTexture, SRGBColorSpace } from 'three';
-import { Entity } from './Entity.js';
+import { Entity } from './core/Entity.js';
 
 /*
   EntitySkybox adds a CubeTexture system to scene.

@@ -14,7 +14,6 @@ import { EntityTexture } from './EntityTexture.js';
 import { EntityTimer } from './EntityTimer.js';
 import { EntityParticles } from './EntityParticles.js';
 import { EntityPhysics } from './EntityPhysics.js';
-import { EntitySkybox } from './EntitySkybox.js';
 import { EntityLightAmbient } from './EntityLightAmbient.js';
 import { EntityLightDirectional } from './EntityLightDirectional.js';
 import { EntityLightHemisphere } from './EntityLightHemisphere.js';
@@ -57,7 +56,6 @@ class EntityManager {
       EntityTimer,
       EntityParticles,
       EntityPhysics,
-      EntitySkybox,
       EntityLightAmbient,
       EntityLightDirectional,
       EntityLightHemisphere,

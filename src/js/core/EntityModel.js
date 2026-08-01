@@ -10,14 +10,20 @@ class EntityModel extends Entity {
     // Set default options
     options = Object.assign({
       class: 'EntityModel',
+      minFilter: 1003,
+      magFilter: 1003,
+      generateMipmaps: true,
       castShadow: true,
-      receiveShadow: true
+      receiveShadow: true,
     }, options);
 
     // Inherit Entity properties
     super(options);
 
     // Declare entity components
+    this.minFilter = options.minFilter;
+    this.magFilter = options.magFilter;
+    this.generateMipmaps = options.generateMipmaps;
     this.castShadow = options.castShadow;
     this.receiveShadow = options.receiveShadow;
     this.model;
@@ -44,6 +50,9 @@ class EntityModel extends Entity {
         // Apply shadow settings to all mesh children of the model
         model.traverse(child => {
           if (child.isMesh) {
+            child.material.map.generateMipmaps = this.generateMipmaps;
+            child.material.map.minFilter = this.minFilter;
+            child.material.map.magFilter = this.magFilter;
             child.castShadow = this.castShadow;
             child.receiveShadow = this.receiveShadow;
           }
