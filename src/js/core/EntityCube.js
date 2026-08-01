@@ -8,9 +8,9 @@ import { Entity } from './Entity.js';
 */
 
 // Initialize module-scoped variables
+const _box3 = new Box3();
 const _size = new Vector3(1, 1, 1);
 const _center = new Vector3(0, 0, 0);
-const _offset = new Vector3(0, 0, 0);
 
 class EntityCube extends Entity {
   constructor(options) {
@@ -27,25 +27,30 @@ class EntityCube extends Entity {
     // Update model properties
     const model = core.assets.get(options.url);
     if (model) {
-      // Calculate bounding box
-      const box3 = new Box3();
+      // Clear model transforms
+      const scale = model.scale.clone();
       model.position.set(0, 0, 0);
       model.rotation.set(0, 0, 0);
-      box3.setFromObject(model);
-      box3.getSize(_size);
-      box3.getCenter(_center);
+      model.scale.set(1, 1, 1);
 
-      if (model.children.length > 0) {
-        model.traverse(child => {
-          if (child.isMesh) {
-            child.geometry.translate(-_center.x, -_center.y, -_center.z);
-          }
-        });
-      }
-      else {
-        model.geometry.boundingBox.getCenter(_offset).negate();
-        model.geometry.translate(_offset.x, _offset.y, _offset.z);
-      }
+      // Update bounding box
+      _box3.setFromObject(model);
+      _box3.getSize(_size);
+      _box3.getCenter(_center);
+
+      // Translate mesh geometries (single or multiple) to center of bounding box
+      model.traverse(child => {
+        if (child.isMesh) {
+          child.geometry.translate(-_center.x, -_center.y, -_center.z);
+        }
+      });
+
+      // Multiply bounding box by original model scale
+      _size.multiply(scale);
+      _center.multiply(scale);
+
+      // Revert model scale to original value
+      model.scale.copy(scale);
     }
     else {
       // Set default size and center for non-mesh objects
