@@ -42,7 +42,7 @@ class EntityModel extends Entity {
         // Clone the loaded asset so we don't mutate or reparent the shared cached instance
         const model = clone(asset);
 
-        // The wrapping entity (e.g. EntityTrimesh)
+        // Reset model transform
         model.position.set(0, 0, 0);
         model.rotation.set(0, 0, 0);
         model.scale.set(1, 1, 1);

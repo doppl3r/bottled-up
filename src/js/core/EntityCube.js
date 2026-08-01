@@ -1,4 +1,4 @@
-import { Box3, Vector3 } from 'three';
+import { Box3, Box3Helper, Vector3 } from 'three';
 import { Entity } from './Entity.js';
 
 /*
@@ -8,7 +8,9 @@ import { Entity } from './Entity.js';
 */
 
 // Initialize module-scoped variables
-const _v = new Vector3();
+const _size = new Vector3(1, 1, 1);
+const _center = new Vector3(0, 0, 0);
+const _offset = new Vector3(0, 0, 0);
 
 class EntityCube extends Entity {
   constructor(options) {
@@ -22,15 +24,40 @@ class EntityCube extends Entity {
   }
 
   init(options, core) {
+    // Update model properties
+    const model = core.assets.get(options.url);
+    if (model) {
+      // Calculate bounding box
+      const box3 = new Box3();
+      model.position.set(0, 0, 0);
+      model.rotation.set(0, 0, 0);
+      box3.setFromObject(model);
+      box3.getSize(_size);
+      box3.getCenter(_center);
+
+      if (model.children.length > 0) {
+        model.traverse(child => {
+          if (child.isMesh) {
+            child.geometry.translate(-_center.x, -_center.y, -_center.z);
+          }
+        });
+      }
+      else {
+        model.geometry.boundingBox.getCenter(_offset).negate();
+        model.geometry.translate(_offset.x, _offset.y, _offset.z);
+      }
+    }
+    else {
+      // Set default size and center for non-mesh objects
+      _size.set(options.scale.x, options.scale.y, options.scale.z);
+      _center.set(0, 0, 0);
+    }
+
     // Update template for child entities
     for (let i = 0; i < options.children.length; i++) {
       // Update child entity options
       let child = options.children[i];
-
-      // Update model properties
       if (child.class === 'EntityModel') {
-        const model = core.assets.get(options.url);
-
         // Check if model exists
         if (model) {
           child.url = options.url;
@@ -51,19 +78,13 @@ class EntityCube extends Entity {
         }
       }
       else if (child.class === 'EntityPhysics') {
-        // Update transformations
-        child.rigidBody.position = options.position;
-        child.rigidBody.rotation = options.rotation;
+        // Update position from model center
+        this.position.add(_center);
 
-        // Update scale based on model size
-        const model = core.assets.get(options.url);
-        if (model) {
-          model.rotation.set(0, 0, 0);
-          const size = new Box3().setFromObject(model).getSize(_v);
-          options.scale.x = size.x;
-          options.scale.y = size.y;
-          options.scale.z = size.z;
-        }
+        // Update scale from model box
+        options.scale.x = _size.x;
+        options.scale.y = _size.y;
+        options.scale.z = _size.z;
         
         // Update shape scale
         const colliders = child.rigidBody.colliders;
