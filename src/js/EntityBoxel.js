@@ -100,7 +100,7 @@ class EntityBoxel extends Entity {
         },
         material: {
           type: 'MeshStandardMaterial',
-          arguments: [{ color: '#42bfe8' }],
+          arguments: [{ color: '#FFCB4C' }],
         },
         children: [
           {
