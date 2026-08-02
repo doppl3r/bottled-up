@@ -125,8 +125,10 @@ class EntityBallController extends Entity {
     window.addEventListener('mouseup', this.onWindowMouseUp);
     this.core.canvas.addEventListener('mousedown', this.onCanvasMouseDown);
 
-    // Cleanup when the parent ball entity is removed from the scene
+    // Add event listeners for components
     this.addEventListener('added', this.onAdded);
+
+    // Initialize entity properties
     super.init(options, core);
   }
 

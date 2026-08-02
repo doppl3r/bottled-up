@@ -9,11 +9,11 @@ class EntityModel extends Entity {
   constructor(options = {}) {
     // Set default options
     options = Object.assign({
-      class: 'EntityModel',
-      minFilter: 1003,
-      magFilter: 1003,
-      generateMipmaps: true,
       castShadow: true,
+      class: 'EntityModel',
+      generateMipmaps: true,
+      magFilter: 1003,
+      minFilter: 1003,
       receiveShadow: true,
     }, options);
 
