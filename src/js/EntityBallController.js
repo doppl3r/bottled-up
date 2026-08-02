@@ -1,4 +1,4 @@
-import { ColliderDesc } from '@dimforge/rapier3d';
+import { ColliderDesc, QueryFilterFlags } from '@dimforge/rapier3d';
 import { Vector2, Vector3 } from 'three';
 import { Entity } from './core/Entity.js';
 import { Tweens } from './core/Tweens.js';
@@ -349,7 +349,7 @@ class EntityBallController extends Entity {
     const targetDistance = 0.0; // Distance between collision
     const maxToi = maxDistance;
     const stopAtPenetration = false; // Continue full sweep
-    const filterFlags = undefined;
+    const filterFlags = QueryFilterFlags.EXCLUDE_SENSORS;
     const filterGroups = undefined;
     const filterExcludeCollider = undefined;
     const filterExcludeRigidBody = rigidBody;

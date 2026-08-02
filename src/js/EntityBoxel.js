@@ -61,29 +61,17 @@ class EntityBoxel extends Entity {
 
   onCollision = event => {
     if (event.started && this.isCollected === false) {
+      this.isCollected = true;
+
+      // Store scale values for tweening
       const scale = this.scale.clone();
       const scaleMax = scale.clone().multiplyScalar(2);
       const scaleMin = scale.clone().set(0, 0, 0);
 
-      this.tweens.tween({
-        object: this.scale,
-        to: scaleMax,
-        dynamic: true,
-        duration: 500,
-        easing: 'Cubic.Out'
-      }).chain(
-        this.tweens.tween({
-          object: this.scale,
-          to: scaleMin,
-          dynamic: true,
-          duration: 500,
-          easing: 'Cubic.Out',
-          start: false,
-          onComplete: () => {
-            this.removeFromParent()
-          }
-        })
-      );
+      // Animate scale
+      const tweenIn = this.tweens.tween({ object: this.scale, to: scaleMax, duration: 250, easing: 'Cubic.Out' });
+      const tweenOut = this.tweens.tween({ object: this.scale, to: scaleMin, duration: 500, easing: 'Cubic.Out', start: false, onComplete: () => this.removeFromParent() });
+      tweenIn.chain(tweenOut);
     }
   }
 
