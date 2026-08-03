@@ -23,14 +23,27 @@ class EntityBoxel extends Entity {
   }
 
   init(options, core) {
+    // Set default options
+    options = Object.assign({
+      position: { x: 0, y: 0, z: 0 },
+      rotation: { x: 0, y: 0, z: 0 },
+      scale: { x: 0.25, y: 0.25, z: 0.25 },
+    }, options);
+
     // Update child entity options
     for (let i = 0; i < options.children.length; i++) {
       let child = options.children[i];
+      if (child.class === 'EntityMesh') {
+        // Randomize face texture and color
+        const index = Math.floor(Math.random() * EntityBoxel.faces.length);
+        child.material.arguments[0].color = EntityBoxel.faces[index].color;
+        child.children[0].url = EntityBoxel.faces[index].url;
+      }
       if (child.class === 'EntityPhysics') {
         // Update shape scale
         const colliders = child.rigidBody.colliders;
         colliders.forEach(colliderOptions => {
-          const args = [ options.scale.x, options.scale.y, options.scale.z];
+          const args = [options.scale.x, options.scale.y, options.scale.z];
           colliderOptions.shapeDesc.arguments = args;
         });
       }
@@ -60,7 +73,7 @@ class EntityBoxel extends Entity {
   }
 
   onCollision = event => {
-    if (event.started && this.isCollected === false) {
+    if (event.started && this.isCollected === false && event.pair.parent.class === 'EntityPlayer') {
       this.isCollected = true;
 
       // Store scale values for tweening
@@ -111,14 +124,44 @@ class EntityBoxel extends Entity {
             scale: { x: 0.9, y: 0.9, z: 0.9 }
           }
         ]
-      },
-      {
-        class: 'EntityShadow',
-        distance: 64,
-        scale: { x: 1, y: 1, z: 1 }
       }
     ]
   }
+
+  static faces = [
+    {
+      url: 'png/angry.png',
+      color: '#DA2F47'
+    },
+    {
+      url: 'png/cool.png',
+      color: '#FFCB4C'
+    },
+    {
+      url: 'png/grimacing.png',
+      color: '#FFCB4C'
+    },
+    {
+      url: 'png/kitty.png',
+      color: '#FFCB4C'
+    },
+    {
+      url: 'png/lover.png',
+      color: '#FFCB4C'
+    },
+    {
+      url: 'png/sad.png',
+      color: '#FFCB4C'
+    },
+    {
+      url: 'png/sick.png',
+      color: '#FFCB4C'
+    },
+    {
+      url: 'png/smile.png',
+      color: '#42bfe8'
+    },
+  ]
 }
 
 export { EntityBoxel }

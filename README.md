@@ -17,6 +17,14 @@ Windows Requirements
 Install local dependencies
 - Install NPM libraries: `npm i`
 
+Update local dependencies
+- List dependencies: `npm outdated`
+- Update latest: `npm i three@latest`
+
+Check Rapier.js canary release
+- Run `npm view @dimforge/rapier3d dist-tags.canary`
+- Install latest canary: `npm i @dimforge/rapier3d@canary`
+
 Launch Vite + Tauri dev server
 - Run: `npm run tauri dev`
 
