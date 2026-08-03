@@ -1,4 +1,4 @@
-import { CubeTexture, SRGBColorSpace } from 'three';
+import { TextureFactory } from './core/TextureFactory.js';
 import { Entity } from './core/Entity.js';
 
 /*
@@ -29,17 +29,13 @@ class EntitySkybox extends Entity {
         // Ensure 6 items
         const length = textures.length;
         const lastTexture = textures[length - 1];
-
         textures.length = 6;
         textures.fill(lastTexture, length, textures.length);
 
-
         // Assign DOM images from textures to new CubeTexture
         const images = textures.map(texture => texture.image);
-        this.textureCube = new CubeTexture(images);
-        this.textureCube.colorSpace = SRGBColorSpace;
-        this.textureCube.needsUpdate = true;
-        core.scene.background = this.textureCube;
+        const textureCube = TextureFactory.createTextureCube(images);
+        core.scene.background = textureCube;
         
         // Dispatch loaded and resume base class
         this.dispatchEvent({ type: 'loaded', textures });
