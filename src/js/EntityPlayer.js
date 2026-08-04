@@ -27,7 +27,6 @@ class EntityPlayer extends Entity {
         children: [
           {
             class: 'EntityMixer',
-            url: 'glb/ball.glb'
           },
           {
             class: 'EntityDecal',

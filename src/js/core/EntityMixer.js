@@ -25,6 +25,15 @@ class EntityMixer extends Entity {
     this.addEventListener('added', this.onAdded);
   }
 
+  init(options, core) {
+    // Stash core here; parent isn't assigned yet until the 'added' event fires
+    this.core = core;
+
+    // Perform base entity init
+    super.init(options, core);
+  }
+
+
   render(loop) {
     this.mixer?.update(loop.delta / 1000);
 
@@ -37,18 +46,22 @@ class EntityMixer extends Entity {
     options = Object.assign({
       duration: 1,
       loop: false,
+      paused: false,
+      time: 0,
       warp: false
     }, options);
     
     const action = this.actions[name];
 
     // Ignore missing actions or a request to replay the already-active one
-    if (!action || action === this.activeAction) return;
+    if (!action) return;
 
     // Loop mode is decided per-play so different clips (ex: idle vs jump) can differ
     action.setLoop(options.loop ? LoopRepeat : LoopOnce, Infinity);
     action.clampWhenFinished = !options.loop;
     action.reset().setEffectiveWeight(1);
+    action.paused = options.paused;
+    action.time = options.time;
 
     // Cross fade from the previous action, or fade in if nothing was playing
     if (this.activeAction) {
@@ -63,21 +76,30 @@ class EntityMixer extends Entity {
     this.activeAction = action;
   }
 
-  createActions(model) {
-    model.animations?.forEach(clip => {
-      const action = this.mixer.clipAction(clip);
-      action.setEffectiveWeight(0);
-      action.play(); // Keep ticking so play() can crossfade purely via weight
-      this.actions[clip.name] = action;
-    });
+  scrub(progress) {
+    // Hide whatever was previously showing without touching its loop/time state
+    if (!this.activeAction) return;
+    
+    // Freeze this action on an exact pose (ex: 0.5 = halfway through the clip)
+    this.activeAction.paused = true;
+    this.activeAction.enabled = true;
+    this.activeAction.setEffectiveWeight(1);
+    this.activeAction.time = progress * this.activeAction.getClip().duration;
   }
 
-  init(options, core) {
-    // Stash core here; parent isn't assigned yet until the 'added' event fires
-    this.core = core;
+  createActions(model) {
+    model.animations?.forEach((clip, index) => {
+      // Create and assign action
+      const action = this.mixer.clipAction(clip);
+      this.actions[clip.name] = action;
 
-    // Perform base entity init
-    super.init(options, core);
+      // Arm every clip at weight 0
+      action.setEffectiveWeight(0);
+      action.play();
+
+      // Set active action to the first action
+      if (index === 0) this.activeAction = action;
+    });
   }
 
   onAdded = event => {
