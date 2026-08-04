@@ -96,6 +96,18 @@ class Entity extends Object3D {
     return this.children.find(child => child.class === className);
   }
 
+  find(className) {
+    // Recursively search for child entity by class name
+    for (let i = 0; i < this.children.length; i++) {
+      const child = this.children[i];
+      if (child.class === className) return child;
+      if (child.isEntity) {
+        const found = child.find(className);
+        if (found) return found;
+      }
+    }
+  }
+
   serialize() {
     // Serialize entity to JSON
     const jsonData = {

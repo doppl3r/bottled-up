@@ -159,14 +159,15 @@ class Assets extends EventDispatcher {
   assign(name, asset) {
     // Set loaded asset by name
     this.set(name, asset);
- 
-    // Run callbacks and remove items from queue
-    for (let i = this.queue.length - 1; i >= 0; i--) {
-      if (this.queue[i]?.name === name) {
-        this.queue[i].callback(asset);
-        this.queue.splice(i, 1);
-      }
+
+    // Run callbacks in the order they were queued
+    let writeIndex = 0;
+    for (let readIndex = 0; readIndex < this.queue.length; readIndex++) {
+      const item = this.queue[readIndex];
+      if (item?.name === name) item.callback(asset);
+      else this.queue[writeIndex++] = item;
     }
+    this.queue.length = writeIndex;
   }
 
   set(key, value) {

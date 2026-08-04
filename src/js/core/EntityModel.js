@@ -38,6 +38,10 @@ class EntityModel extends Entity {
   init(options, core) {
     const url = options.url;
     if (url) {
+      // Store url
+      this.url = url;
+
+      // Load asset
       core.assets.load(url, asset => {
         // Clone the loaded asset so we don't mutate or reparent the shared cached instance
         const model = clone(asset);
@@ -50,15 +54,19 @@ class EntityModel extends Entity {
         // Apply shadow settings to all mesh children of the model
         model.traverse(child => {
           if (child.isMesh) {
-            child.material.map.generateMipmaps = this.generateMipmaps;
-            child.material.map.minFilter = this.minFilter;
-            child.material.map.magFilter = this.magFilter;
+            // Update texture settings
+            if (child.material.map) {
+              child.material.map.generateMipmaps = this.generateMipmaps;
+              child.material.map.minFilter = this.minFilter;
+              child.material.map.magFilter = this.magFilter;
+            }
+
+            // Update shadow settings
             child.castShadow = this.castShadow;
             child.receiveShadow = this.receiveShadow;
           }
         });
 
-        this.url = options.url;
         this.model = model;
         this.add(model);
         this.dispatchEvent({ type: 'loaded', model });
