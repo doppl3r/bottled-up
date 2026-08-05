@@ -9,6 +9,30 @@ class EntityPlayer extends Entity {
 
     // Inherit Entity properties
     super(options);
+
+    // Add default event listeners
+    this.addEventListener('childadded', this.onChildAdded);
+  }
+
+  onChildAdded = event => {
+    if (event.child.class === 'EntityPhysics') {
+      event.child.addEventListener('onWake', this.onWake);
+      event.child.addEventListener('onSleep', this.onSleep);
+    }
+  }
+
+  onWake = event => {
+    // Play Cube-to-ball animation
+    const entityModel = this.get('EntityModel');
+    const entityModelMixer = entityModel?.get('EntityMixer');
+    entityModelMixer?.play('CubeToBall');
+  }
+
+  onSleep = event => {
+    // Play Ball-to-cube animation
+    const entityModel = this.get('EntityModel');
+    const entityModelMixer = entityModel?.get('EntityMixer');
+    entityModelMixer?.play('BallToCube');
   }
 
   static template = {
@@ -42,6 +66,7 @@ class EntityPlayer extends Entity {
         rigidBody: {
           status: 0,
           softCcdPrediction: 1.0,
+          sleeping: true,
           colliders: [
             {
               shapeDesc: {

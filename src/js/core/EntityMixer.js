@@ -44,6 +44,7 @@ class EntityMixer extends Entity {
   play(name, options = {}) {
     // Assign default options
     options = Object.assign({
+      onComplete: () => {},
       duration: 1,
       loop: false,
       paused: false,
@@ -74,6 +75,15 @@ class EntityMixer extends Entity {
     // Play action and assign it as the active action
     action.play();
     this.activeAction = action;
+
+    // Listen for the action to finish
+    const onFinished = (event) => {
+      if (event.action === action) {
+        this.mixer.removeEventListener('finished', onFinished);
+        options.onComplete();
+      }
+    };
+    this.mixer.addEventListener('finished', onFinished);
   }
 
   scrub(progress) {

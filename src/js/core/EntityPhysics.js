@@ -13,6 +13,8 @@ import { Entity } from './Entity.js';
 // Initialize module-scoped variables
 const _eventUpdatedRigidBody = { type: 'updatedRigidBody', loop: null };
 const _eventRenderedRigidBody = { type: 'renderedRigidBody', loop: null };
+const _eventOnWake = { type: 'onWake' };
+const _eventOnSleep = { type: 'onSleep' };
 const _v = new Vector3();
 const _e = new Euler();
 const _q = new Quaternion();
@@ -33,6 +35,7 @@ class EntityPhysics extends Entity {
     this.quaternion0 = this.quaternion.clone();
     this.rigidBodyOptions = options.rigidBody;
     this.rigidBody;
+    this.sleeping = false;
     this.world;
 
     // Add event listeners
@@ -94,6 +97,9 @@ class EntityPhysics extends Entity {
     // Update transformation components from rigid body
     this.saveState();
 
+    // Update the sleep state of the rigid body
+    this.updateSleepState();
+
     // Dispatch event after updating
     _eventUpdatedRigidBody.loop = loop;
     this.dispatchEvent(_eventUpdatedRigidBody);
@@ -125,6 +131,7 @@ class EntityPhysics extends Entity {
   setRigidBody(rigidBody) {
     this.rigidBody = rigidBody;
     this.rigidBody.entity = this;
+    this.sleeping = this.rigidBody.isSleeping();
     this.saveState();
   }
 
@@ -163,6 +170,17 @@ class EntityPhysics extends Entity {
     if (!this.parent) return;
     this.setPosition(this.parent.position);
     this.setRotation(this.parent.rotation);
+  }
+
+  updateSleepState() {
+    if (!this.rigidBody) return;
+
+    // Dispatch onWake/onSleep only on state transitions
+    const sleeping = this.rigidBody.isSleeping();
+    if (sleeping !== this.sleeping) {
+      this.sleeping = sleeping;
+      this.dispatchEvent(sleeping ? _eventOnSleep : _eventOnWake);
+    }
   }
 
   onAdded = event => {

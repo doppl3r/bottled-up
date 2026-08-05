@@ -36,6 +36,7 @@ class Entity extends Object3D {
     // Declare entity properties
     this.isEntity = true;
     this.isInitialized = false;
+    this.entities = {};
     this.name = options.name;
     this.label = options.label;
     this.class = options.class;
@@ -48,6 +49,8 @@ class Entity extends Object3D {
 
     // Add event listener(s)
     this.addEventListener('removed', this.onRemoved);
+    this.addEventListener('childadded', this.onChildAdded);
+    this.addEventListener('childremoved', this.onChildRemoved);
   }
 
   init(options, entityManager) {
@@ -92,20 +95,24 @@ class Entity extends Object3D {
     });
   }
 
-  get(className) {
-    return this.children.find(child => child.class === className);
+  onChildAdded = event => {
+    this.registerEntity(event.child);
   }
 
-  find(className) {
-    // Recursively search for child entity by class name
-    for (let i = 0; i < this.children.length; i++) {
-      const child = this.children[i];
-      if (child.class === className) return child;
-      if (child.isEntity) {
-        const found = child.find(className);
-        if (found) return found;
-      }
-    }
+  onChildRemoved = event => {
+    this.unregisterEntity(event.child);
+  }
+
+  registerEntity(entity) {
+    this.entities[entity.class] = entity;
+  }
+
+  unregisterEntity(entity) {
+    delete this.entities[entity.class];
+  }
+
+  get(className) {
+    return this.entities[className];
   }
 
   serialize() {
