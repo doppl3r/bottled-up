@@ -4,10 +4,14 @@ import { Easing, Group, Tween } from '@tweenjs/tween.js'
 class Tweens {
   constructor() {
     this.group = new Group();
+
+    // Virtual clock (ms) so tweens respect Interval's speed scaling instead of wall-clock time
+    this.time = 0;
   }
 
-  update() {
-    this.group.update();
+  update(delta = 0) {
+    this.time += delta;
+    this.group.update(this.time);
   }
 
   tween(options) {
@@ -38,8 +42,8 @@ class Tweens {
         this.group.remove(tween);
       });
 
-    // Start animation immediately
-    if (options.start === true) tween.start();
+    // Start animation immediately, using the group's virtual clock as the time origin
+    if (options.start === true) tween.start(this.time);
 
     // Return active tween
     return tween;

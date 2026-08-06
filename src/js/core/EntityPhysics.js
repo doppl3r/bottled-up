@@ -141,9 +141,9 @@ class EntityPhysics extends Entity {
     return this.rigidBody.translation();
   }
 
-  setPosition(position) {
+  setPosition(position, wakeUp = true) {
     if (this.rigidBody?.isKinematic()) this.rigidBody?.setNextKinematicTranslation(position);
-    else this.rigidBody?.setTranslation(position);
+    else this.rigidBody?.setTranslation(position, wakeUp);
     this.position0.copy(position);
     this.position.copy(position);
   }
@@ -154,15 +154,20 @@ class EntityPhysics extends Entity {
     return this.rigidBody.rotation();
   }
 
-  setRotation(rotation) {
+  setRotation(rotation, wakeUp = true) {
     // Resolve Euler rotation type before assigning rotation
     rotation = rotation.w ? rotation : _q.setFromEuler(_e.setFromVector3(_v.copy(rotation)));
 
     // Check rigidBody type before assigning
     if (this.rigidBody?.isKinematic()) this.rigidBody?.setNextKinematicRotation(rotation);
-    else this.rigidBody?.setRotation(rotation);
+    else this.rigidBody?.setRotation(rotation, wakeUp);
     this.quaternion0.copy(rotation);
     this.quaternion.copy(rotation);
+  }
+
+  getSpeed() {
+    if (this.rigidBody === undefined) return 0;
+    return _v.copy(this.rigidBody.linvel()).length();
   }
 
   syncTransformFromParent() {

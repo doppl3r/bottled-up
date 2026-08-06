@@ -59,7 +59,7 @@ class EntityBoxel extends Entity {
     this.get('EntityMesh').rotation.y += loop.delta * 0.0025;
 
     // Update tweens
-    this.tweens.update();
+    this.tweens.update(loop.delta);
 
     // Update render
     super.render(loop);

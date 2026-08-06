@@ -246,7 +246,7 @@ class EntityBallController extends Entity {
 
   render(loop) {
     // Update tweens
-    this.tweens.update();
+    this.tweens.update(loop.delta);
 
     // Lerp only the orbit center toward the ball
     const lerpFactor = 1 - Math.pow(this.camLerp, loop.delta / 16.67);

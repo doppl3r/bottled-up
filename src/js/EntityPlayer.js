@@ -1,4 +1,5 @@
 import { Entity } from './core/Entity.js';
+import { Tweens } from './core/Tweens.js';
 
 class EntityPlayer extends Entity {
   constructor(options) {
@@ -10,29 +11,20 @@ class EntityPlayer extends Entity {
     // Inherit Entity properties
     super(options);
 
-    // Add default event listeners
-    this.addEventListener('childadded', this.onChildAdded);
+    // Animations
+    this.tweens = new Tweens();
   }
 
-  onChildAdded = event => {
-    if (event.child.class === 'EntityPhysics') {
-      event.child.addEventListener('onWake', this.onWake);
-      event.child.addEventListener('onSleep', this.onSleep);
-    }
+  update(loop) {
+    super.update(loop);
   }
 
-  onWake = event => {
-    // Play Cube-to-ball animation
-    const entityModel = this.get('EntityModel');
-    const entityModelMixer = entityModel?.get('EntityMixer');
-    entityModelMixer?.play('CubeToBall');
-  }
+  render(loop) {
+    // Update tweens
+    this.tweens.update(loop.delta);
 
-  onSleep = event => {
-    // Play Ball-to-cube animation
-    const entityModel = this.get('EntityModel');
-    const entityModelMixer = entityModel?.get('EntityMixer');
-    entityModelMixer?.play('BallToCube');
+    // Resume Entity render behavior
+    super.render(loop);
   }
 
   static template = {
@@ -41,23 +33,24 @@ class EntityPlayer extends Entity {
         class: 'EntityBallController'
       },
       {
-        class: 'EntityModel',
-        url: 'glb/ball.glb',
-        scale: {
-          x: 0.5,
-          y: 0.5,
-          z: 0.5
+        class: 'EntityMesh',
+        castShadow: false,
+        receiveShadow: true,
+        geometry: {
+          type: 'SphereGeometry',
+          arguments: [0.25, 16, 16]
+        },
+        material: {
+          type: 'MeshStandardMaterial',
+          arguments: [{ color: '#42bfe8' }]
         },
         children: [
-          {
-            class: 'EntityMixer',
-          },
           {
             class: 'EntityDecal',
             url: 'png/smile.png',
             position: { x: 0, y: 0, z: 0.25 },
             normal: { x: 0, y: 0, z: 1 },
-            scale: { x: 0.9, y: 0.9, z: 0.9 }
+            scale: { x: 0.5, y: 0.5, z: 0.5 }
           }
         ]
       },
