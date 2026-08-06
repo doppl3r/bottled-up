@@ -104,7 +104,9 @@ class Entity extends Object3D {
   }
 
   registerEntity(entity) {
-    this.entities[entity.class] = entity;
+    if (entity.isEntity) {
+      this.entities[entity.class] = entity;
+    }
   }
 
   unregisterEntity(entity) {

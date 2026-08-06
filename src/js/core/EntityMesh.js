@@ -13,7 +13,8 @@ class EntityMesh extends Entity {
       geometry: null,
       material: null,
       castShadow: true,
-      receiveShadow: true
+      receiveShadow: true,
+      renderOrder: 0
     }, options);
 
     // Inherit Entity properties
@@ -31,6 +32,7 @@ class EntityMesh extends Entity {
     this.add(mesh);
     mesh.castShadow = options.castShadow;
     mesh.receiveShadow = options.receiveShadow;
+    mesh.renderOrder = options.renderOrder;
     super.init(options, core);
   }
 

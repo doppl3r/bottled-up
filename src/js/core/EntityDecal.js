@@ -33,6 +33,7 @@ class EntityDecal extends Entity {
       metalness: 0,
       roughness: 1,
       polygonOffsetFactor: -4,
+      renderOrder: 1,
     }, options);
 
     // Inherit Entity properties
@@ -122,7 +123,9 @@ class EntityDecal extends Entity {
         polygonOffsetFactor: options.polygonOffsetFactor,
       });
 
+      // Force paint order over the target
       this.decalMesh = new Mesh(decalGeometry, material);
+      this.decalMesh.renderOrder = options.renderOrder;
       this.add(this.decalMesh);
       this.dispatchEvent({ type: 'loaded' });
       super.init(this.decalOptions, this.core);

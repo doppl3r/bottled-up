@@ -248,10 +248,6 @@ class EntityBallController extends Entity {
     // Update tweens
     this.tweens.update(loop.delta);
 
-    // Lerp only the orbit center toward the ball
-    const lerpFactor = 1 - Math.pow(this.camLerp, loop.delta / 16.67);
-    _orbitCenter.lerp(this.parent.position, lerpFactor);
-
     // Perform collision detection to adjust camera distance
     const h = this.camCollisionMaxDistance * Math.cos(this.camPitch);
     const v = this.camCollisionMaxDistance * Math.sin(this.camPitch);
@@ -266,7 +262,7 @@ class EntityBallController extends Entity {
     // Cast sphere from player position toward desired camera position using Rapier shape cast
     _rayDirection.subVectors(_desiredCamPos, this.parent.position).normalize();
     const targetCamDistance = this.castCameraCollisionSphere(this.parent.position, _rayDirection, this.camCollisionMaxDistance);
-    
+
     // Smoothly lerp current distance toward camera target
     const collisionLerpFactor = 1 - Math.pow(this.camCollisionLerp, loop.delta / 16.67);
     this.camDistance = this.camDistance + (targetCamDistance - this.camDistance) * collisionLerpFactor;
@@ -274,12 +270,29 @@ class EntityBallController extends Entity {
     // Update camera position and rotation using adjusted distance
     const hAdjusted = this.camDistance * Math.cos(this.camPitch);
     const vAdjusted = this.camDistance * Math.sin(this.camPitch);
-    this.core.camera.position.set(_orbitCenter.x + hAdjusted * Math.sin(this.camAzimuth), _orbitCenter.y + vAdjusted, _orbitCenter.z + hAdjusted * Math.cos(this.camAzimuth));
+    this.core.camera.position.set(
+      _orbitCenter.x + hAdjusted * Math.sin(this.camAzimuth),
+      _orbitCenter.y + vAdjusted,
+      _orbitCenter.z + hAdjusted * Math.cos(this.camAzimuth)
+    );
+
+    // Lerp only the orbit center toward the ball
+    const camDistanceRatio = this.camDistance / this.camCollisionMaxDistance;
+    const lerpFactor = 1 - Math.pow(this.camLerp * camDistanceRatio, loop.delta / 16.67);
+    _orbitCenter.lerp(this.parent.position, lerpFactor);
     
     // Apply y-offset to orbit center for camera look-at target
     _camLookAtTarget.copy(_orbitCenter);
-    _camLookAtTarget.y += this.camOrbitHeight * (this.camDistance / this.camCollisionMaxDistance);
+    _camLookAtTarget.y += this.camOrbitHeight * camDistanceRatio;
     this.core.camera.lookAt(_camLookAtTarget);
+
+    
+    // Update opacity by camera distance
+    this.parent.get('EntityMesh').traverse(child => {
+      if (child.isMesh) {
+        child.material.opacity = camDistanceRatio;
+      }
+    });
 
     // Resume Entity render behavior
     super.render(loop);
