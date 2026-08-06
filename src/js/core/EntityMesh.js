@@ -9,12 +9,7 @@ class EntityMesh extends Entity {
   constructor(options = {}) {
     // Set default options
     options = Object.assign({
-      class: 'EntityMesh',
-      geometry: null,
-      material: null,
-      castShadow: true,
-      receiveShadow: true,
-      renderOrder: 0
+      
     }, options);
 
     // Inherit Entity properties
@@ -47,6 +42,14 @@ class EntityMesh extends Entity {
     json.geometry = this.meshOptions.geometry;
     json.material = this.meshOptions.material;
     return json;
+  }
+
+  static template = {
+    geometry: null,
+    material: null,
+    castShadow: true,
+    receiveShadow: true,
+    renderOrder: 0
   }
 }
 

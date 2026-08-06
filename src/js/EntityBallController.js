@@ -45,8 +45,8 @@ class EntityBallController extends Entity {
       camLerp: 0.9,
       camOrbitHeight: 0.5,
       camCollisionLerp: 0.9,
-      camCollisionMaxDistance: 5,
-      camCollisionMinDistance: 0.5,
+      camCollisionDistanceMax: 5,
+      camCollisionDistanceMin: 0.5,
       camCollisionRadius: 0.1,
       camAzimuthSensitivity: 0.00125,
       camPitchSensitivity: 0.00125,
@@ -72,11 +72,16 @@ class EntityBallController extends Entity {
     this.camOrbitHeight = options.camOrbitHeight;
     this.camAzimuthSensitivity = options.camAzimuthSensitivity;
     this.camPitchSensitivity = options.camPitchSensitivity;
-    this.camCollisionMaxDistance = options.camCollisionMaxDistance;
-    this.camCollisionMinDistance = options.camCollisionMinDistance;
+    this.camDistance = 0;
+    this.camDistancePrev = 0;
+    this.camDistanceRatio = 0;
+    this.camCollisionDistance = 0;
+    this.camCollisionDistanceMax = options.camCollisionDistanceMax;
+    this.camCollisionDistanceMin = options.camCollisionDistanceMin;
     this.camCollisionLerp = options.camCollisionLerp;
     this.camCollisionRadius = options.camCollisionRadius;
     this.camCollisionShape = ColliderDesc.ball(options.camCollisionRadius).shape;
+    this.camCollisionHit = null;
 
     // Physics entity reference
     this.entityPhysics = null;
@@ -100,7 +105,7 @@ class EntityBallController extends Entity {
     this.dragY = 0;
 
     // Camera collision detection state
-    this.camDistance = this.camCollisionMaxDistance;
+    this.camDistance = this.camCollisionDistanceMax;
 
     // Lerp targets
     this.lookTarget = new Vector3();
@@ -249,8 +254,8 @@ class EntityBallController extends Entity {
     this.tweens.update(loop.delta);
 
     // Perform collision detection to adjust camera distance
-    const h = this.camCollisionMaxDistance * Math.cos(this.camPitch);
-    const v = this.camCollisionMaxDistance * Math.sin(this.camPitch);
+    const h = this.camCollisionDistanceMax * Math.cos(this.camPitch);
+    const v = this.camCollisionDistanceMax * Math.sin(this.camPitch);
     
     // Calculate desired camera position relative to player
     _desiredCamPos.set(
@@ -261,11 +266,12 @@ class EntityBallController extends Entity {
     
     // Cast sphere from player position toward desired camera position using Rapier shape cast
     _rayDirection.subVectors(_desiredCamPos, this.parent.position).normalize();
-    const targetCamDistance = this.castCameraCollisionSphere(this.parent.position, _rayDirection, this.camCollisionMaxDistance);
+    this.camCollisionDistance = this.castCameraDistance(this.parent.position, _rayDirection, this.camCollisionDistanceMax);
 
     // Smoothly lerp current distance toward camera target
     const collisionLerpFactor = 1 - Math.pow(this.camCollisionLerp, loop.delta / 16.67);
-    this.camDistance = this.camDistance + (targetCamDistance - this.camDistance) * collisionLerpFactor;
+    this.camDistancePrev = this.camDistance;
+    this.camDistance = this.camDistance + (this.camCollisionDistance - this.camDistance) * collisionLerpFactor;
 
     // Update camera position and rotation using adjusted distance
     const hAdjusted = this.camDistance * Math.cos(this.camPitch);
@@ -277,22 +283,25 @@ class EntityBallController extends Entity {
     );
 
     // Lerp only the orbit center toward the ball
-    const camDistanceRatio = this.camDistance / this.camCollisionMaxDistance;
-    const lerpFactor = 1 - Math.pow(this.camLerp * camDistanceRatio, loop.delta / 16.67);
+    this.camDistanceRatio = this.camDistance / this.camCollisionDistanceMax;
+    const lerpFactor = 1 - Math.pow(this.camLerp * this.camDistanceRatio, loop.delta / 16.67);
     _orbitCenter.lerp(this.parent.position, lerpFactor);
     
     // Apply y-offset to orbit center for camera look-at target
     _camLookAtTarget.copy(_orbitCenter);
-    _camLookAtTarget.y += this.camOrbitHeight * camDistanceRatio;
+    _camLookAtTarget.y += this.camOrbitHeight * this.camDistanceRatio;
     this.core.camera.lookAt(_camLookAtTarget);
-
     
-    // Update opacity by camera distance
-    this.parent.get('EntityMesh').traverse(child => {
-      if (child.isMesh) {
-        child.material.opacity = camDistanceRatio;
-      }
-    });
+    // Update player opacity by camera distance
+    const newDistance = Math.abs(this.camDistance - this.camDistancePrev) > 0.001;
+    const newOpacity = newDistance ? Math.round(this.camDistanceRatio / 0.001) * 0.001 : 1;
+    if (newDistance) {
+      this.parent.get('EntityMesh').traverse(child => {
+        if (child.isMesh) {
+          child.material.opacity = newOpacity;
+        }
+      });
+    }
 
     // Resume Entity render behavior
     super.render(loop);
@@ -346,7 +355,7 @@ class EntityBallController extends Entity {
     }
   }
 
-  castCameraCollisionSphere(origin, direction, maxDistance) {
+  castCameraDistance(origin, direction, maxDistance) {
     // Guard: return max distance if physics not yet initialized
     if (!this.entityPhysics || !this.entityPhysics.rigidBody) {
       return maxDistance;
@@ -366,11 +375,11 @@ class EntityBallController extends Entity {
     const filterGroups = undefined;
     const filterExcludeCollider = undefined;
     const filterExcludeRigidBody = rigidBody;
-    const hit = world.castShape(shapePos, shapeRot, shapeVel, shape, targetDistance, maxToi, stopAtPenetration, filterFlags, filterGroups, filterExcludeCollider, filterExcludeRigidBody);
+    this.camCollisionHit = world.castShape(shapePos, shapeRot, shapeVel, shape, targetDistance, maxToi, stopAtPenetration, filterFlags, filterGroups, filterExcludeCollider, filterExcludeRigidBody);
 
     // Distance traveled before the swept shape touches a collider
-    if (hit) {
-      return Math.max(this.camCollisionMinDistance, hit.time_of_impact);
+    if (this.camCollisionHit) {
+      return Math.max(this.camCollisionDistanceMin, this.camCollisionHit.time_of_impact);
     }
     return maxDistance;
   }
