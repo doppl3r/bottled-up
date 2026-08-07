@@ -54,9 +54,9 @@ class EntityBallController extends Entity {
       camOrbitHeight: 0.5,
       camCollisionLerp: 0.9,
       camCollisionDistanceMax: 5,
-      camCollisionDistanceMin: 0.5,
+      camCollisionDistanceMin: 0.25,
       camCollisionRadius: 0.1,
-      camDistanceFadeRatio: 0.25,
+      camDistanceFadeRatio: 0.5,
       camAzimuthSensitivity: 0.00125,
       camPitchSensitivity: 0.00125,
     }, options);
@@ -276,7 +276,7 @@ class EntityBallController extends Entity {
         _wallJumpImpulse.copy(_wallPushDir).multiplyScalar(this.wallJumpPower * mass);
         _wallJumpImpulse.y = requiredVelocity * mass;
         this.entityPhysics.rigidBody.applyImpulse(_wallJumpImpulse, true);
-        //this.canWallJump = false;
+        this.canWallJump = false;
         this.jumpBufferElapsed = 0;
       }
     }
