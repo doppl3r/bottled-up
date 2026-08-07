@@ -23,9 +23,9 @@ const _groundNormalSum = new Vector3();
 const _gravityTangential = new Vector3();
 const _gravityNormalScaled = new Vector3();
 const _uphillDir = new Vector3();
-const _contactToBall = new Vector3();
 const _slopeImpulse = new Vector3();
 const _contactPoint = new Vector3();
+const _contactToBall = new Vector3();
 const _contactNormal = new Vector3();
 const _colliderPosition = new Vector3();
 const _colliderRotation = new Quaternion();
@@ -245,6 +245,13 @@ class EntityBallController extends Entity {
     // Perform a forward dash
     const wantsDash = this.keys.has('ShiftLeft') || this.keys.has('ShiftRight');
     if (wantsDash && this.dashTimerElapsed <= 0) {
+      // Cancel downward force before dash
+      const linvel = this.entityPhysics.rigidBody.linvel();
+      if (linvel.y < 0) {
+        this.entityPhysics.rigidBody.setLinvel({ x: linvel.x, y: 0, z: linvel.z }, true);
+      }
+      
+      // Apply dash impulse
       const dashDir = _forceDir.lengthSq() > 0 ? _forceDir : _camForward;
       this.entityPhysics.rigidBody.applyImpulse({ x: dashDir.x * this.dashSpeed * mass, y: 0, z: dashDir.z * this.dashSpeed * mass }, true);
       this.dashTimerElapsed = this.dashTimerDuration;
@@ -336,9 +343,9 @@ class EntityBallController extends Entity {
 
         // Resolve the contact point to world-space via its owning collider's pose
         if (!hasColliderPose) {
-          const collider1 = world.getCollider(flipped ? otherHandle : ballHandle);
-          collider1.rotation(_colliderRotation);
-          collider1.translation(_colliderPosition);
+          const contactPointCollider = world.getCollider(flipped ? otherHandle : ballHandle);
+          contactPointCollider.rotation(_colliderRotation);
+          contactPointCollider.translation(_colliderPosition);
           hasColliderPose = true;
         }
         _contactPoint.applyQuaternion(_colliderRotation).add(_colliderPosition);
@@ -346,12 +353,12 @@ class EntityBallController extends Entity {
         // Canonicalize normal to point away from the contact surface
         const contactNormal = manifold.normal(_contactNormal);
         _contactToBall.subVectors(ballPos, _contactPoint);
-        const sign = contactNormal.dot(_contactToBall) < 0 ? -1 : 1;
+        if (contactNormal.dot(_contactToBall) < 0) contactNormal.negate();
 
         // Only accumulate contacts steep enough to be considered climbable ground
-        const canonicalNormalY = contactNormal.y * sign;
-        if (canonicalNormalY >= rollThreshold) {
-          _groundNormalSum.addScaledVector(contactNormal, sign);
+        const slopeCosine = contactNormal.y;
+        if (slopeCosine >= rollThreshold) {
+          _groundNormalSum.add(contactNormal);
           contactCount++;
         }
       });
