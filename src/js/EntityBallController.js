@@ -26,6 +26,7 @@ const _gravityNormalScaled = new Vector3();
 const _uphillDir = new Vector3();
 const _slopeImpulse = new Vector3();
 const _wallJumpImpulse = new Vector3();
+const _wallPushDir = new Vector3();
 const _contactPoint = new Vector3();
 const _contactToBall = new Vector3();
 const _contactNormal = new Vector3();
@@ -45,7 +46,7 @@ class EntityBallController extends Entity {
       jumpHeight: 2.5,
       jumpSpin: 0.0,
       maxSlopeAngle: 45,
-      wallJumpPower: 6,
+      wallJumpPower: 5,
       camPitchDefault: Math.PI / 8,
       camPitchMin: (Math.PI / -2) + 0.1,
       camPitchMax: (Math.PI / 2) - 0.1,
@@ -106,7 +107,8 @@ class EntityBallController extends Entity {
 
     // Input state
     this.keys = new Set();
-    this.canJump = false;
+    this.canGroundJump = false;
+    this.canWallJump = true;
     this.jumpBufferElapsed = 0;
     this.dashTimerElapsed = 0;
 
@@ -157,10 +159,11 @@ class EntityBallController extends Entity {
 
     // Reset jump availability every tick the ball rests on stable ground.
     if (this.isGrounded) {
+      this.canWallJump = true;
       const linvel = this.entityPhysics.rigidBody.linvel();
       const normalSpeed = linvel.x * this.groundNormal.x + linvel.y * this.groundNormal.y + linvel.z * this.groundNormal.z;
       if (normalSpeed <= 0.01) {
-        this.canJump = true;
+        this.canGroundJump = true;
       }
     }
 
@@ -225,7 +228,7 @@ class EntityBallController extends Entity {
 
     // Perform a ground jump or, failing that, a wall jump
     if (this.jumpBufferElapsed > 0) {
-      if (this.canJump) {
+      if (this.canGroundJump) {
         // Reset vertical velocity so slope-climb/falling speed doesn't stack with the jump impulse
         const linvel = this.entityPhysics.rigidBody.linvel();
         const mass = this.entityPhysics.rigidBody.mass();
@@ -247,17 +250,21 @@ class EntityBallController extends Entity {
 
         // Apply calculated jump impulse
         this.entityPhysics.rigidBody.applyImpulse({ x: 0, y: jumpImpulse, z: 0 }, true);
-        this.canJump = false;
+        this.canGroundJump = false;
         this.jumpBufferElapsed = 0;
       }
-      else if (this.isWallSliding) {
+      else if (this.isWallSliding && this.canWallJump) {
         const linvel = this.entityPhysics.rigidBody.linvel();
         const mass = this.entityPhysics.rigidBody.mass();
 
-        // Cancel fall speed and any velocity still pushing into the wall, preserving velocity along the wall
-        const intoWallSpeed = linvel.x * this.wallNormal.x + linvel.y * this.wallNormal.y + linvel.z * this.wallNormal.z;
+        // Use only the wall normal's horizontal component so a slanted wall can't leak fall speed into vertical velocity
+        _wallPushDir.set(this.wallNormal.x, 0, this.wallNormal.z);
+        if (_wallPushDir.lengthSq() > 1e-6) _wallPushDir.normalize();
+
+        // Cancel fall speed and any horizontal velocity still pushing into the wall, preserving velocity along the wall
+        const intoWallSpeed = linvel.x * _wallPushDir.x + linvel.z * _wallPushDir.z;
         _wallJumpImpulse.set(linvel.x, 0, linvel.z);
-        if (intoWallSpeed < 0) _wallJumpImpulse.addScaledVector(this.wallNormal, -intoWallSpeed);
+        if (intoWallSpeed < 0) _wallJumpImpulse.addScaledVector(_wallPushDir, -intoWallSpeed);
         this.entityPhysics.rigidBody.setLinvel(_wallJumpImpulse, true);
 
         // Calculate vertical impulse using the same formula as a ground jump
@@ -265,10 +272,11 @@ class EntityBallController extends Entity {
         const gravityMagnitude = Math.sqrt(gravity.x ** 2 + gravity.y ** 2 + gravity.z ** 2);
         const requiredVelocity = Math.sqrt(2 * gravityMagnitude * this.jumpHeight);
 
-        // Combine the away-from-wall push with the vertical jump impulse
-        _wallJumpImpulse.copy(this.wallNormal).multiplyScalar(this.wallJumpPower * mass);
-        _wallJumpImpulse.y += requiredVelocity * mass;
+        // Combine the horizontal away-from-wall push with a fixed vertical jump impulse
+        _wallJumpImpulse.copy(_wallPushDir).multiplyScalar(this.wallJumpPower * mass);
+        _wallJumpImpulse.y = requiredVelocity * mass;
         this.entityPhysics.rigidBody.applyImpulse(_wallJumpImpulse, true);
+        this.canWallJump = false;
         this.jumpBufferElapsed = 0;
       }
     }
