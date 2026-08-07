@@ -15,7 +15,7 @@
     "export-slices": "node files/js/export-slices.js"
   },
   "dependencies": {
-    "@dimforge/rapier3d": "^0.19.3",
+    "@dimforge/rapier3d": "^0.0.0-b369e9d-20260807",
     "@tauri-apps/api": "^2.11.0",
     "@tauri-apps/plugin-opener": "^2.5.4",
     "@tweenjs/tween.js": "^25.0.0",

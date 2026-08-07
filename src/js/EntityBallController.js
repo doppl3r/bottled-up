@@ -1,5 +1,5 @@
 import { ColliderDesc, QueryFilterFlags } from '@dimforge/rapier3d';
-import { Vector2, Vector3 } from 'three';
+import { Quaternion, Vector2, Vector3 } from 'three';
 import { Entity } from './core/Entity.js';
 import { Tweens } from './core/Tweens.js';
 
@@ -25,6 +25,9 @@ const _gravityNormalScaled = new Vector3();
 const _uphillDir = new Vector3();
 const _contactToBall = new Vector3();
 const _slopeImpulse = new Vector3();
+const _localContactPoint = new Vector3();
+const _colliderPosition = new Vector3();
+const _colliderRotation = new Quaternion();
 
 class EntityBallController extends Entity {
   constructor(options = {}) {
@@ -324,23 +327,29 @@ class EntityBallController extends Entity {
     world.narrowPhase.contactPairsWith(ballHandle, otherHandle => {
 
       // Extract contact manifold to query normal and contact point
-      world.narrowPhase.contactPair(ballHandle, otherHandle, manifold => {
-        if (manifold.numSolverContacts() === 0) return;
+      world.narrowPhase.contactPair(ballHandle, otherHandle, world.bodies, (manifold, flipped) => {
+        // Skip manifolds with no contacts or invalid local contact points
+        if (manifold.numContacts() === 0 || !manifold.localContactPoint1(0, _localContactPoint)) return;
+
+        // Resolve the local contact point to world-space via its owning collider's pose
+        const collider1 = world.getCollider(flipped ? otherHandle : ballHandle);
+        collider1.rotation(_colliderRotation);
+        collider1.translation(_colliderPosition);
+        _localContactPoint.applyQuaternion(_colliderRotation).add(_colliderPosition);
 
         // Canonicalize normal to point away from the contact surface
-        const n = manifold.normal();
-        const contactPoint = manifold.solverContactPoint(0);
+        const mNormal = manifold.normal();
 
         // Determine if normal points toward or away from ball
-        _contactToBall.set(ballPos.x - contactPoint.x, ballPos.y - contactPoint.y, ballPos.z - contactPoint.z);
-        const sign = (n.x * _contactToBall.x + n.y * _contactToBall.y + n.z * _contactToBall.z) < 0 ? -1 : 1;
+        _contactToBall.set(ballPos.x - _localContactPoint.x, ballPos.y - _localContactPoint.y, ballPos.z - _localContactPoint.z);
+        const sign = (mNormal.x * _contactToBall.x + mNormal.y * _contactToBall.y + mNormal.z * _contactToBall.z) < 0 ? -1 : 1;
 
         // Only accumulate contacts steep enough to be considered climbable ground
-        const ny = n.y * sign;
-        if (ny >= rollThreshold) {
-          _groundNormalSum.x += n.x * sign;
-          _groundNormalSum.y += ny;
-          _groundNormalSum.z += n.z * sign;
+        const canonicalNormalY = mNormal.y * sign;
+        if (canonicalNormalY >= rollThreshold) {
+          _groundNormalSum.x += mNormal.x * sign;
+          _groundNormalSum.y += canonicalNormalY;
+          _groundNormalSum.z += mNormal.z * sign;
           contactCount++;
         }
       });

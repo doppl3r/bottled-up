@@ -34,6 +34,7 @@ class EntityManager {
     this.world = new World({ x: 0, y: -9.81, z: 0 });
     this.world.numSolverIterations = 4; // Default = 4
     this.world.timestep = 1 / 60; // Default 1 / 60
+    this.world.maxCcdSubsteps = 0;
     this.world.rigidBodyRemovalQueue = [];
     this.world.queueRigidBodyRemoval = rb => this.world.rigidBodyRemovalQueue.push(rb);
     this.worldDebugger = new WorldDebugger(this.world); // Add to scene to enable
