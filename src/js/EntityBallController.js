@@ -25,7 +25,8 @@ const _gravityNormalScaled = new Vector3();
 const _uphillDir = new Vector3();
 const _contactToBall = new Vector3();
 const _slopeImpulse = new Vector3();
-const _localContactPoint = new Vector3();
+const _contactPoint = new Vector3();
+const _contactNormal = new Vector3();
 const _colliderPosition = new Vector3();
 const _colliderRotation = new Quaternion();
 
@@ -325,31 +326,32 @@ class EntityBallController extends Entity {
 
     // Query all contacts with this ball to find ground surfaces
     world.narrowPhase.contactPairsWith(ballHandle, otherHandle => {
+      // The owning collider's pose is the same for every manifold of this pair, so read it once
+      let hasColliderPose = false;
 
       // Extract contact manifold to query normal and contact point
       world.narrowPhase.contactPair(ballHandle, otherHandle, world.bodies, (manifold, flipped) => {
-        // Skip manifolds with no contacts or invalid local contact points
-        if (manifold.numContacts() === 0 || !manifold.localContactPoint1(0, _localContactPoint)) return;
+        // Skip manifolds without a usable contact point
+        if (!manifold.localContactPoint1(0, _contactPoint)) return;
 
-        // Resolve the local contact point to world-space via its owning collider's pose
-        const collider1 = world.getCollider(flipped ? otherHandle : ballHandle);
-        collider1.rotation(_colliderRotation);
-        collider1.translation(_colliderPosition);
-        _localContactPoint.applyQuaternion(_colliderRotation).add(_colliderPosition);
+        // Resolve the contact point to world-space via its owning collider's pose
+        if (!hasColliderPose) {
+          const collider1 = world.getCollider(flipped ? otherHandle : ballHandle);
+          collider1.rotation(_colliderRotation);
+          collider1.translation(_colliderPosition);
+          hasColliderPose = true;
+        }
+        _contactPoint.applyQuaternion(_colliderRotation).add(_colliderPosition);
 
         // Canonicalize normal to point away from the contact surface
-        const mNormal = manifold.normal();
-
-        // Determine if normal points toward or away from ball
-        _contactToBall.set(ballPos.x - _localContactPoint.x, ballPos.y - _localContactPoint.y, ballPos.z - _localContactPoint.z);
-        const sign = (mNormal.x * _contactToBall.x + mNormal.y * _contactToBall.y + mNormal.z * _contactToBall.z) < 0 ? -1 : 1;
+        const contactNormal = manifold.normal(_contactNormal);
+        _contactToBall.subVectors(ballPos, _contactPoint);
+        const sign = contactNormal.dot(_contactToBall) < 0 ? -1 : 1;
 
         // Only accumulate contacts steep enough to be considered climbable ground
-        const canonicalNormalY = mNormal.y * sign;
+        const canonicalNormalY = contactNormal.y * sign;
         if (canonicalNormalY >= rollThreshold) {
-          _groundNormalSum.x += mNormal.x * sign;
-          _groundNormalSum.y += canonicalNormalY;
-          _groundNormalSum.z += mNormal.z * sign;
+          _groundNormalSum.addScaledVector(contactNormal, sign);
           contactCount++;
         }
       });
