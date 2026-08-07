@@ -276,7 +276,7 @@ class EntityBallController extends Entity {
         _wallJumpImpulse.copy(_wallPushDir).multiplyScalar(this.wallJumpPower * mass);
         _wallJumpImpulse.y = requiredVelocity * mass;
         this.entityPhysics.rigidBody.applyImpulse(_wallJumpImpulse, true);
-        this.canWallJump = false;
+        //this.canWallJump = false;
         this.jumpBufferElapsed = 0;
       }
     }
@@ -324,6 +324,11 @@ class EntityBallController extends Entity {
     const collisionLerpFactor = 1 - Math.pow(this.camCollisionLerp, loop.delta / 16.67);
     this.camDistance = this.camDistance + (this.camCollisionDistance - this.camDistance) * collisionLerpFactor;
 
+    // Lerp the orbit center toward the ball before it's used below, so position and look-at target agree this frame
+    this.camDistanceRatio = this.camDistance / this.camCollisionDistanceMax;
+    const lerpFactor = 1 - Math.pow(this.camLerp * this.camDistanceRatio, loop.delta / 16.67);
+    _orbitCenter.lerp(this.parent.position, lerpFactor);
+
     // Update camera position and rotation using adjusted distance
     const hAdjusted = this.camDistance * Math.cos(this.camPitch);
     const vAdjusted = this.camDistance * Math.sin(this.camPitch);
@@ -333,11 +338,6 @@ class EntityBallController extends Entity {
       _orbitCenter.z + hAdjusted * Math.cos(this.camAzimuth)
     );
 
-    // Lerp only the orbit center toward the ball
-    this.camDistanceRatio = this.camDistance / this.camCollisionDistanceMax;
-    const lerpFactor = 1 - Math.pow(this.camLerp * this.camDistanceRatio, loop.delta / 16.67);
-    _orbitCenter.lerp(this.parent.position, lerpFactor);
-    
     // Apply y-offset to orbit center for camera look-at target
     _camLookAtTarget.copy(_orbitCenter);
     _camLookAtTarget.y += this.camOrbitHeight * this.camDistanceRatio;
