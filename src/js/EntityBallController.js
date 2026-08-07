@@ -20,10 +20,12 @@ const _orbitCenter = new Vector3();
 const _desiredCamPos = new Vector3();
 const _rayDirection = new Vector3();
 const _groundNormalSum = new Vector3();
+const _wallNormalSum = new Vector3();
 const _gravityTangential = new Vector3();
 const _gravityNormalScaled = new Vector3();
 const _uphillDir = new Vector3();
 const _slopeImpulse = new Vector3();
+const _wallJumpImpulse = new Vector3();
 const _contactPoint = new Vector3();
 const _contactToBall = new Vector3();
 const _contactNormal = new Vector3();
@@ -43,6 +45,7 @@ class EntityBallController extends Entity {
       jumpHeight: 2.5,
       jumpSpin: 0.0,
       maxSlopeAngle: 45,
+      wallJumpPower: 6,
       camPitchDefault: Math.PI / 8,
       camPitchMin: (Math.PI / -2) + 0.1,
       camPitchMax: (Math.PI / 2) - 0.1,
@@ -70,6 +73,7 @@ class EntityBallController extends Entity {
     this.jumpSpin = options.jumpSpin;
     this.jumpBufferDuration = options.jumpBufferDuration;
     this.maxSlopeAngleRad = options.maxSlopeAngle * Math.PI / 180;
+    this.wallJumpPower = options.wallJumpPower;
     this.camPitchDefault = options.camPitchDefault;
     this.camPitchMin = options.camPitchMin;
     this.camPitchMax = options.camPitchMax;
@@ -95,6 +99,10 @@ class EntityBallController extends Entity {
     // Ground/slope detection state
     this.groundNormal = new Vector3(0, 1, 0);
     this.isGrounded = false;
+
+    // Wall sliding detection state (airborne contact against a steep surface)
+    this.wallNormal = new Vector3(0, 1, 0);
+    this.isWallSliding = false;
 
     // Input state
     this.keys = new Set();
@@ -144,8 +152,8 @@ class EntityBallController extends Entity {
   }
 
   update(loop) {
-    // Refresh ground/slope contact normal from physics narrow-phase
-    this.updateGroundNormal();
+    // Refresh ground/slope/wall contact normals from physics narrow-phase
+    this.updateSurfaceNormals();
 
     // Reset jump availability every tick the ball rests on stable ground.
     if (this.isGrounded) {
@@ -215,31 +223,54 @@ class EntityBallController extends Entity {
       }
     }
 
-    // Perform a jump behavior
-    if (this.jumpBufferElapsed > 0 && this.canJump) {
-      // Reset vertical velocity so slope-climb/falling speed doesn't stack with the jump impulse
-      const linvel = this.entityPhysics.rigidBody.linvel();
-      const mass = this.entityPhysics.rigidBody.mass();
-      this.entityPhysics.rigidBody.setLinvel({ x: linvel.x, y: 0, z: linvel.z }, true);
+    // Perform a ground jump or, failing that, a wall jump
+    if (this.jumpBufferElapsed > 0) {
+      if (this.canJump) {
+        // Reset vertical velocity so slope-climb/falling speed doesn't stack with the jump impulse
+        const linvel = this.entityPhysics.rigidBody.linvel();
+        const mass = this.entityPhysics.rigidBody.mass();
+        this.entityPhysics.rigidBody.setLinvel({ x: linvel.x, y: 0, z: linvel.z }, true);
 
-      // Add forward spin (angular velocity) perpendicular to movement direction
-      const spinAxis = new Vector3(_forceDir.z, 0, -_forceDir.x); // Perpendicular to movement in XZ plane
-      this.entityPhysics.rigidBody.applyTorqueImpulse({ 
-        x: spinAxis.x * this.jumpSpin * mass, 
-        y: spinAxis.y * this.jumpSpin * mass, 
-        z: spinAxis.z * this.jumpSpin * mass 
-      }, true);
+        // Add forward spin (angular velocity) perpendicular to movement direction
+        const spinAxis = new Vector3(_forceDir.z, 0, -_forceDir.x); // Perpendicular to movement in XZ plane
+        this.entityPhysics.rigidBody.applyTorqueImpulse({ 
+          x: spinAxis.x * this.jumpSpin * mass, 
+          y: spinAxis.y * this.jumpSpin * mass, 
+          z: spinAxis.z * this.jumpSpin * mass 
+        }, true);
 
-      // Calculate jump impulse from the desired jump height
-      const gravity = this.core.entityManager.world.gravity;
-      const gravityMagnitude = Math.sqrt(gravity.x ** 2 + gravity.y ** 2 + gravity.z ** 2);
-      const requiredVelocity = Math.sqrt(2 * gravityMagnitude * this.jumpHeight);
-      const jumpImpulse = requiredVelocity * mass;
+        // Calculate jump impulse from the desired jump height
+        const gravity = this.core.entityManager.world.gravity;
+        const gravityMagnitude = Math.sqrt(gravity.x ** 2 + gravity.y ** 2 + gravity.z ** 2);
+        const requiredVelocity = Math.sqrt(2 * gravityMagnitude * this.jumpHeight);
+        const jumpImpulse = requiredVelocity * mass;
 
-      // Apply calculated jump impulse
-      this.entityPhysics.rigidBody.applyImpulse({ x: 0, y: jumpImpulse, z: 0 }, true);
-      this.canJump = false;
-      this.jumpBufferElapsed = 0;
+        // Apply calculated jump impulse
+        this.entityPhysics.rigidBody.applyImpulse({ x: 0, y: jumpImpulse, z: 0 }, true);
+        this.canJump = false;
+        this.jumpBufferElapsed = 0;
+      }
+      else if (this.isWallSliding) {
+        const linvel = this.entityPhysics.rigidBody.linvel();
+        const mass = this.entityPhysics.rigidBody.mass();
+
+        // Cancel fall speed and any velocity still pushing into the wall, preserving velocity along the wall
+        const intoWallSpeed = linvel.x * this.wallNormal.x + linvel.y * this.wallNormal.y + linvel.z * this.wallNormal.z;
+        _wallJumpImpulse.set(linvel.x, 0, linvel.z);
+        if (intoWallSpeed < 0) _wallJumpImpulse.addScaledVector(this.wallNormal, -intoWallSpeed);
+        this.entityPhysics.rigidBody.setLinvel(_wallJumpImpulse, true);
+
+        // Calculate vertical impulse using the same formula as a ground jump
+        const gravity = this.core.entityManager.world.gravity;
+        const gravityMagnitude = Math.sqrt(gravity.x ** 2 + gravity.y ** 2 + gravity.z ** 2);
+        const requiredVelocity = Math.sqrt(2 * gravityMagnitude * this.jumpHeight);
+
+        // Combine the away-from-wall push with the vertical jump impulse
+        _wallJumpImpulse.copy(this.wallNormal).multiplyScalar(this.wallJumpPower * mass);
+        _wallJumpImpulse.y += requiredVelocity * mass;
+        this.entityPhysics.rigidBody.applyImpulse(_wallJumpImpulse, true);
+        this.jumpBufferElapsed = 0;
+      }
     }
 
     // Perform a forward dash
@@ -320,18 +351,20 @@ class EntityBallController extends Entity {
     super.render(loop);
   }
 
-  updateGroundNormal() {
-    // Reset accumulator for this tick
+  updateSurfaceNormals() {
+    // Reset accumulators for this tick
     _groundNormalSum.set(0, 0, 0);
-    let contactCount = 0;
+    _wallNormalSum.set(0, 0, 0);
+    let groundCount = 0;
+    let wallCount = 0;
 
-    // Only contacts within maxSlopeAngle of vertical count as "ground"
+    // Contacts within maxSlopeAngle of vertical count as "ground"; steeper contacts count as "wall"
     const rollThreshold = Math.cos(this.maxSlopeAngleRad);
     const world = this.core.entityManager.world;
     const ballPos = this.parent.position;
     const ballHandle = this.entityPhysics.rigidBody.collider(0).handle;
 
-    // Query all contacts with this ball to find ground surfaces
+    // Query all contacts with this ball to find ground and wall surfaces
     world.narrowPhase.contactPairsWith(ballHandle, otherHandle => {
       // The owning collider's pose is the same for every manifold of this pair, so read it once
       let hasColliderPose = false;
@@ -355,23 +388,36 @@ class EntityBallController extends Entity {
         _contactToBall.subVectors(ballPos, _contactPoint);
         if (contactNormal.dot(_contactToBall) < 0) contactNormal.negate();
 
-        // Only accumulate contacts steep enough to be considered climbable ground
+        // Sort into ground (climbable) vs wall (steeper than maxSlopeAngle) buckets
         const slopeCosine = contactNormal.y;
         if (slopeCosine >= rollThreshold) {
           _groundNormalSum.add(contactNormal);
-          contactCount++;
+          groundCount++;
+        }
+        else {
+          _wallNormalSum.add(contactNormal);
+          wallCount++;
         }
       });
     });
 
     // Update grounded state and preserve normal value
-    if (contactCount > 0) {
+    if (groundCount > 0) {
       this.groundNormal.copy(_groundNormalSum).normalize();
       this.isGrounded = true;
     }
     else {
       this.groundNormal.set(0, 1, 0);
       this.isGrounded = false;
+    }
+
+    // Wall sliding only applies while airborne; grounded contact always takes priority
+    if (!this.isGrounded && wallCount > 0) {
+      this.wallNormal.copy(_wallNormalSum).normalize();
+      this.isWallSliding = true;
+    }
+    else {
+      this.isWallSliding = false;
     }
   }
 
