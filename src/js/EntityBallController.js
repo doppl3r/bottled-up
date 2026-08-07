@@ -48,6 +48,7 @@ class EntityBallController extends Entity {
       camCollisionDistanceMax: 5,
       camCollisionDistanceMin: 0.5,
       camCollisionRadius: 0.1,
+      camDistanceFadeRatio: 0.25,
       camAzimuthSensitivity: 0.00125,
       camPitchSensitivity: 0.00125,
     }, options);
@@ -73,8 +74,9 @@ class EntityBallController extends Entity {
     this.camAzimuthSensitivity = options.camAzimuthSensitivity;
     this.camPitchSensitivity = options.camPitchSensitivity;
     this.camDistance = 0;
-    this.camDistancePrev = 0;
     this.camDistanceRatio = 0;
+    this.camDistanceFadeRatio = options.camDistanceFadeRatio;
+    this.camDistanceFadeOpacity = 1;
     this.camCollisionDistance = 0;
     this.camCollisionDistanceMax = options.camCollisionDistanceMax;
     this.camCollisionDistanceMin = options.camCollisionDistanceMin;
@@ -270,7 +272,6 @@ class EntityBallController extends Entity {
 
     // Smoothly lerp current distance toward camera target
     const collisionLerpFactor = 1 - Math.pow(this.camCollisionLerp, loop.delta / 16.67);
-    this.camDistancePrev = this.camDistance;
     this.camDistance = this.camDistance + (this.camCollisionDistance - this.camDistance) * collisionLerpFactor;
 
     // Update camera position and rotation using adjusted distance
@@ -292,10 +293,11 @@ class EntityBallController extends Entity {
     _camLookAtTarget.y += this.camOrbitHeight * this.camDistanceRatio;
     this.core.camera.lookAt(_camLookAtTarget);
     
-    // Update player opacity by camera distance
-    const newDistance = Math.abs(this.camDistance - this.camDistancePrev) > 0.001;
-    const newOpacity = newDistance ? Math.round(this.camDistanceRatio / 0.001) * 0.001 : 1;
-    if (newDistance) {
+    // Update player opacity by camera distance, only fading once within camDistanceFadeRatio of the player
+    const fadeRatio = Math.min(1, this.camDistanceRatio / this.camDistanceFadeRatio);
+    const newOpacity = Math.round(fadeRatio / 0.001) * 0.001;
+    if (newOpacity !== this.camDistanceFadeOpacity) {
+      this.camDistanceFadeOpacity = newOpacity;
       this.parent.get('EntityMesh').traverse(child => {
         if (child.isMesh) {
           child.material.opacity = newOpacity;
