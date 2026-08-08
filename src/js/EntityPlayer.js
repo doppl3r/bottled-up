@@ -34,16 +34,7 @@ class EntityPlayer extends Entity {
       },
       {
         class: 'EntityModel',
-        url: 'glb/potion.glb',
-        children: [
-          {
-            class: 'EntityDecal',
-            url: 'png/smile.png',
-            position: { x: 0, y: 0, z: 0.25 },
-            normal: { x: 0, y: 0, z: 1 },
-            scale: { x: 0.4, y: 0.4, z: 0.4 }
-          }
-        ]
+        url: 'glb/potion.glb'
       },
       {
         class: 'EntityPhysics',

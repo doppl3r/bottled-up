@@ -5,6 +5,7 @@ import { EntityAudio } from './EntityAudio.js';
 import { EntityBall } from './EntityBall.js';
 import { EntityCube } from './EntityCube.js';
 import { EntityDecal } from './EntityDecal.js';
+import { EntityEnvironment } from './EntityEnvironment.js';
 import { EntityMaterial } from './EntityMaterial.js';
 import { EntityMesh } from './EntityMesh.js';
 import { EntityMixer } from './EntityMixer.js';
@@ -48,6 +49,7 @@ class EntityManager {
       EntityBall,
       EntityCube,
       EntityDecal,
+      EntityEnvironment,
       EntityMaterial,
       EntityMixer,
       EntityMesh,
@@ -99,6 +101,7 @@ class EntityManager {
     // Call onLoad immediately if no pending entities
     const pendingEntities = entities.filter(entity => !entity.isInitialized);
     if (pendingEntities.length === 0) {
+      this.core.scene.dispatchEvent({ type: 'loaded' });
       onLoad();
       return;
     }
@@ -110,7 +113,10 @@ class EntityManager {
       const onInitialized = () => {
         entity.removeEventListener('initialized', onInitialized);
         remaining--;
-        if (remaining === 0) onLoad();
+        if (remaining === 0) {
+          this.core.scene.dispatchEvent({ type: 'loaded' });
+          onLoad();
+        }
       };
 
       // Add initialized event listener

@@ -1,4 +1,4 @@
-import { Euler, Matrix4, Mesh, MeshStandardMaterial, Quaternion, Vector3 } from 'three';
+import { Euler, FrontSide, Matrix4, Mesh, MeshStandardMaterial, Quaternion, Vector3 } from 'three';
 import { DecalGeometry } from 'three/examples/jsm/geometries/DecalGeometry.js';
 import { mergeGeometries, mergeVertices } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { Entity } from './Entity.js';
@@ -6,11 +6,7 @@ import { MeshFactory } from './MeshFactory.js';
 
 /*
   EntityDecal projects a texture onto the surface of a target entity's
-  model/mesh using Three.js DecalGeometry. It is generic enough to cover
-  both statically authored decals (ex: a face on the ball, a poster on a
-  wall, nested as a template child of an EntityModel/EntityMesh) and
-  runtime-spawned decals (ex: bullet holes, bug splatters, spawned via
-  entityManager.spawn() with the hit entity as parent).
+  model/mesh using Three.js DecalGeometry.
 */
 
 // Module-scoped reusables to avoid per-decal allocations
@@ -23,36 +19,21 @@ const _relativeMatrix = new Matrix4();
 
 class EntityDecal extends Entity {
   constructor(options = {}) {
-    // Set default options
+    // Inherit Entity properties (position, rotation, scale, etc.)
     options = Object.assign({
       class: 'EntityDecal',
       url: null,
       normal: { x: 0, y: 0, z: 1 },
-      color: '#ffffff',
-      opacity: 1,
-      metalness: 0,
-      roughness: 1,
-      polygonOffsetFactor: -4,
-      renderOrder: 1,
+      size: { x: 1, y: 1, z: 1 },
     }, options);
 
-    // Inherit Entity properties
     super(options);
 
-    // Capture the projector transform and reset entity transform
-    this.decalPosition = this.position.clone();
-    this.decalSize = this.scale.clone();
-    this.decalRotation = this.rotation.clone();
-    this.decalNormal = options.normal;
-    this.position.set(0, 0, 0);
-    this.rotation.set(0, 0, 0);
-    this.scale.set(1, 1, 1);
-
-    // Declare entity components
-    this.decalMesh = null;
-    this.texture = null;
+    // Store only what cannot be derived from Entity properties
     this.url = options.url;
-    this.decalOptions = options;
+    this.normal = options.normal;
+    this.size = new Vector3(options.size.x, options.size.y, options.size.z);
+    this.target = null;
 
     // Add event listeners
     this.addEventListener('added', this.onAdded);
@@ -102,51 +83,45 @@ class EntityDecal extends Entity {
     const tempMesh = new Mesh(geometry);
 
     // Resolve projector position, orientation, and size
-    const options = this.decalOptions;
     const orientation = this.resolveOrientation();
 
     // Create decal geometry
-    const decalGeometry = new DecalGeometry(tempMesh, this.decalPosition, orientation, this.decalSize);
+    const decalGeometry = new DecalGeometry(tempMesh, this.position, orientation, this.size);
 
     // Load texture and build decal mesh once ready
-    core.assets.load(options.url, texture => {
-      this.texture = texture;
+    core.assets.load(this.url, texture => {
+      // Hard-coded material: white, fully opaque, non-metallic
       const material = new MeshStandardMaterial({
         map: texture,
-        color: options.color,
-        opacity: options.opacity,
-        metalness: options.metalness,
-        roughness: options.roughness,
+        color: 0xffffff,
+        opacity: 1,
+        metalness: 0,
+        roughness: 1,
         transparent: true,
         depthTest: true,
         polygonOffset: true,
-        polygonOffsetFactor: options.polygonOffsetFactor,
+        polygonOffsetFactor: -4,
+        side: FrontSide,
       });
 
-      // Force paint order over the target
-      this.decalMesh = new Mesh(decalGeometry, material);
-      this.decalMesh.renderOrder = options.renderOrder;
-      this.add(this.decalMesh);
+      // Add decal mesh to scene
+      const decalMesh = new Mesh(decalGeometry, material);
+      this.add(decalMesh);
       this.dispatchEvent({ type: 'loaded' });
-      super.init(this.decalOptions, this.core);
+      super.init({}, this.core);
     });
   }
 
   resolveOrientation() {
-    // Use explicit rotation if provided
-    if (this.decalRotation) {
-      return this.decalRotation;
+    // If entity rotation is set, use it directly
+    if (this.rotation.x !== 0 || this.rotation.y !== 0 || this.rotation.z !== 0) {
+      return this.rotation;
     }
 
-    // Otherwise derive orientation from a surface normal
-    if (this.decalNormal) {
-      const normal = _position.set(this.decalNormal.x, this.decalNormal.y, this.decalNormal.z).normalize();
-      _quaternion.setFromUnitVectors(_forward, normal);
-      return _euler.setFromQuaternion(_quaternion);
-    }
-
-    // Default: no rotation
-    return _euler.set(0, 0, 0);
+    // Otherwise derive orientation from the normal vector
+    const normal = _position.set(this.normal.x, this.normal.y, this.normal.z).normalize();
+    _quaternion.setFromUnitVectors(_forward, normal);
+    return _euler.setFromQuaternion(_quaternion);
   }
 
   mergeLocalGeometry(root) {
@@ -177,11 +152,6 @@ class EntityDecal extends Entity {
   }
 
   onTargetRemoved = () => {
-    // Dispose owned resources (NOT the shared geometry cache)
-    this.decalMesh?.geometry.dispose();
-    this.decalMesh?.material.dispose();
-    this.texture?.dispose();
-
     // Remove event listeners
     this.target.removeEventListener('removed', this.onTargetRemoved);
     this.target.removeEventListener('loaded', this.onTargetLoaded);
@@ -191,9 +161,8 @@ class EntityDecal extends Entity {
     // Serialize entity to JSON
     const json = super.serialize();
     json.url = this.url;
-    json.normal = { x: this.decalNormal.x, y: this.decalNormal.y, z: this.decalNormal.z };
-    json.position = { x: this.decalPosition.x, y: this.decalPosition.y, z: this.decalPosition.z };
-    json.scale = { x: this.decalSize.x, y: this.decalSize.y, z: this.decalSize.z };
+    json.normal = { x: this.normal.x, y: this.normal.y, z: this.normal.z };
+    json.size = { x: this.size.x, y: this.size.y, z: this.size.z };
     return json;
   }
 }

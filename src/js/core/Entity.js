@@ -33,6 +33,9 @@ class Entity extends Object3D {
       visible: true
     }, options);
 
+    // Store options reference
+    this.options = options;
+
     // Declare entity properties
     this.isEntity = true;
     this.isInitialized = false;

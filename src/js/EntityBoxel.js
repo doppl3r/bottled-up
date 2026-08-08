@@ -119,9 +119,9 @@ class EntityBoxel extends Entity {
           {
             class: 'EntityDecal',
             url: 'png/smile.png',
-            position: { x: 0, y: 0, z: 0.25 },
             normal: { x: 0, y: 0, z: 1 },
-            scale: { x: 0.9, y: 0.9, z: 0.9 }
+            position: { x: 0, y: 0, z: 1 / 16 },
+            size: { x: 0.9, y: 0.9, z: 0.9 }
           }
         ]
       }

@@ -352,6 +352,7 @@ class EntityBallController extends Entity {
         if (child.isMesh) {
           child.material.transparent = true;
           child.material.opacity = newOpacity;
+          child.material.needsUpdate = true;
         }
       });
     }

@@ -33,7 +33,6 @@ class EntityPhysics extends Entity {
     // Declare entity components
     this.position0 = new Vector3();
     this.quaternion0 = this.quaternion.clone();
-    this.rigidBodyOptions = options.rigidBody;
     this.rigidBody;
     this.sleeping = false;
     this.world;
@@ -209,7 +208,9 @@ class EntityPhysics extends Entity {
     // Serialize entity to JSON
     const json = super.serialize();
     if (this.url) json.url = this.url;
-    json.rigidBody = JSON.parse(JSON.stringify(this.rigidBodyOptions));
+    if (this.options.rigidBody) {
+      json.rigidBody = JSON.parse(JSON.stringify(this.options.rigidBody));
+    }
     return json;
   }
 }
