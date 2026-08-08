@@ -12,8 +12,8 @@ class EntityModel extends Entity {
       castShadow: true,
       class: 'EntityModel',
       generateMipmaps: true,
-      magFilter: null,
-      minFilter: null,
+      magFilter: 1003,
+      minFilter: 1003,
       receiveShadow: true,
     }, options);
 
