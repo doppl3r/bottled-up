@@ -33,24 +33,15 @@ class EntityPlayer extends Entity {
         class: 'EntityBallController'
       },
       {
-        class: 'EntityMesh',
-        castShadow: false,
-        receiveShadow: true,
-        geometry: {
-          type: 'SphereGeometry',
-          arguments: [0.25, 16, 16]
-        },
-        material: {
-          type: 'MeshStandardMaterial',
-          arguments: [{ color: '#42bfe8', transparent: true }]
-        },
+        class: 'EntityModel',
+        url: 'glb/potion.glb',
         children: [
           {
             class: 'EntityDecal',
             url: 'png/smile.png',
             position: { x: 0, y: 0, z: 0.25 },
             normal: { x: 0, y: 0, z: 1 },
-            scale: { x: 0.5, y: 0.5, z: 0.5 }
+            scale: { x: 0.4, y: 0.4, z: 0.4 }
           }
         ]
       },

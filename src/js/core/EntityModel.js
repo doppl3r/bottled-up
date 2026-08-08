@@ -12,8 +12,8 @@ class EntityModel extends Entity {
       castShadow: true,
       class: 'EntityModel',
       generateMipmaps: true,
-      magFilter: 1003,
-      minFilter: 1003,
+      magFilter: null,
+      minFilter: null,
       receiveShadow: true,
     }, options);
 
@@ -56,9 +56,9 @@ class EntityModel extends Entity {
           if (child.isMesh) {
             // Update texture settings
             if (child.material.map) {
-              child.material.map.generateMipmaps = this.generateMipmaps;
-              child.material.map.minFilter = this.minFilter;
-              child.material.map.magFilter = this.magFilter;
+              if (this.generateMipmaps) child.material.map.generateMipmaps = this.generateMipmaps;
+              if (this.minFilter) child.material.map.minFilter = this.minFilter;
+              if (this.magFilter) child.material.map.magFilter = this.magFilter;
             }
 
             // Update shadow settings

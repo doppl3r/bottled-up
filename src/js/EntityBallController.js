@@ -41,7 +41,7 @@ class EntityBallController extends Entity {
       moveMaxSpeed: 8,
       steerFactor: 4.0,
       dashSpeed: 8,
-      dashTimerDuration: 3000,
+      dashTimerDuration: 1000,
       jumpBufferDuration: 100,
       jumpHeight: 2.5,
       jumpSpin: 0.0,
@@ -52,7 +52,7 @@ class EntityBallController extends Entity {
       camPitchMax: (Math.PI / 2) - 0.1,
       camLerp: 0.9,
       camOrbitHeight: 0.5,
-      camCollisionLerp: 0.9,
+      camCollisionLerp: 0.5,
       camCollisionDistanceMax: 5,
       camCollisionDistanceMin: 0.25,
       camCollisionRadius: 0.1,
@@ -348,8 +348,9 @@ class EntityBallController extends Entity {
     const newOpacity = Math.round(fadeRatio / 0.001) * 0.001;
     if (newOpacity !== this.camDistanceFadeOpacity) {
       this.camDistanceFadeOpacity = newOpacity;
-      this.parent.get('EntityMesh').traverse(child => {
+      this.parent.get('EntityModel').traverse(child => {
         if (child.isMesh) {
+          child.material.transparent = true;
           child.material.opacity = newOpacity;
         }
       });
@@ -505,8 +506,8 @@ class EntityBallController extends Entity {
     // Tween camera FOV
     const fovOriginal = this.core.camera.fov;
     const fovState = { fov: fovOriginal };
-    const zoomDuration = 250;
-    const zoomAmount = 1.25;
+    const zoomDuration = this.dashTimerDuration;
+    const zoomAmount = 1.5;
 
     // Create reusable camera tween
     const tween = (fov = 45, duration = 100, onComplete = () => {}) => {
@@ -524,8 +525,8 @@ class EntityBallController extends Entity {
     };
 
     // Tween camera FOV in and out
-    tween(fovOriginal * zoomAmount, zoomDuration, () => {
-      tween(fovOriginal, zoomDuration * 4);
+    tween(fovOriginal * zoomAmount, zoomDuration * 0.25, () => {
+      tween(fovOriginal, zoomDuration * 0.75);
     });
   }
 
