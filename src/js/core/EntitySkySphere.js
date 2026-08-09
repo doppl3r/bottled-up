@@ -1,5 +1,6 @@
 import { Color, ShaderMaterial, BackSide } from 'three';
 import { Entity } from './Entity.js';
+import { Tweens } from './Tweens.js';
 
 /*
   EntitySkySphere adds a sphere mesh background to scene with a custom gradient shader.
@@ -19,6 +20,11 @@ class EntitySkySphere extends Entity {
     // Declare entity components
     this.colors = [];
     this.material = null;
+    this.colorArray = null;
+    this.positionArray = null;
+
+    // Animations
+    this.tweens = new Tweens();
 
     // Add event listeners
     this.addEventListener('childadded', this.onChildAdded);
@@ -33,22 +39,22 @@ class EntitySkySphere extends Entity {
     }));
 
     // Create uniform arrays for shader
-    const colorArray = new Float32Array(colorStops.length * 3);
-    const positionArray = new Float32Array(colorStops.length);
+    this.colorArray = new Float32Array(colorStops.length * 3);
+    this.positionArray = new Float32Array(colorStops.length);
 
     this.colors.forEach((stop, i) => {
-      colorArray[i * 3] = stop.color.r;
-      colorArray[i * 3 + 1] = stop.color.g;
-      colorArray[i * 3 + 2] = stop.color.b;
-      positionArray[i] = stop.position;
+      this.colorArray[i * 3] = stop.color.r;
+      this.colorArray[i * 3 + 1] = stop.color.g;
+      this.colorArray[i * 3 + 2] = stop.color.b;
+      this.positionArray[i] = stop.position;
     });
 
     // Create gradient shader material
     this.material = new ShaderMaterial({
       side: BackSide,
       uniforms: {
-        colorArray: { value: colorArray },
-        positionArray: { value: positionArray },
+        colorArray: { value: this.colorArray },
+        positionArray: { value: this.positionArray },
         colorCount: { value: colorStops.length }
       },
       vertexShader: `
@@ -93,6 +99,57 @@ class EntitySkySphere extends Entity {
     super.init(options, core);
   }
 
+  render(loop) {
+    // Update tweens
+    this.tweens.update(loop.delta);
+
+    // Perform base entity render
+    super.render(loop);
+  }
+
+  fadeTo(colorGroup, duration = 5000) {
+    // Implement fade to new color group over the specified duration
+    const newColors = EntitySkySphere.colorGroups[colorGroup];
+    if (!newColors) return;
+
+    // Animate each color stop
+    newColors.forEach((stop, i) => {
+      const currentColor = this.colors[i].color;
+      const currentPosition = this.colors[i].position;
+      const targetColor = new Color(stop.color);
+      const targetPosition = stop.position;
+
+      this.tweens.tween({
+        object: { 
+          r: currentColor.r, 
+          g: currentColor.g, 
+          b: currentColor.b,
+          position: currentPosition
+        },
+        to: { 
+          r: targetColor.r, 
+          g: targetColor.g, 
+          b: targetColor.b,
+          position: targetPosition
+        },
+        duration: duration,
+        onUpdate: (values) => {
+          // Update color object
+          this.colors[i].color.r = values.r;
+          this.colors[i].color.g = values.g;
+          this.colors[i].color.b = values.b;
+          this.colors[i].position = values.position;
+          
+          // Update shader uniform array
+          this.colorArray[i * 3] = values.r;
+          this.colorArray[i * 3 + 1] = values.g;
+          this.colorArray[i * 3 + 2] = values.b;
+          this.positionArray[i] = values.position;
+        }
+      });
+    });
+  }
+
   onChildAdded = event => {
     // Update material
     event.child.traverse(child => {
@@ -102,11 +159,6 @@ class EntitySkySphere extends Entity {
     });
   }
 
-  render(loop) {
-    // Perform base entity render
-    super.render(loop);
-  }
-
   serialize() {
     // Serialize entity to JSON
     const json = super.serialize();
@@ -114,14 +166,60 @@ class EntitySkySphere extends Entity {
     return json;
   }
 
-  static template = {
-    colors: [
-      { color: '#102A43', position: 0.0 },
-      { color: '#102A43', position: 0.25 },
-      { color: '#486581', position: 0.5 },
-      { color: '#F0F4F8', position: 0.75 },
-      { color: '#F0F4F8', position: 1.0 }
+  static colorGroups = {
+    vibrant: [
+      { color: '#001a4d', position: 0.0 },
+      { color: '#0052cc', position: 0.45 },
+      { color: '#1e90ff', position: 0.5 },
+      { color: '#42a5f5', position: 0.55 },
+      { color: '#e3f2fd', position: 1.0 }
     ],
+    cloudy: [
+      { color: '#4a5568', position: 0.0 },
+      { color: '#667eaa', position: 0.33 },
+      { color: '#8a9fbf', position: 0.5 },
+      { color: '#b4c9e0', position: 0.66 },
+      { color: '#d1dce6', position: 1.0 }
+    ],
+    sunset: [
+      { color: '#0d1f2d', position: 0.0 },
+      { color: '#6b1d4d', position: 0.45 },
+      { color: '#d97706', position: 0.5 },
+      { color: '#f97316', position: 0.55 },
+      { color: '#fecaca', position: 1.0 }
+    ],
+    night: [
+      { color: '#000000', position: 0.0 },
+      { color: '#0f0f1e', position: 0.25 },
+      { color: '#1a1a3e', position: 0.5 },
+      { color: '#2d1b4e', position: 0.75 },
+      { color: '#1e3a5f', position: 1.0 }
+    ],
+    creepy: [
+      { color: '#1a0033', position: 0.0 },
+      { color: '#4c0080', position: 0.33 },
+      { color: '#9933cc', position: 0.5 },
+      { color: '#00cc00', position: 0.67 },
+      { color: '#99ff99', position: 1.0 }
+    ],
+    spooky: [
+      { color: '#1a0033', position: 0.0 },
+      { color: '#4c0080', position: 0.25 },
+      { color: '#9933cc', position: 0.5 },
+      { color: '#ff9933', position: 0.75 },
+      { color: '#ffcc99', position: 1.0 }
+    ],
+    mystical: [
+      { color: '#1a0033', position: 0.0 },
+      { color: '#5e0d73', position: 0.25 },
+      { color: '#00a896', position: 0.5 },
+      { color: '#00d9d9', position: 0.75 },
+      { color: '#c1f0f6', position: 1.0 }
+    ],
+  }
+
+  static template = {
+    colors: EntitySkySphere.colorGroups['vibrant'],
     children: [
       {
         class: 'EntityMesh',
