@@ -37,6 +37,29 @@ class EntityPlayer extends Entity {
         url: 'glb/potion.glb'
       },
       {
+        class: 'EntityMesh',
+        scale: { x: 1, y: 1, z: 1 },
+        castShadow: false,
+        receiveShadow: true,
+        renderOrder: 1,
+        geometry: {
+          type: 'SphereGeometry',
+          arguments: [0.25, 16, 16]
+        },
+        material: {
+          type: 'MeshStandardMaterial',
+          arguments: [{ color: '#ffffff', transparent: true }],
+        },
+        children: [
+          {
+            class: 'EntityTexture',
+            url: 'png/smile.png',
+            repeat: { x: 4, y: 2 },
+            offset: { x: -0.5, y: -0.5 }
+          }
+        ]
+      },
+      {
         class: 'EntityPhysics',
         rigidBody: {
           status: 0,
