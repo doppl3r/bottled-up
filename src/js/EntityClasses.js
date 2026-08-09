@@ -4,7 +4,6 @@ import { EntityPlayer } from './EntityPlayer.js';
 import { EntityPrompt } from './EntityPrompt.js';
 import { EntityRain } from './EntityRain.js';
 import { EntityShadow } from './EntityShadow.js';
-import { EntitySkybox } from './EntitySkybox.js';
 
 export const EntityClasses = {
   EntityBallController,
@@ -13,5 +12,4 @@ export const EntityClasses = {
   EntityPrompt,
   EntityRain,
   EntityShadow,
-  EntitySkybox
 }

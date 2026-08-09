@@ -1,15 +1,16 @@
-import { TextureFactory } from './core/TextureFactory.js';
-import { Entity } from './core/Entity.js';
+import { CanvasTexture, EquirectangularReflectionMapping, SRGBColorSpace } from 'three';
+import { TextureFactory } from './TextureFactory.js';
+import { Entity } from './Entity.js';
 
 /*
-  EntitySkybox adds a CubeTexture system to scene.
+  EntitySkyBox adds a CubeTexture system to scene.
 */
 
-class EntitySkybox extends Entity {
+class EntitySkyBox extends Entity {
   constructor(options = {}) {
     // Set default options
     options = Object.assign({
-      class: 'EntitySkybox'
+      class: 'EntitySkyBox'
     }, options);
 
     // Inherit Entity properties
@@ -43,6 +44,7 @@ class EntitySkybox extends Entity {
       });
     }
     else {
+      core.scene.background = TextureFactory.generateSkySphereTexture();
       super.init(options, core);
     }
   }
@@ -60,15 +62,8 @@ class EntitySkybox extends Entity {
   }
 
   static template = {
-    urls: [
-      'png/forge-skybox-px.png',
-      'png/forge-skybox-nx.png',
-      'png/forge-skybox-py.png',
-      'png/forge-skybox-ny.png',
-      'png/forge-skybox-pz.png',
-      'png/forge-skybox-nz.png'
-    ]
+    
   }
 }
 
-export { EntitySkybox };
+export { EntitySkyBox };

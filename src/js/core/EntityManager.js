@@ -20,6 +20,8 @@ import { EntityLightDirectional } from './EntityLightDirectional.js';
 import { EntityLightHemisphere } from './EntityLightHemisphere.js';
 import { EntityLightPoint } from './EntityLightPoint.js';
 import { EntityLightSun } from './EntityLightSun.js';
+import { EntitySkyBox } from './EntitySkyBox.js';
+import { EntitySkySphere } from './EntitySkySphere.js';
 import { EntityTrimesh } from './EntityTrimesh.js';
 
 /*
@@ -63,7 +65,8 @@ class EntityManager {
       EntityLightDirectional,
       EntityLightHemisphere,
       EntityLightPoint,
-      EntityLightSun,
+      EntitySkyBox,
+      EntitySkySphere,
       EntityTrimesh,
     });
   }

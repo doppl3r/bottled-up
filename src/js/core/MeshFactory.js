@@ -35,8 +35,8 @@ class MeshFactory {
     }, options);
 
     // Create mesh with geometry and material
-    const geometry = new MeshFactory[options.geometry.type](...options.geometry.arguments);
-    const material = new MeshFactory[options.material.type](...options.material.arguments);
+    const geometry = new MeshFactory[options.geometry.type](...options.geometry.arguments ?? []);
+    const material = new MeshFactory[options.material.type](...options.material.arguments ?? []);
     const mesh = new MeshFactory[options.type](geometry, material)
     return mesh;
   }
