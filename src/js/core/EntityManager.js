@@ -6,6 +6,7 @@ import { EntityBall } from './EntityBall.js';
 import { EntityCube } from './EntityCube.js';
 import { EntityDecal } from './EntityDecal.js';
 import { EntityEnvironment } from './EntityEnvironment.js';
+import { EntityFog } from './EntityFog.js';
 import { EntityMaterial } from './EntityMaterial.js';
 import { EntityMesh } from './EntityMesh.js';
 import { EntityMixer } from './EntityMixer.js';
@@ -52,6 +53,7 @@ class EntityManager {
       EntityCube,
       EntityDecal,
       EntityEnvironment,
+      EntityFog,
       EntityMaterial,
       EntityMixer,
       EntityMesh,
