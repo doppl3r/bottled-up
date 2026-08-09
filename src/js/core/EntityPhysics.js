@@ -30,6 +30,9 @@ class EntityPhysics extends Entity {
     // Inherit Entity properties
     super(options);
 
+    // Store options
+    this.options = options;
+
     // Declare entity components
     this.position0 = new Vector3();
     this.quaternion0 = this.quaternion.clone();

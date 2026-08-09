@@ -20,6 +20,9 @@ class EntityEnvironment extends Entity {
 
     super(options);
 
+    // Store options
+    this.options = options;
+
     // Store only what cannot be derived from Entity properties
     this.url = options.url;
     this.texture = null;

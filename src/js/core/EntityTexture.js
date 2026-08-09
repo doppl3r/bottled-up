@@ -15,26 +15,45 @@ class EntityTexture extends Entity {
     // Inherit Entity properties
     super(options);
 
+    // Store options
+    this.options = options;
+
     // Set default properties
     this.texture = null;
+
+    // Add event listeners
+    this.addEventListener('added', this.updateParentTexture);
+    this.addEventListener('loaded', this.updateParentTexture);
   }
 
   init(options, core) {
     // Add texture component if entity is an instance of EntityTexture
     core.assets.load(options.url, texture => {
-      this.setTexture(texture, options);
+      this.texture = texture;
       this.dispatchEvent({ type: 'loaded', texture });
       super.init(options, core);
     });
   }
 
-  setTexture(texture, options = {}) {
-    // Assign texture
-    this.texture = texture;
-    Object.assign(this.texture, options);
+  updateParentTexture = event => {
+    if (!this.parent || !this.texture) return;
 
-    // Override parent material map
-    this.parent.material.map = texture;
+    // Assign texture to parent materials
+    this.parent.traverse(child => {
+      if (child.isMesh) {
+        child.material.map = this.texture;
+
+        if (this.options) {
+          Object.entries(this.options).forEach(([key, value]) => {
+            if (key in child.material.map) {
+              // Assign options to texture
+              if (typeof value === 'object') Object.assign(child.material.map[key], value);
+              else child.material.map[key] = value;
+            }
+          });
+        }
+      }
+    });
   }
 }
 
