@@ -45,7 +45,8 @@ class EntityBallController extends Entity {
       jumpBufferDuration: 100,
       jumpHeight: 2.5,
       jumpSpin: 0.0,
-      maxSlopeAngle: 45,
+      maxSlopeAngle: 30,
+      maxWallAngle: 60,
       wallJumpPower: 5,
       camPitchDefault: Math.PI / 8,
       camPitchMin: (Math.PI / -2) + 0.1,
@@ -74,6 +75,7 @@ class EntityBallController extends Entity {
     this.jumpSpin = options.jumpSpin;
     this.jumpBufferDuration = options.jumpBufferDuration;
     this.maxSlopeAngleRad = options.maxSlopeAngle * Math.PI / 180;
+    this.maxWallAngleRad = options.maxWallAngle * Math.PI / 180;
     this.wallJumpPower = options.wallJumpPower;
     this.camPitchDefault = options.camPitchDefault;
     this.camPitchMin = options.camPitchMin;
@@ -370,6 +372,7 @@ class EntityBallController extends Entity {
 
     // Contacts within maxSlopeAngle of vertical count as "ground"; steeper contacts count as "wall"
     const rollThreshold = Math.cos(this.maxSlopeAngleRad);
+    const wallThreshold = Math.cos(this.maxWallAngleRad);
     const world = this.core.entityManager.world;
     const ballPos = this.parent.position;
     const ballHandle = this.entityPhysics.rigidBody.collider(0).handle;
@@ -404,7 +407,7 @@ class EntityBallController extends Entity {
           _groundNormalSum.add(contactNormal);
           groundCount++;
         }
-        else {
+        else if (slopeCosine <= wallThreshold) {
           _wallNormalSum.add(contactNormal);
           wallCount++;
         }

@@ -31,8 +31,16 @@ class EntitySkySphere extends Entity {
   }
 
   init(options, core) {
+    // Update color group
+    if (EntitySkySphere.colorGroups[options.colorGroup]) {
+      this.colors = EntitySkySphere.colorGroups[options.colorGroup];
+    }
+    else {
+      this.colors = EntitySkySphere.colorGroups['vibrant']
+    }
+
     // Parse color stops from options or template
-    const colorStops = options.colors || EntitySkySphere.template.colors;
+    const colorStops = options.colors || this.colors;
     this.colors = colorStops.map(stop => ({
       color: new Color(stop.color),
       position: stop.position
@@ -216,10 +224,17 @@ class EntitySkySphere extends Entity {
       { color: '#00d9d9', position: 0.75 },
       { color: '#c1f0f6', position: 1.0 }
     ],
+    hell: [
+      { color: '#f65510', position: 0.0 },
+      { color: '#f65510', position: 0.33 },
+      { color: '#662a22', position: 0.5 },
+      { color: '#371c29', position: 0.66 },
+      { color: '#371c29', position: 1.0 },
+    ]
   }
 
   static template = {
-    colors: EntitySkySphere.colorGroups['vibrant'],
+    colorGroup: 'vibrant',
     children: [
       {
         class: 'EntityMesh',
