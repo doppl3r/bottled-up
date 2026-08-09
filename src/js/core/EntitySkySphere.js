@@ -18,7 +18,8 @@ class EntitySkySphere extends Entity {
     super(options);
 
     // Declare entity components
-    this.colors = [];
+    this.colors = options.colors;
+    this.colorGroup = [];
     this.material = null;
     this.colorArray = null;
     this.positionArray = null;
@@ -31,26 +32,13 @@ class EntitySkySphere extends Entity {
   }
 
   init(options, core) {
-    // Update color group
-    if (EntitySkySphere.colorGroups[options.colorGroup]) {
-      this.colors = EntitySkySphere.colorGroups[options.colorGroup];
-    }
-    else {
-      this.colors = EntitySkySphere.colorGroups['vibrant']
-    }
-
-    // Parse color stops from options or template
-    const colorStops = options.colors || this.colors;
-    this.colors = colorStops.map(stop => ({
-      color: new Color(stop.color),
-      position: stop.position
-    }));
-
     // Create uniform arrays for shader
-    this.colorArray = new Float32Array(colorStops.length * 3);
-    this.positionArray = new Float32Array(colorStops.length);
+    this.colorGroup = this.getColorGroup(options.colors);
+    this.colorArray = new Float32Array(this.colorGroup.length * 3);
+    this.positionArray = new Float32Array(this.colorGroup.length);
 
-    this.colors.forEach((stop, i) => {
+    // Populate the uniform arrays with color and position data
+    this.colorGroup.forEach((stop, i) => {
       this.colorArray[i * 3] = stop.color.r;
       this.colorArray[i * 3 + 1] = stop.color.g;
       this.colorArray[i * 3 + 2] = stop.color.b;
@@ -63,7 +51,7 @@ class EntitySkySphere extends Entity {
       uniforms: {
         colorArray: { value: this.colorArray },
         positionArray: { value: this.positionArray },
-        colorCount: { value: colorStops.length }
+        colorCount: { value: this.colorGroup.length }
       },
       vertexShader: `
         varying float vNormalizedY;
@@ -74,8 +62,8 @@ class EntitySkySphere extends Entity {
         }
       `,
       fragmentShader: `
-        uniform float positionArray[${colorStops.length}];
-        uniform vec3 colorArray[${colorStops.length}];
+        uniform float positionArray[${this.colorGroup.length}];
+        uniform vec3 colorArray[${this.colorGroup.length}];
         uniform int colorCount;
         
         varying float vNormalizedY;
@@ -115,15 +103,37 @@ class EntitySkySphere extends Entity {
     super.render(loop);
   }
 
-  fadeTo(colorGroup, duration = 5000) {
+  getColorGroup(colorValue) {
+    let colorGroup;
+    if (typeof colorValue === 'string') {
+      // Set color group from existing color group
+      if (EntitySkySphere.colorGroups[colorValue]) {
+        colorGroup = EntitySkySphere.colorGroups[colorValue].map(colorStop => ({
+          color: new Color(colorStop.color),
+          position: colorStop.position
+        }));
+      }
+      else {
+        // Set color group from comma-separated string
+        const colorArray = colorValue.split(','); 
+        colorGroup = colorArray.map((color, index) => ({
+          color: new Color(color.trim()),
+          position: index / (colorArray.length - 1)
+        }));
+      }
+    }
+    return colorGroup;
+  }
+
+  fadeTo(colorValue, duration = 5000) {
     // Implement fade to new color group over the specified duration
-    const newColors = EntitySkySphere.colorGroups[colorGroup];
-    if (!newColors) return;
+    const newColorGroup = this.getColorGroup(colorValue);
+    if (!newColorGroup) return;
 
     // Animate each color stop
-    newColors.forEach((stop, i) => {
-      const currentColor = this.colors[i].color;
-      const currentPosition = this.colors[i].position;
+    newColorGroup.forEach((stop, i) => {
+      const currentColor = this.colorGroup[i].color;
+      const currentPosition = this.colorGroup[i].position;
       const targetColor = new Color(stop.color);
       const targetPosition = stop.position;
 
@@ -143,10 +153,10 @@ class EntitySkySphere extends Entity {
         duration: duration,
         onUpdate: (values) => {
           // Update color object
-          this.colors[i].color.r = values.r;
-          this.colors[i].color.g = values.g;
-          this.colors[i].color.b = values.b;
-          this.colors[i].position = values.position;
+          this.colorGroup[i].color.r = values.r;
+          this.colorGroup[i].color.g = values.g;
+          this.colorGroup[i].color.b = values.b;
+          this.colorGroup[i].position = values.position;
           
           // Update shader uniform array
           this.colorArray[i * 3] = values.r;
@@ -234,7 +244,7 @@ class EntitySkySphere extends Entity {
   }
 
   static template = {
-    colorGroup: 'vibrant',
+    colors: 'vibrant',
     children: [
       {
         class: 'EntityMesh',
