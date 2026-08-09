@@ -44,7 +44,7 @@ class EntityPlayer extends Entity {
         renderOrder: 1,
         geometry: {
           type: 'SphereGeometry',
-          arguments: [0.25, 16, 16]
+          arguments: [0.25, 16, 16, 0, Math.PI * 2, 0, Math.PI]
         },
         material: {
           type: 'MeshStandardMaterial',
