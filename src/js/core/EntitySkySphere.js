@@ -4,7 +4,7 @@ import { Tweens } from './Tweens.js';
 
 /*
   EntitySkySphere adds a sphere mesh background to scene with a custom gradient shader.
-  Accepts an array of color stops with hex colors and float positions (0.0 to 1.0).
+  Accepts an array of color stops with hex colors and float offsets (0.0 to 1.0).
 */
 
 class EntitySkySphere extends Entity {
@@ -22,7 +22,7 @@ class EntitySkySphere extends Entity {
     this.colorGroup = [];
     this.material = null;
     this.colorArray = null;
-    this.positionArray = null;
+    this.offsetArray = null;
 
     // Animations
     this.tweens = new Tweens();
@@ -35,14 +35,14 @@ class EntitySkySphere extends Entity {
     // Create uniform arrays for shader
     this.colorGroup = this.getColorGroup(options.colors);
     this.colorArray = new Float32Array(this.colorGroup.length * 3);
-    this.positionArray = new Float32Array(this.colorGroup.length);
+    this.offsetArray = new Float32Array(this.colorGroup.length);
 
-    // Populate the uniform arrays with color and position data
+    // Populate the uniform arrays with color and offset data
     this.colorGroup.forEach((stop, i) => {
       this.colorArray[i * 3] = stop.color.r;
       this.colorArray[i * 3 + 1] = stop.color.g;
       this.colorArray[i * 3 + 2] = stop.color.b;
-      this.positionArray[i] = stop.position;
+      this.offsetArray[i] = stop.offset;
     });
 
     // Create gradient shader material
@@ -50,7 +50,7 @@ class EntitySkySphere extends Entity {
       side: BackSide,
       uniforms: {
         colorArray: { value: this.colorArray },
-        positionArray: { value: this.positionArray },
+        offsetArray: { value: this.offsetArray },
         colorCount: { value: this.colorGroup.length }
       },
       vertexShader: `
@@ -62,16 +62,16 @@ class EntitySkySphere extends Entity {
         }
       `,
       fragmentShader: `
-        uniform float positionArray[${this.colorGroup.length}];
+        uniform float offsetArray[${this.colorGroup.length}];
         uniform vec3 colorArray[${this.colorGroup.length}];
         uniform int colorCount;
         
         varying float vNormalizedY;
         
-        vec3 getColorAtPosition(float t) {
+        vec3 getColorAtOffset(float t) {
           for (int i = 0; i < colorCount - 1; i++) {
-            float pos1 = positionArray[i];
-            float pos2 = positionArray[i + 1];
+            float pos1 = offsetArray[i];
+            float pos2 = offsetArray[i + 1];
             
             if (t >= pos1 && t <= pos2) {
               vec3 color1 = colorArray[i];
@@ -85,7 +85,7 @@ class EntitySkySphere extends Entity {
         
         void main() {
           float t = vNormalizedY * 0.5 + 0.5;
-          vec3 color = getColorAtPosition(t);
+          vec3 color = getColorAtOffset(t);
           gl_FragColor = vec4(color, 1.0);
         }
       `
@@ -110,7 +110,7 @@ class EntitySkySphere extends Entity {
       if (EntitySkySphere.colorGroups[colorValue]) {
         colorGroup = EntitySkySphere.colorGroups[colorValue].map(colorStop => ({
           color: new Color(colorStop.color),
-          position: colorStop.position
+          offset: colorStop.offset
         }));
       }
       else {
@@ -118,10 +118,15 @@ class EntitySkySphere extends Entity {
         const colorArray = colorValue.split(','); 
         colorGroup = colorArray.map((color, index) => ({
           color: new Color(color.trim()),
-          position: index / (colorArray.length - 1)
+          offset: index / (colorArray.length - 1)
         }));
       }
     }
+
+    // Ensure items are sorted by offset
+    if (colorGroup) colorGroup.sort((a, b) => a.offset - b.offset);
+
+    // Return the color
     return colorGroup;
   }
 
@@ -133,22 +138,22 @@ class EntitySkySphere extends Entity {
     // Animate each color stop
     newColorGroup.forEach((stop, i) => {
       const currentColor = this.colorGroup[i].color;
-      const currentPosition = this.colorGroup[i].position;
+      const currentOffset = this.colorGroup[i].offset;
       const targetColor = new Color(stop.color);
-      const targetPosition = stop.position;
+      const targetOffset = stop.offset;
 
       this.tweens.tween({
         object: { 
           r: currentColor.r, 
           g: currentColor.g, 
           b: currentColor.b,
-          position: currentPosition
+          offset: currentOffset
         },
         to: { 
           r: targetColor.r, 
           g: targetColor.g, 
           b: targetColor.b,
-          position: targetPosition
+          offset: targetOffset
         },
         duration: duration,
         onUpdate: (values) => {
@@ -156,13 +161,13 @@ class EntitySkySphere extends Entity {
           this.colorGroup[i].color.r = values.r;
           this.colorGroup[i].color.g = values.g;
           this.colorGroup[i].color.b = values.b;
-          this.colorGroup[i].position = values.position;
+          this.colorGroup[i].offset = values.offset;
           
           // Update shader uniform array
           this.colorArray[i * 3] = values.r;
           this.colorArray[i * 3 + 1] = values.g;
           this.colorArray[i * 3 + 2] = values.b;
-          this.positionArray[i] = values.position;
+          this.offsetArray[i] = values.offset;
         }
       });
     });
@@ -186,60 +191,60 @@ class EntitySkySphere extends Entity {
 
   static colorGroups = {
     vibrant: [
-      { color: '#001a4d', position: 0.0 },
-      { color: '#0052cc', position: 0.45 },
-      { color: '#1e90ff', position: 0.5 },
-      { color: '#42a5f5', position: 0.55 },
-      { color: '#e3f2fd', position: 1.0 }
+      { color: '#001a4d', offset: 0.0 },
+      { color: '#0052cc', offset: 0.45 },
+      { color: '#1e90ff', offset: 0.5 },
+      { color: '#42a5f5', offset: 0.55 },
+      { color: '#e3f2fd', offset: 1.0 }
     ],
     cloudy: [
-      { color: '#4a5568', position: 0.0 },
-      { color: '#667eaa', position: 0.33 },
-      { color: '#8a9fbf', position: 0.5 },
-      { color: '#b4c9e0', position: 0.66 },
-      { color: '#d1dce6', position: 1.0 }
+      { color: '#4a5568', offset: 0.0 },
+      { color: '#667eaa', offset: 0.33 },
+      { color: '#8a9fbf', offset: 0.5 },
+      { color: '#b4c9e0', offset: 0.66 },
+      { color: '#d1dce6', offset: 1.0 }
     ],
     sunset: [
-      { color: '#0d1f2d', position: 0.0 },
-      { color: '#6b1d4d', position: 0.45 },
-      { color: '#d97706', position: 0.5 },
-      { color: '#f97316', position: 0.55 },
-      { color: '#fecaca', position: 1.0 }
+      { color: '#0d1f2d', offset: 0.0 },
+      { color: '#6b1d4d', offset: 0.45 },
+      { color: '#d97706', offset: 0.5 },
+      { color: '#f97316', offset: 0.55 },
+      { color: '#fecaca', offset: 1.0 }
     ],
     night: [
-      { color: '#000000', position: 0.0 },
-      { color: '#0f0f1e', position: 0.25 },
-      { color: '#1a1a3e', position: 0.5 },
-      { color: '#2d1b4e', position: 0.75 },
-      { color: '#1e3a5f', position: 1.0 }
+      { color: '#000000', offset: 0.0 },
+      { color: '#0f0f1e', offset: 0.25 },
+      { color: '#1a1a3e', offset: 0.5 },
+      { color: '#2d1b4e', offset: 0.75 },
+      { color: '#1e3a5f', offset: 1.0 }
     ],
     creepy: [
-      { color: '#1a0033', position: 0.0 },
-      { color: '#4c0080', position: 0.33 },
-      { color: '#9933cc', position: 0.5 },
-      { color: '#00cc00', position: 0.67 },
-      { color: '#99ff99', position: 1.0 }
+      { color: '#1a0033', offset: 0.0 },
+      { color: '#4c0080', offset: 0.33 },
+      { color: '#9933cc', offset: 0.5 },
+      { color: '#00cc00', offset: 0.67 },
+      { color: '#99ff99', offset: 1.0 }
     ],
     spooky: [
-      { color: '#1a0033', position: 0.0 },
-      { color: '#4c0080', position: 0.25 },
-      { color: '#9933cc', position: 0.5 },
-      { color: '#ff9933', position: 0.75 },
-      { color: '#ffcc99', position: 1.0 }
+      { color: '#1a0033', offset: 0.0 },
+      { color: '#4c0080', offset: 0.25 },
+      { color: '#9933cc', offset: 0.5 },
+      { color: '#ff9933', offset: 0.75 },
+      { color: '#ffcc99', offset: 1.0 }
     ],
     mystical: [
-      { color: '#1a0033', position: 0.0 },
-      { color: '#5e0d73', position: 0.25 },
-      { color: '#00a896', position: 0.5 },
-      { color: '#00d9d9', position: 0.75 },
-      { color: '#c1f0f6', position: 1.0 }
+      { color: '#1a0033', offset: 0.0 },
+      { color: '#5e0d73', offset: 0.25 },
+      { color: '#00a896', offset: 0.5 },
+      { color: '#00d9d9', offset: 0.75 },
+      { color: '#c1f0f6', offset: 1.0 }
     ],
     hell: [
-      { color: '#f65510', position: 0.0 },
-      { color: '#f65510', position: 0.33 },
-      { color: '#662a22', position: 0.5 },
-      { color: '#371c29', position: 0.66 },
-      { color: '#371c29', position: 1.0 },
+      { color: '#f65510', offset: 0.0 },
+      { color: '#f65510', offset: 0.33 },
+      { color: '#662a22', offset: 0.5 },
+      { color: '#371c29', offset: 0.66 },
+      { color: '#371c29', offset: 1.0 },
     ]
   }
 
