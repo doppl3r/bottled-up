@@ -148,6 +148,11 @@ class EntityPhysics extends Entity {
     this.position.copy(position);
   }
 
+  setNextKinematicPosition(position) {
+    if (!this.rigidBody) return;
+    this.rigidBody.setNextKinematicTranslation(position);
+  }
+
   getRotation() {
     if (this.rigidBody === undefined) return this.quaternion;
     return this.rigidBody.rotation();
@@ -161,6 +166,12 @@ class EntityPhysics extends Entity {
     this.rigidBody?.setRotation(rotation, wakeUp);
     this.quaternion0.copy(this.quaternion);
     this.quaternion.copy(rotation);
+  }
+
+  setNextKinematicRotation(rotation) {
+    if (!this.rigidBody) return;
+    rotation = rotation.w ? rotation : _q.setFromEuler(_e.setFromVector3(_v.copy(rotation)));
+    this.rigidBody.setNextKinematicRotation(rotation);
   }
 
   getSpeed() {

@@ -27,7 +27,7 @@ class EntityPlatform extends EntityCube {
   }
 
   init(options, core) {
-    this.setupAnimations(options);
+    this.createAnimations(options);
 
     // Resume cube entity initialization
     super.init(options, core);
@@ -41,7 +41,7 @@ class EntityPlatform extends EntityCube {
     this.tweens.update(loop.delta);
   }
 
-  setupAnimations(options) {
+  createAnimations(options) {
     // Assign options from prop string
     if (options.prop) {
       const props = options.prop.split(',');
@@ -79,14 +79,6 @@ class EntityPlatform extends EntityCube {
       rotation: { x: rotation.x + (rx * Math.PI * 2), y: rotation.y + (ry * Math.PI * 2), z: rotation.z + (rz * Math.PI * 2) }
     }
 
-    const updatePhysics = obj => {
-      const entityPhysics = this.get('EntityPhysics');
-      if (entityPhysics) {
-        entityPhysics.setPosition(obj.position);
-        entityPhysics.setRotation(obj.rotation);
-      }
-    };
-
     this.tweens.tween({
       duration: dur * 1000,
       delay: del * 1000,
@@ -101,11 +93,13 @@ class EntityPlatform extends EntityCube {
         rotation: { ...end.rotation }
       },
       easing: 'Quadratic.Out',
-      onRepeat: obj => {
-        obj.isReversed = !obj.isReversed;
-        updatePhysics(obj.isReversed ? end : start);
-      },
-      onUpdate: obj => updatePhysics(obj)
+      onUpdate: obj => {
+        const entityPhysics = this.get('EntityPhysics');
+        if (entityPhysics) {
+          entityPhysics.setNextKinematicPosition(obj.position);
+          entityPhysics.setNextKinematicRotation(obj.rotation);
+        }
+      }
     });
   }
 
