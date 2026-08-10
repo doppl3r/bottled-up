@@ -139,20 +139,17 @@ class EntityPhysics extends Entity {
 
   getPosition() {
     if (this.rigidBody === undefined) return this.position;
-    else if (this.rigidBody.isKinematic()) return this.rigidBody.nextTranslation();
     return this.rigidBody.translation();
   }
 
   setPosition(position, wakeUp = true) {
-    if (this.rigidBody?.isKinematic()) this.rigidBody?.setNextKinematicTranslation(position);
-    else this.rigidBody?.setTranslation(position, wakeUp);
+    this.rigidBody?.setTranslation(position, wakeUp);
     this.position0.copy(position);
     this.position.copy(position);
   }
 
   getRotation() {
     if (this.rigidBody === undefined) return this.quaternion;
-    else if (this.rigidBody.isKinematic()) return this.rigidBody.nextRotation();
     return this.rigidBody.rotation();
   }
 
@@ -161,9 +158,8 @@ class EntityPhysics extends Entity {
     rotation = rotation.w ? rotation : _q.setFromEuler(_e.setFromVector3(_v.copy(rotation)));
 
     // Check rigidBody type before assigning
-    if (this.rigidBody?.isKinematic()) this.rigidBody?.setNextKinematicRotation(rotation);
-    else this.rigidBody?.setRotation(rotation, wakeUp);
-    this.quaternion0.copy(rotation);
+    this.rigidBody?.setRotation(rotation, wakeUp);
+    this.quaternion0.copy(this.quaternion);
     this.quaternion.copy(rotation);
   }
 

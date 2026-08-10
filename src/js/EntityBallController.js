@@ -45,7 +45,7 @@ class EntityBallController extends Entity {
       jumpBufferDuration: 100,
       jumpHeight: 2.5,
       jumpSpin: 0.0,
-      maxSlopeAngle: 30,
+      maxSlopeAngle: 45,
       maxWallAngle: 60,
       wallJumpPower: 5,
       camPitchDefault: Math.PI / 8,
