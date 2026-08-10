@@ -102,6 +102,7 @@ class EntityBallController extends Entity {
     // Ground/slope detection state
     this.groundNormal = new Vector3(0, 1, 0);
     this.isGrounded = false;
+    this.wasGrounded = false;
 
     // Wall sliding detection state (airborne contact against a steep surface)
     this.wallNormal = new Vector3(0, 1, 0);
@@ -159,15 +160,6 @@ class EntityBallController extends Entity {
     // Refresh ground/slope/wall contact normals from physics narrow-phase
     this.updateSurfaceNormals();
 
-    // Reset jump availability every tick the ball rests on stable ground.
-    if (this.isGrounded) {
-      this.canWallJump = true;
-      const linvel = this.entityPhysics.rigidBody.linvel();
-      const normalSpeed = linvel.x * this.groundNormal.x + linvel.y * this.groundNormal.y + linvel.z * this.groundNormal.z;
-      if (normalSpeed <= 0.01) {
-        this.canGroundJump = true;
-      }
-    }
 
     // Decrement timers
     this.dashTimerElapsed = Math.max(0, this.dashTimerElapsed - loop.delta);
@@ -418,11 +410,16 @@ class EntityBallController extends Entity {
     if (groundCount > 0) {
       this.groundNormal.copy(_groundNormalSum).normalize();
       this.isGrounded = true;
+      this.canWallJump = true;
     }
     else {
       this.groundNormal.set(0, 1, 0);
       this.isGrounded = false;
     }
+
+    // Enable ground jump if previous grounded state is false
+    if (this.wasGrounded === false && this.isGrounded === true) this.canGroundJump = true;
+    this.wasGrounded = this.isGrounded;
 
     // Wall sliding only applies while airborne; grounded contact always takes priority
     if (!this.isGrounded && wallCount > 0) {

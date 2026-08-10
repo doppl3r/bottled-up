@@ -161,10 +161,6 @@ class EntityBoxel extends Entity {
       url: 'png/sick.png',
       color: '#77AF57'
     },
-    {
-      url: 'png/smile.png',
-      color: '#42bfe8'
-    },
   ]
 }
 

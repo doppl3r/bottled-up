@@ -48,7 +48,7 @@ class Game {
     });
 
     // Load scene from GLB model
-    this.core.assets.load('glb/village-1.glb', model => {
+    this.core.assets.load('glb/forge-1.glb', model => {
       // Loop through scene
       const json = this.core.entityManager.convertModelToJSON(model);
 
