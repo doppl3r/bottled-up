@@ -21,6 +21,8 @@ class Tweens {
       duration: 1000,
       dynamic: false,
       easing: 'Quadratic.InOut',
+      yoyo: false,
+      repeat: 0,
       start: true
     }, options);
 
@@ -34,8 +36,13 @@ class Tweens {
       .dynamic(options.dynamic)
       .easing(options.easing)
       .interpolation(options.interpolation)
+      .repeat(options.repeat)
+      .yoyo(options.yoyo)
       .onStart(options.onStart)
+      .onEveryStart(options.onEveryStart)
+      .onStop(options.onStop)
       .onUpdate(options.onUpdate)
+      .onRepeat(options.onRepeat)
       .onComplete(() => {
         // Call onComplete callback before removing tween
         options.onComplete?.();
