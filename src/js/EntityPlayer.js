@@ -54,6 +54,8 @@ class EntityPlayer extends Entity {
           {
             class: 'EntityTexture',
             url: 'png/smile.png',
+            minFilter: 1003,
+            magFilter: 1003,
             repeat: { x: 4, y: 2 },
             offset: { x: -0.5, y: -0.5 }
           }

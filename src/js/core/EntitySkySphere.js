@@ -199,9 +199,9 @@ class EntitySkySphere extends Entity {
     ],
     cloudy: [
       { color: '#4a5568', offset: 0.0 },
-      { color: '#667eaa', offset: 0.33 },
+      { color: '#667eaa', offset: 0.4 },
       { color: '#8a9fbf', offset: 0.5 },
-      { color: '#b4c9e0', offset: 0.66 },
+      { color: '#b4c9e0', offset: 0.6 },
       { color: '#d1dce6', offset: 1.0 }
     ],
     sunset: [
