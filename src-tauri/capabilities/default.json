@@ -1,7 +1,7 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
-  "description": "Default desktop capability for Boxel 4D.",
+  "description": "Default desktop capability for Potion Delivery.",
   "windows": ["main"],
   "permissions": ["core:default", "window-state:default"]
 }

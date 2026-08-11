@@ -1,8 +1,8 @@
 {
-  "name": "boxel-4d",
+  "name": "potion-delivery",
   "version": "1.0.0",
   "author": "Jacob DeBenedetto",
-  "description": "Dash through the 4th dimension to restore the world of Boxel.",
+  "description": "Deliver potions to heroes in dungeons.",
   "type": "module",
   "scripts": {
     "build": "vite build",

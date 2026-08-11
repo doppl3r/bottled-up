@@ -1,11 +1,11 @@
 {
   "manifest_version": 3,
-  "name": "Boxel 4D",
-  "description": "Dash through the 4th dimension to restore the world of Boxel.",
+  "name": "Potion Delivery",
+  "description": "Deliver potions to heroes in dungeons.",
   "version": "1.0.0",
   "action": {
     "default_popup": "index.html",
-    "default_title": "Boxel 4D"
+    "default_title": "Potion Delivery"
   },
   "content_security_policy": {
     "extension_pages": "script-src 'self' 'wasm-unsafe-eval'"

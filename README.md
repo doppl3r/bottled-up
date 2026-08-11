@@ -1,4 +1,4 @@
-# Boxel 4D
+# Potion Delivery
 
 ## Local Development (Vite)
 
@@ -32,13 +32,13 @@ Launch Vite + Tauri dev server
 
 Build Chrome extension
 - Run `npm run build-extension`
-- Upload `/dist-extension/boxel-4d-#.#.#-chrome.zip` to Chrome Web Store
+- Upload `/dist-extension/potion-delivery-#.#.#-chrome.zip` to Chrome Web Store
 
 ## Building Tauri Application
 
 Build portable app
 - Run `npm run build-tauri`
-- Open `.exe` in `/src-tauri/target/release/boxel-4d.exe`
+- Open `.exe` in `/src-tauri/target/release/potion-delivery.exe`
 
 ## Rebuilding Desktop Tauri App Icons
 
@@ -56,8 +56,8 @@ Build portable app
 ## Building to Steam (Windows)
 
 - Copy app files:
-  - Copy `.exe` file: `D:\Development\boxel-4d\src-tauri\target\release\`
-  - Paste: `C:\steamworks\sdk\tools\ContentBuilder\content\boxel-4d\windows`
+  - Copy `.exe` file: `D:\Development\potion-delivery\src-tauri\target\release\`
+  - Paste: `C:\steamworks\sdk\tools\ContentBuilder\content\potion-delivery\windows`
 - Run SteamCMD `C:\steamworks\sdk\tools\ContentBuilder\builder\steamcmd.exe +login fragem123`
 - Run build script `run_app_build C:\steamworks\sdk\tools\ContentBuilder\scripts\app_build_#######.vdf`.
 

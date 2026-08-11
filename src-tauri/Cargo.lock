@@ -331,7 +331,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "boxel-4d"
+name = "potion-delivery"
 version = "1.0.0"
 dependencies = [
  "rfd",

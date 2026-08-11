@@ -26,7 +26,7 @@ class Game {
     // Initialize game components
     this.core = new Core();
     this.core.entityManager.registerEntityClasses(EntityClasses);
-    this.record = new Record('boxel-4d', stateStorage);
+    this.record = new Record('potion-delivery', stateStorage);
     this.visible = true;
   }
 

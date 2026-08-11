@@ -1,7 +1,7 @@
 [package]
-name = "boxel-4d"
+name = "potion-delivery"
 version = "1.0.0"
-description = "Boxel 4D desktop app"
+description = "Potion Delivery desktop app"
 authors = ["Jacob DeBenedetto"]
 edition = "2021"
 
