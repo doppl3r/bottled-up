@@ -44,7 +44,7 @@ class EntityPhysics extends Entity {
     this.addEventListener('added', this.onAdded);
   }
 
-  init(options, core) {
+  load(options, core) {
     // Store reference to the physics world
     this.world = core.entityManager.world;
 
@@ -84,14 +84,13 @@ class EntityPhysics extends Entity {
         this.syncTransformFromParent();
 
         // Dispatch 'loaded' event after creating the rigid body
-        this.dispatchEvent({ type: 'loaded', mesh });
-        super.init(options, core);
+        super.load(options, core);
       });
     }
     else {
       // Create physics component immediately
       PhysicsFactory.create(this, options.rigidBody, this.world);
-      super.init(options, core);
+      super.load(options, core);
     }
   }
 

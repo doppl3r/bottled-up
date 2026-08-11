@@ -96,36 +96,40 @@ class EntityManager {
   }
 
   async load(data, onLoad = () => {}) {
-    // Fetch scene JSON and add entities to scene
-    const sceneOptions = (typeof data === 'string') ? await this.fetchJSON(data) : data;
+    // Spawn all entities defined in the scene JSON
     const entities = [];
+    const sceneOptions = (typeof data === 'string') ? await this.fetchJSON(data) : data;
     sceneOptions.children?.forEach(childOptions => {
       this.spawn(childOptions, this.core.scene, entities);
     });
 
-    // Call onLoad immediately if no pending entities
-    const pendingEntities = entities.filter(entity => !entity.isInitialized);
-    if (pendingEntities.length === 0) {
+    // Filter list of entities that are not yet loaded
+    const pendingEntities = entities.filter(entity => !entity.isLoaded);
+
+    // Define scene loaded handler
+    const onSceneLoaded = () => {
       this.core.scene.dispatchEvent({ type: 'loaded' });
       onLoad();
+    };
+
+    // Load scene immediately if no pending entities
+    if (pendingEntities.length === 0) {
+      onSceneLoaded();
       return;
     }
 
     // Loop through pending entities
     let remaining = pendingEntities.length;
     pendingEntities.forEach(entity => {
-      // Create initialized entity handler 
-      const onInitialized = () => {
-        entity.removeEventListener('initialized', onInitialized);
+      // Create loaded entity handler
+      const onEntityLoaded = () => {
+        entity.removeEventListener('loaded', onEntityLoaded);
         remaining--;
-        if (remaining === 0) {
-          this.core.scene.dispatchEvent({ type: 'loaded' });
-          onLoad();
-        }
+        if (remaining === 0) onSceneLoaded();
       };
 
-      // Add initialized event listener
-      entity.addEventListener('initialized', onInitialized);
+      // Add loaded event listener
+      entity.addEventListener('loaded', onEntityLoaded);
     });
   }
 
@@ -225,7 +229,7 @@ class EntityManager {
     let entity;
     if (this.entityClasses[options.class]) {
       entity = new this.entityClasses[options.class](options);
-      entity.init(options, this.core);
+      entity.load(options, this.core);
       return entity;
     }
     else {

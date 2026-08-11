@@ -14,7 +14,7 @@
   // Initialize game
   const gameRef = ref();
   const game = window.game = new Game();
-  game.init();
+  game.load();
   game.core.assets.addEventListener('onProgress', e => progress.value = e);
 
   // Initialize app after canvas has been mounted

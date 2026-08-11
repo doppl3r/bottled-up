@@ -20,7 +20,7 @@ class EntitySkyBox extends Entity {
     this.urls = [];
   }
 
-  init(options, core) {
+  load(options, core) {
     // Initialize with textures
     if (options.urls) {
       core.assets.loadBatch(options.urls, textures => {
@@ -39,13 +39,12 @@ class EntitySkyBox extends Entity {
         core.scene.background = textureCube;
         
         // Dispatch loaded and resume base class
-        this.dispatchEvent({ type: 'loaded', textures });
-        super.init(options, core);
+        super.load(options, core);
       });
     }
     else {
       core.scene.background = TextureFactory.generateSkySphereTexture();
-      super.init(options, core);
+      super.load(options, core);
     }
   }
 

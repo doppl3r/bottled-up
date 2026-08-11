@@ -25,7 +25,7 @@ class EntityPlatform extends EntityCube {
     this.tweens = new Tweens();
   }
 
-  init(options, core) {
+  load(options, core) {
     // Assign options from prop string
     if (options.prop) {
       const props = options.prop.split(',');
@@ -39,8 +39,10 @@ class EntityPlatform extends EntityCube {
       });
     }
 
-    // Resume cube entity initialization
-    super.init(options, core);
+    // Resume cube entity loading
+    super.load(options, core);
+
+    // Initialize animations container
     this.createAnimations(options);
   }
 

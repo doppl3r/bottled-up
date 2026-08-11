@@ -25,12 +25,12 @@ class EntityMixer extends Entity {
     this.addEventListener('added', this.onAdded);
   }
 
-  init(options, core) {
+  load(options, core) {
     // Stash core here; parent isn't assigned yet until the 'added' event fires
     this.core = core;
 
-    // Perform base entity init
-    super.init(options, core);
+    // Perform base entity load
+    super.load(options, core);
   }
 
 

@@ -19,7 +19,7 @@ class EntityFog extends Entity {
     this.fog;
   }
 
-  init(options = {}, core) {
+  load(options = {}, core) {
     // Initialize fog
     const { color = '#ffffff', near = 1, far = 1000 } = options;
     this.fog = new Fog(color, near, far);
@@ -28,7 +28,7 @@ class EntityFog extends Entity {
     core.scene.fog = this.fog;
 
     // Get the sphere mesh child and apply the material
-    super.init(options, core);
+    super.load(options, core);
   }
 
   serialize() {

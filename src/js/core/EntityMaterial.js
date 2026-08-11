@@ -19,12 +19,11 @@ class EntityMaterial extends Entity {
     this.url;
   }
 
-  init(options, core) {
+  load(options, core) {
     // Add material component if entity is an instance of EntityMaterial
     core.assets.load(options.url, material => {
       this.setMaterial(material, options);
-      this.dispatchEvent({ type: 'loaded', material });
-      super.init(options, core);
+      super.load(options, core);
     });
   }
 

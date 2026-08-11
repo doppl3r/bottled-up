@@ -13,7 +13,8 @@ import { getCurrentWindow } from '@tauri-apps/api/window';
 const stateStorage = {
   fullscreen: true,
   checkpoint: {
-    position: { x: 0, y: 0, z: 0 },
+    position: { x: 0, y: 0.25, z: 0 },
+    rotation: { x: 0, y: 0, z: 0 }
   }
 }
 
@@ -30,7 +31,7 @@ class Game {
     this.visible = true;
   }
 
-  init() {
+  load() {
     // Initialization core settings
     this.core.entityManager.debug(false);
     this.core.interval.speed = 1;
@@ -96,10 +97,12 @@ class Game {
     const player = this.core.scene.getObjectByProperty('class', 'EntityPlayer');
     const physics = player.get('EntityPhysics');
     const checkpoint = this.record.load('checkpoint');
-    physics.rigidBody.setLinvel({ x: 0, y: 0, z: 0 });
-    physics.rigidBody.setAngvel({ x: 0, y: 0, z: 0 });
-    physics.setPosition(checkpoint.position);
-    physics.setRotation(checkpoint.rotation);
+    if (checkpoint) {
+      physics.rigidBody.setLinvel({ x: 0, y: 0, z: 0 });
+      physics.rigidBody.setAngvel({ x: 0, y: 0, z: 0 });
+      physics.setPosition(checkpoint.position);
+      physics.setRotation(checkpoint.rotation);
+    }
   }
 
   onFullscreenChange = () => {

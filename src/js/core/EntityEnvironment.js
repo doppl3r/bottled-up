@@ -32,7 +32,7 @@ class EntityEnvironment extends Entity {
     this.addEventListener('added', this.onAdded);
   }
 
-  init(options, core) {
+  load(options, core) {
     this.scene = core.scene;
     this.pmremGenerator = new PMREMGenerator(core.renderer);
 
@@ -40,11 +40,12 @@ class EntityEnvironment extends Entity {
     if (this.url) {
       core.assets.load(this.url, texture => {
         this.texture = texture;
+        super.load(options, core);
       });
     }
-
-    // Resume initialization
-    super.init(options, core);
+    else {
+      super.load(options, core);
+    }
   }
 
   updateEnvironment = () => {

@@ -11,7 +11,7 @@ class EntityTrimesh extends Entity {
     super(options);
   }
 
-  init(options, core) {
+  load(options, core) {
     // Propagate properties to all child entities
     options.children.forEach(childOptions => {
       // Set child entity url to match parent entity url
@@ -24,8 +24,8 @@ class EntityTrimesh extends Entity {
       }
     });
 
-    // Resume base entity initialization
-    super.init(options, core);
+    // Resume base entity load process
+    super.load(options, core);
   }
 
   static template = {

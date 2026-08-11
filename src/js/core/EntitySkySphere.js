@@ -31,7 +31,7 @@ class EntitySkySphere extends Entity {
     this.addEventListener('childadded', this.onChildAdded);
   }
 
-  init(options, core) {
+  load(options, core) {
     // Create uniform arrays for shader
     this.colorGroup = this.getColorGroup(options.colors);
     this.colorArray = new Float32Array(this.colorGroup.length * 3);
@@ -92,7 +92,7 @@ class EntitySkySphere extends Entity {
     });
 
     // Get the sphere mesh child and apply the material
-    super.init(options, core);
+    super.load(options, core);
   }
 
   render(loop) {

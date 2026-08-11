@@ -35,7 +35,7 @@ class Entity extends Object3D {
 
     // Declare entity properties
     this.isEntity = true;
-    this.isInitialized = false;
+    this.isLoaded = false;
     this.entities = {};
     this.name = options.name;
     this.label = options.label;
@@ -53,10 +53,10 @@ class Entity extends Object3D {
     this.addEventListener('childremoved', this.onChildRemoved);
   }
 
-  init(options, entityManager) {
-    // Mark entity as initialized and notify listeners
-    this.isInitialized = true;
-    this.dispatchEvent({ type: 'initialized' });
+  load(options, entityManager) {
+    // Mark entity as loaded and notify listeners
+    this.isLoaded = true;
+    this.dispatchEvent({ type: 'loaded' });
   }
 
   update(loop) {

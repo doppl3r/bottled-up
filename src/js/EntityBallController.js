@@ -136,7 +136,7 @@ class EntityBallController extends Entity {
     this.camPitchTarget = this.camPitchDefault;
   }
 
-  init(options, core) {
+  load(options, core) {
     // Initialize core
     this.core = core;
 
@@ -153,7 +153,7 @@ class EntityBallController extends Entity {
     this.addEventListener('added', this.onAdded);
 
     // Initialize entity properties
-    super.init(options, core);
+    super.load(options, core);
   }
 
   update(loop) {
@@ -432,7 +432,7 @@ class EntityBallController extends Entity {
   }
 
   castCameraDistance(origin, direction, maxDistance) {
-    // Guard: return max distance if physics not yet initialized
+    // Guard: return max distance if physics not yet loaded
     if (!this.entityPhysics || !this.entityPhysics.rigidBody) {
       return maxDistance;
     }

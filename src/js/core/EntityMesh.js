@@ -20,7 +20,7 @@ class EntityMesh extends Entity {
     this.meshOptions = options;
   }
 
-  init(options, core) {
+  load(options, core) {
     // Add mesh component if entity is an instance of EntityMesh
     const mesh = MeshFactory.create(options);
     this.setMesh(mesh, options);
@@ -28,7 +28,7 @@ class EntityMesh extends Entity {
     mesh.castShadow = options.castShadow;
     mesh.receiveShadow = options.receiveShadow;
     mesh.renderOrder = options.renderOrder;
-    super.init(options, core);
+    super.load(options, core);
   }
 
   setMesh(mesh, options) {

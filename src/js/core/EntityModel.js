@@ -35,7 +35,7 @@ class EntityModel extends Entity {
     super.render(loop);
   }
 
-  init(options, core) {
+  load(options, core) {
     const url = options.url;
     if (url) {
       // Store url
@@ -69,8 +69,7 @@ class EntityModel extends Entity {
 
         this.model = model;
         this.add(model);
-        this.dispatchEvent({ type: 'loaded', model });
-        super.init(options, core);
+        super.load(options, core);
       });
     }
   }

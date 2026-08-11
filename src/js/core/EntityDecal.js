@@ -62,7 +62,7 @@ class EntityDecal extends Entity {
     this.build(this.core, this.target);
   }
 
-  init(options, core) {
+  load(options, core) {
     // Store core reference for use once the target is ready
     this.core = core;
   }
@@ -107,8 +107,7 @@ class EntityDecal extends Entity {
       // Add decal mesh to scene
       const decalMesh = new Mesh(decalGeometry, material);
       this.add(decalMesh);
-      this.dispatchEvent({ type: 'loaded' });
-      super.init({}, this.core);
+      super.load({}, this.core);
     });
   }
 

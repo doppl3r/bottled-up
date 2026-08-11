@@ -29,13 +29,13 @@ class EntityShadow extends Entity {
     this.distance = options.distance;
     this.raycaster = new Raycaster();
 
-    // Set in init()
+    // Set in load()
     this.shadow = null;
     this.core = null;
     this.url = null;
   }
 
-  init(options, core) {
+  load(options, core) {
     this.core = core;
     this.url = options.url;
 
@@ -50,13 +50,13 @@ class EntityShadow extends Entity {
     if (options.url) {
       core.assets.load(options.url, texture => {
         material.map = texture;
+        super.load(options, core);
       });
     }
     else {
       material.map = this.createShadowTexture();
+      super.load(options, core);
     }
-
-    super.init(options, core);
   }
 
   render(loop) {

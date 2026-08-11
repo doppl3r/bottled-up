@@ -26,12 +26,11 @@ class EntityTexture extends Entity {
     this.addEventListener('loaded', this.updateParentTexture);
   }
 
-  init(options, core) {
+  load(options, core) {
     // Add texture component if entity is an instance of EntityTexture
     core.assets.load(options.url, texture => {
       this.texture = texture;
-      this.dispatchEvent({ type: 'loaded', texture });
-      super.init(options, core);
+      super.load(options, core);
     });
   }
 

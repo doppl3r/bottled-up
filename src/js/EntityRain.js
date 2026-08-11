@@ -32,9 +32,9 @@ class EntityRain extends EntityParticles {
     }
   }
 
-  init(options, core) {
+  load(options, core) {
     core.camera.layers.enable(1);
-    super.init(options, core);
+    super.load(options, core);
   }
 
   render(loop) {

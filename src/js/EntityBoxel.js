@@ -22,7 +22,7 @@ class EntityBoxel extends Entity {
     this.addEventListener('childadded', this.onChildAdded);
   }
 
-  init(options, core) {
+  load(options, core) {
     // Set default options
     options = Object.assign({
       position: { x: 0, y: 0, z: 0 },
@@ -49,7 +49,7 @@ class EntityBoxel extends Entity {
       }
     }
 
-    super.init(options, core);
+    super.load(options, core);
   }
 
   render(loop) {

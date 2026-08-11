@@ -23,7 +23,7 @@ class EntityCube extends Entity {
     super(options);
   }
 
-  init(options, core) {
+  load(options, core) {
     // Update model properties
     const model = core.assets.get(options.url);
     if (model) {
@@ -100,8 +100,8 @@ class EntityCube extends Entity {
       }
     }
 
-    // Resume base entity initialization
-    super.init(options, core);
+    // Resume base entity load
+    super.load(options, core);
   }
 
   static template = {
