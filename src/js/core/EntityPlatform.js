@@ -1,6 +1,6 @@
 import { Euler, Quaternion } from 'three';
-import { EntityCube } from './core/EntityCube.js';
-import { Tweens } from './core/Tweens.js';
+import { EntityCube } from './EntityCube.js';
+import { Tweens } from './Tweens.js';
 
 /*
   EntityPlatform inherits the EntityCube but with a rolling
@@ -25,19 +25,22 @@ class EntityPlatform extends EntityCube {
     this.tweens = new Tweens();
   }
 
-  load(options, core) {
+  stringToOptions(propString = '', options) {
     // Assign options from prop string
-    if (options.prop) {
-      const props = options.prop.split(',');
-      props.forEach(prop => {
-        const [key, value] = prop.split('=');
-        if (key && value !== undefined) {
-          const k = key.trim();
-          const v = JSON.parse(value.trim());
-          options[k] = v;
-        }
-      });
-    }
+    const props = propString.split(',');
+    props.forEach(prop => {
+      const [key, value] = prop.split('=');
+      if (key && value !== undefined) {
+        const k = key.trim();
+        const v = JSON.parse(value.trim());
+        options[k] = v;
+      }
+    });
+  }
+
+  load(options, core) {
+    // Assign "prop" string to options
+    this.stringToOptions(options.prop, options);
 
     // Resume cube entity loading
     super.load(options, core);
