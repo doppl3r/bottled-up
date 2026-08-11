@@ -50,6 +50,7 @@ class EntityEnvironment extends Entity {
   updateEnvironment = () => {
     // Update the environment map for the parent entity or scene
     if (this.parent.isScene) {
+      this.scene.updateMatrixWorld(true);
       this.scene.background = this.generateTexture();
       this.scene.environment = this.scene.background;
     }

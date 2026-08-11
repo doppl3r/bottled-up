@@ -1,4 +1,4 @@
-import { Euler, Quaternion, Vector3 } from 'three';
+import { Euler, Quaternion } from 'three';
 import { EntityCube } from './core/EntityCube.js';
 import { Tweens } from './core/Tweens.js';
 
@@ -9,7 +9,6 @@ import { Tweens } from './core/Tweens.js';
 
 // Initialize module-scoped variables
 const _euler = new Euler();
-const _vector = new Vector3();
 const _quaternion = new Quaternion();
 
 class EntityPlatform extends EntityCube {
@@ -27,21 +26,6 @@ class EntityPlatform extends EntityCube {
   }
 
   init(options, core) {
-    this.createAnimations(options);
-
-    // Resume cube entity initialization
-    super.init(options, core);
-  }
-
-  update(loop) {
-    // Update world physics first
-    super.update(loop);
-
-    // Update tweens (using engine loop delta)
-    this.tweens.update(loop.delta);
-  }
-
-  createAnimations(options) {
     // Assign options from prop string
     if (options.prop) {
       const props = options.prop.split(',');
@@ -55,9 +39,21 @@ class EntityPlatform extends EntityCube {
       });
     }
 
+    // Resume cube entity initialization
+    super.init(options, core);
+    this.createAnimations(options);
+  }
+
+  update(loop) {
+    // Update world physics first
+    super.update(loop);
+
+    // Update tweens (using engine loop delta)
+    this.tweens.update(loop.delta);
+  }
+
+  createAnimations(options) {
     const {
-      position = { x: 0, y: 0, z: 0 },
-      rotation = { x: 0, y: 0, z: 0 },
       px = 0,        // Position x-axis
       py = 0,        // Position y-axis
       pz = 0,        // Position z-axis
@@ -70,6 +66,16 @@ class EntityPlatform extends EntityCube {
       rep = Infinity // Repeat
     } = options;
 
+    const position = {
+      x: this.position.x,
+      y: this.position.y,
+      z: this.position.z
+    };
+    const rotation = {
+      x: this.rotation.x,
+      y: this.rotation.y,
+      z: this.rotation.z
+    };
     const start = {
       position: position,
       rotation: rotation
@@ -92,7 +98,7 @@ class EntityPlatform extends EntityCube {
         position: { ...end.position },
         rotation: { ...end.rotation }
       },
-      easing: 'Quadratic.Out',
+      easing: 'Quadratic.InOut',
       onUpdate: obj => {
         const entityPhysics = this.get('EntityPhysics');
         if (entityPhysics) {
