@@ -27,13 +27,13 @@ class Game {
     // Initialize game components
     this.core = new Core();
     this.core.entityManager.registerEntityClasses(EntityClasses);
-    this.record = new Record('potion-delivery', stateStorage);
+    this.record = new Record('potion-roller', stateStorage);
     this.visible = true;
   }
 
   load() {
     // Initialization core settings
-    this.core.entityManager.debug(false);
+    this.core.entityManager.debug(true);
     this.core.interval.speed = 1;
     this.core.interval.loops[0].delay = 1000 / 60;
     this.core.entityManager.world.timestep = 1 / 60;

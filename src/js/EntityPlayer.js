@@ -73,6 +73,14 @@ class EntityPlayer extends Entity {
                 type: 'ball',
                 arguments: [0.25]
               }
+            },
+            {
+              translation: { x: 0, y: 0.25, z: 0 },
+              mass: 0,
+              shapeDesc: {
+                type: 'ball',
+                arguments: [0.125]
+              }
             }
           ]
         }

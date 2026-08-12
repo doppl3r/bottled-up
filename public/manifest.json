@@ -1,11 +1,11 @@
 {
   "manifest_version": 3,
-  "name": "Potion Delivery",
+  "name": "Potion Roller",
   "description": "Deliver potions to heroes in dungeons.",
   "version": "1.0.0",
   "action": {
     "default_popup": "index.html",
-    "default_title": "Potion Delivery"
+    "default_title": "Potion Roller"
   },
   "content_security_policy": {
     "extension_pages": "script-src 'self' 'wasm-unsafe-eval'"

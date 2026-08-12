@@ -36,8 +36,10 @@ class EntityBoxel extends Entity {
       if (child.class === 'EntityMesh') {
         // Randomize face texture and color
         const index = Math.floor(Math.random() * EntityBoxel.faces.length);
+
+        // Update body and face URL
         child.material.arguments[0].color = EntityBoxel.faces[index].color;
-        child.children[0].url = EntityBoxel.faces[index].url;
+        child.children[0].children[0].url = EntityBoxel.faces[index].url;
       }
       if (child.class === 'EntityPhysics') {
         // Update shape scale
@@ -117,12 +119,30 @@ class EntityBoxel extends Entity {
         },
         children: [
           {
-            class: 'EntityDecal',
-            url: 'png/smile.png',
-            normal: { x: 0, y: 0, z: 1 },
-            position: { x: 0, y: 0, z: 1 / 16 },
-            size: { x: 0.9, y: 0.9, z: 0.9 }
-          }
+            class: 'EntityMesh',
+            scale: { x: 1, y: 1, z: 1 },
+            position: { x: 0, y: 0, z: 0.55 },
+            castShadow: false,
+            receiveShadow: true,
+            renderOrder: 1,
+            geometry: {
+              type: 'PlaneGeometry',
+              arguments: [1, 1]
+            },
+            material: {
+              type: 'MeshStandardMaterial',
+              arguments: [{ color: '#ffffff', transparent: true }],
+            },
+            children: [
+              {
+                class: 'EntityTexture',
+                url: 'png/smile.png',
+                minFilter: 1003,
+                magFilter: 1003,
+                repeat: { x: 1, y: 1 },
+              }
+            ]
+          },
         ]
       }
     ]

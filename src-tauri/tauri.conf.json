@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Potion Delivery",
+  "productName": "Potion Roller",
   "version": "1.0.0",
-  "identifier": "com.potion-delivery.app",
+  "identifier": "com.potion-roller.app",
   "build": {
     "beforeDevCommand": "npm run dev",
     "devUrl": "http://localhost:5173",
@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "Potion Delivery",
+        "title": "Potion Roller",
         "width": 640,
         "height": 360,
         "visible": false,

@@ -2646,7 +2646,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "potion-delivery"
+name = "potion-roller"
 version = "1.0.0"
 dependencies = [
  "rfd",
