@@ -33,7 +33,7 @@ class Game {
 
   load() {
     // Initialization core settings
-    this.core.entityManager.debug(true);
+    this.core.entityManager.debug(false);
     this.core.interval.speed = 1;
     this.core.interval.loops[0].delay = 1000 / 60;
     this.core.entityManager.world.timestep = 1 / 60;

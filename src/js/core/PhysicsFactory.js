@@ -1,5 +1,5 @@
 import { Euler, Quaternion, Vector3 } from 'three';
-import { ActiveCollisionTypes, ActiveEvents, ColliderDesc, RigidBodyDesc, RigidBodyType, TriMeshFlags } from '@dimforge/rapier3d';
+import { ActiveCollisionTypes, ActiveEvents, ColliderDesc, Compound, RigidBodyDesc, RigidBodyType, TriMeshFlags } from '@dimforge/rapier3d';
 
 /*
   PhysicsFactory is a static factory class responsible for creating
@@ -84,8 +84,8 @@ class PhysicsFactory {
       translation: { x: 0, y: 0, z: 0 }
     }, options);
 
-    // Create collider description using shape "type" (ex: "cuboid") with parameters (ex: 0.5, 0.5, 0.5)
-    const colliderDesc = ColliderDesc[options.shapeDesc.type](...options.shapeDesc.arguments);
+    const shape = PhysicsFactory.createShape(options.shapeDesc);
+    const colliderDesc = new ColliderDesc(shape);
     const rotation = options.w ? _q.copy(options.rotation) : _q.setFromEuler(_e.setFromVector3(_v.copy(options.rotation), options.rotation.order || 'XYZ'));
     colliderDesc.setActiveCollisionTypes(isNaN(options.activeCollisionTypes) ? ActiveCollisionTypes[options.activeCollisionTypes] : options.activeCollisionTypes);
     colliderDesc.setActiveEvents(isNaN(options.activeEvents) ? ActiveEvents[options.activeEvents] : options.activeEvents);
@@ -110,6 +110,29 @@ class PhysicsFactory {
     // Create collider immediately
     const colliderDesc = PhysicsFactory.createColliderDesc(colliderOptions);
     PhysicsFactory.createCollider(colliderDesc, rigidBody, world);
+  }
+
+  static createShape(shapeDesc) {
+    const compoundParts = shapeDesc.shapes ?? [];
+    if (compoundParts.length < 1) return ColliderDesc[shapeDesc.type](...shapeDesc.arguments).shape;
+
+    const shapes = [];
+    const positions = [];
+    const rotations = [];
+
+    // Process each part of the compound shape
+    compoundParts.forEach(part => {
+      const shape = PhysicsFactory.createShape(part);
+      const translation = part.translation ?? { x: 0, y: 0, z: 0 };
+      const rotation = part.rotation ?? { x: 0, y: 0, z: 0 };
+      const quaternion = rotation.w ? rotation : _q.setFromEuler(_e.setFromVector3(_v.copy(rotation)));
+
+      shapes.push(shape);
+      positions.push(translation);
+      rotations.push(quaternion);
+    });
+
+    return new Compound(shapes, positions, rotations);
   }
 
   static createController(entity, options, world) {

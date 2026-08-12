@@ -70,16 +70,17 @@ class EntityPlayer extends Entity {
           colliders: [
             {
               shapeDesc: {
-                type: 'ball',
-                arguments: [0.25]
-              }
-            },
-            {
-              translation: { x: 0, y: 0.25, z: 0 },
-              mass: 0,
-              shapeDesc: {
-                type: 'ball',
-                arguments: [0.125]
+                shapes: [
+                  {
+                    type: 'ball',
+                    arguments: [0.25]
+                  },
+                  {
+                    type: 'ball',
+                    arguments: [0.125],
+                    translation: { x: 0, y: 0.25, z: 0 }
+                  }
+                ]
               }
             }
           ]
