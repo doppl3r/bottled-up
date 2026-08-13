@@ -366,7 +366,7 @@ class EntityBallController extends Entity {
     const rollThreshold = Math.cos(this.maxSlopeAngleRad);
     const wallThreshold = Math.cos(this.maxWallAngleRad);
     const world = this.core.entityManager.world;
-    const ballPos = this.parent.position;
+    const ballPos = this.entityPhysics.getPosition();
     const ballHandle = this.entityPhysics.rigidBody.collider(0).handle;
 
     // Query all contacts with this ball to find ground and wall surfaces

@@ -80,21 +80,29 @@ class Interval {
 
     // Loop through array of loops
     for (let i = 0; i < this.loops.length; i++) {
-      // Skip loop if it is paused
-      if (this.loops[i].paused === true) continue;
-      
-      // Add thread delta to loop sum
-      this.loops[i].sum += cappedDelta * this.speed;
+      const loop = this.loops[i];
 
-      // Trigger loop callback
-      if (this.loops[i].sum >= this.loops[i].delay) {
-        this.loops[i].sum -= this.loops[i].delay;
-        this.loops[i].delta = (timestamp - this.loops[i].timestamp) * this.speed;
-        this.loops[i].alpha = this.loops[0].sum / this.loops[0].delay;
-        this.loops[i].fps = 1000 / this.loops[i].delta;
-        this.loops[i].frame++;
-        this.loops[i].timestamp = timestamp;
-        this.loops[i].callback(this.loops[i]);
+      // Skip paused loops.
+      if (loop.paused === false) {
+        let stepCount = 1;
+        loop.delta = cappedDelta * this.speed;
+
+        // Fixed-delay loops catch up once for every elapsed simulation step.
+        if (loop.delay > 0) {
+          loop.sum += cappedDelta * this.speed;
+          stepCount = Math.floor(loop.sum / loop.delay);
+          loop.delta = loop.delay;
+        }
+
+        // Execute the loop callback for each simulation step that has elapsed.
+        for (let step = 0; step < stepCount; step++) {
+          if (loop.delay > 0) loop.sum -= loop.delay;
+          loop.alpha = this.loops[0].sum / this.loops[0].delay;
+          loop.fps = 1000 / loop.delta;
+          loop.frame++;
+          loop.timestamp = timestamp;
+          loop.callback(loop);
+        }
       }
     }
   }
