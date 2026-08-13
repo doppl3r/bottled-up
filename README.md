@@ -1,4 +1,4 @@
-# Potion Roller
+# Bottled Up
 
 ## Local Development (Vite)
 
@@ -32,13 +32,13 @@ Launch Vite + Tauri dev server
 
 Build Chrome extension
 - Run `npm run build-extension`
-- Upload `/dist-extension/potion-roller-#.#.#-chrome.zip` to Chrome Web Store
+- Upload `/dist-extension/bottled-up-#.#.#-chrome.zip` to Chrome Web Store
 
 ## Building Tauri Application
 
 Build portable app
 - Run `npm run build-tauri`
-- Open `.exe` in `/src-tauri/target/release/potion-roller.exe`
+- Open `.exe` in `/src-tauri/target/release/bottled-up.exe`
 
 ## Rebuilding Desktop Tauri App Icons
 
@@ -56,8 +56,8 @@ Build portable app
 ## Building to Steam (Windows)
 
 - Copy app files:
-  - Copy `.exe` file: `D:\Development\potion-roller\src-tauri\target\release\`
-  - Paste: `C:\steamworks\sdk\tools\ContentBuilder\content\potion-roller\windows`
+  - Copy `.exe` file: `D:\Development\bottled-up\src-tauri\target\release\`
+  - Paste: `C:\steamworks\sdk\tools\ContentBuilder\content\bottled-up\windows`
 - Run SteamCMD `C:\steamworks\sdk\tools\ContentBuilder\builder\steamcmd.exe +login fragem123`
 - Run build script `run_app_build C:\steamworks\sdk\tools\ContentBuilder\scripts\app_build_#######.vdf`.
 

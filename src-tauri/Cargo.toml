@@ -1,7 +1,7 @@
 [package]
-name = "potion-roller"
+name = "bottled-up"
 version = "1.0.0"
-description = "Potion Roller desktop app"
+description = "Bottled Up desktop app"
 authors = ["Jacob DeBenedetto"]
 edition = "2021"
 

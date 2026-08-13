@@ -1,11 +1,11 @@
 {
   "manifest_version": 3,
-  "name": "Potion Roller",
+  "name": "Bottled Up",
   "description": "Deliver potions to heroes in dungeons.",
   "version": "1.0.0",
   "action": {
     "default_popup": "index.html",
-    "default_title": "Potion Roller"
+    "default_title": "Bottled Up"
   },
   "content_security_policy": {
     "extension_pages": "script-src 'self' 'wasm-unsafe-eval'"

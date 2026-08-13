@@ -1,7 +1,7 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
-  "description": "Default desktop capability for Potion Roller.",
+  "description": "Default desktop capability for Bottled Up.",
   "windows": ["main"],
   "permissions": ["core:default", "window-state:default"]
 }
