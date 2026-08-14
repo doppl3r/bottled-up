@@ -34,11 +34,14 @@ class EntityPlayer extends Entity {
       },
       {
         class: 'EntityModel',
-        url: 'glb/potion.glb'
+        url: 'glb/egg.glb',
+        scale: { x: 0.25, y: 0.25, z: 0.25 },
+        position: { x: 0, y: -1 / 16, z: 0 },
       },
       {
         class: 'EntityMesh',
         scale: { x: 1, y: 1, z: 1 },
+        position: { x: 0, y: 0, z: 1 / 32 },
         castShadow: false,
         receiveShadow: true,
         renderOrder: 1,
@@ -72,13 +75,8 @@ class EntityPlayer extends Entity {
               shapeDesc: {
                 shapes: [
                   {
-                    type: 'ball',
-                    arguments: [0.25]
-                  },
-                  {
-                    type: 'ball',
-                    arguments: [0.125],
-                    translation: { x: 0, y: 0.25, z: 0 }
+                    type: 'capsule',
+                    arguments: [1 / 16, 0.25]
                   }
                 ]
               }
