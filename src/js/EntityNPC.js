@@ -15,18 +15,34 @@ class EntityNPC extends Entity {
     children: [
       {
         class: 'EntityModel',
-        url: 'glb/npc-warrior.glb',
-        position: { x: 0, y: 0, z: 0 },
+        url: 'glb/warrior.glb',
+        position: { x: 0, y: -0.25, z: 0 },
+        children: [
+          {
+            class: 'EntityMixer',
+            actions: {
+              _IdleStanding: {
+                crossFadeDuration: 0.25,
+                loop: true
+              },
+              _IdleWounded: {
+                crossFadeDuration: 0.25,
+                default: true,
+                loop: true
+              }
+            }
+          }
+        ]
       },
       {
         class: 'EntityPhysics',
         rigidBody: {
-          status: 0,
+          status: 2,
           softCcdPrediction: 1.0,
           sleeping: true,
           colliders: [
             {
-              translation: { x: 0, y: 1, z: 0 },
+              isSensor: true,
               shapeDesc: {
                 shapes: [
                   {

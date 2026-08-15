@@ -21,6 +21,9 @@ class EntityMixer extends Entity {
     this.actions = {};
     this.activeAction;
 
+    // Store options for later
+    this.options = options;
+
     // Add event listeners
     this.addEventListener('added', this.onAdded);
   }
@@ -42,15 +45,19 @@ class EntityMixer extends Entity {
   }
 
   play(name, options = {}) {
+    // Get reference to predefined actions
+    const actions = this.options.actions;
+    const actionOptions = actions?.[name] ?? {};
+
     // Assign default options
     options = Object.assign({
       onComplete: () => {},
-      duration: 1,
+      crossFadeDuration: 0,
+      crossFadeWarp: false,
       loop: false,
       paused: false,
       time: 0,
-      warp: false
-    }, options);
+    }, actionOptions, options);
     
     const action = this.actions[name];
 
@@ -66,10 +73,10 @@ class EntityMixer extends Entity {
 
     // Cross fade from the previous action, or fade in if nothing was playing
     if (this.activeAction) {
-      action.crossFadeFrom(this.activeAction, options.duration, options.warp);
+      action.crossFadeFrom(this.activeAction, options.crossFadeDuration, options.crossFadeWarp);
     }
     else {
-      action.fadeIn(options.duration);
+      action.fadeIn(options.crossFadeDuration);
     }
 
     // Play action and assign it as the active action
@@ -108,8 +115,14 @@ class EntityMixer extends Entity {
       action.play();
 
       // Set active action to the first action
-      if (index === 0) this.activeAction = action;
+      const actionOptions = this.options?.actions?.[clip.name];
+      if (index === 0 || actionOptions?.default) {
+        this.activeAction = action;
+      }
     });
+
+    // Ensure the first action is fully weighted
+    this.activeAction.setEffectiveWeight(1);
   }
 
   onAdded = event => {
@@ -118,6 +131,16 @@ class EntityMixer extends Entity {
 
     // Reuse the parent EntityModel's (cached) asset to source animation clips
     this.core.assets.load(this.parent.url, model => this.createActions(model));
+  }
+
+  serialize() {
+    // Serialize entity to JSON
+    const json = super.serialize();
+    if (this.url) json.url = this.url;
+    if (this.options.actions) {
+      json.actions = JSON.parse(JSON.stringify(this.options.actions));
+    }
+    return json;
   }
 }
 

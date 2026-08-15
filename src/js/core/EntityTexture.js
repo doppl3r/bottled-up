@@ -54,6 +54,13 @@ class EntityTexture extends Entity {
       }
     });
   }
+
+  serialize() {
+    // Serialize entity to JSON
+    const json = super.serialize();
+    json.url = this.options.url;
+    return json;
+  }
 }
 
 export { EntityTexture };

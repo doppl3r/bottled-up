@@ -196,6 +196,11 @@ class EntityManager {
     return bestMatch;
   }
 
+  get(className) {
+    const child = this.core.scene.children.find(child => child.class === className);
+    return child;
+  }
+
   spawn(options, parent = this.core.scene, entities = null) {
     // Create and add entity to parent
     const entity = this.create(options);
