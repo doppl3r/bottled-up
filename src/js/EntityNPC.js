@@ -15,7 +15,7 @@ class EntityNPC extends Entity {
     children: [
       {
         class: 'EntityModel',
-        url: 'glb/warrior.glb',
+        url: 'glb/healer.glb',
         position: { x: 0, y: -0.25, z: 0 },
         children: [
           {
@@ -23,11 +23,11 @@ class EntityNPC extends Entity {
             actions: {
               _IdleStanding: {
                 crossFadeDuration: 0.25,
+                default: true,
                 loop: true
               },
               _IdleWounded: {
                 crossFadeDuration: 0.25,
-                default: true,
                 loop: true
               }
             }
