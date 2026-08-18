@@ -9,7 +9,33 @@ class EntityNPC extends Entity {
 
     // Inherit Entity properties
     super(options);
+
+    // TODO: Remove frame logic
+    this.frame = Math.random() * 500;
   }
+
+  load(options, core) {
+    // TODO: Remove URL selection logic
+    const index = Math.floor(Math.random() * EntityNPC.urls.length);
+    options.children[0].url = EntityNPC.urls[0];
+    EntityNPC.urls.splice(0, 1);
+
+    super.load(options, core);
+  }
+
+  render(loop) {
+    // TODO: Remove frame logic
+    if (loop.frame < this.frame) return;
+
+    super.render(loop);
+  }
+
+  static urls = [
+    'glb/npc-warrior.glb',
+    'glb/npc-priest.glb',
+    'glb/npc-rogue.glb',
+    'glb/npc-mage.glb',
+  ]
 
   static template = {
     children: [
