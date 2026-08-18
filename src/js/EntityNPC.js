@@ -15,7 +15,7 @@ class EntityNPC extends Entity {
     children: [
       {
         class: 'EntityModel',
-        url: 'glb/npc-rogue.glb',
+        url: 'glb/npc-mage.glb',
         position: { x: 0, y: -0.25, z: 0 },
         children: [
           {
