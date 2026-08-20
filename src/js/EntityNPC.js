@@ -10,7 +10,7 @@ class EntityNPC extends Entity {
     // Inherit Entity properties
     super(options);
 
-    
+    // Get physics entity after it gets added
     this.get('EntityPhysics', entity => {
       entity.addEventListener('collision', this.onCollision);
     });
@@ -32,11 +32,9 @@ class EntityNPC extends Entity {
     // Check if collision is with player
     if (event.pair.parent.class === 'EntityPlayer' && event.started) {
       // Update model mixer
-      this.get('EntityModel', entityModel => {
-        entityModel.get('EntityMixer', entityMixer => {
-          entityMixer.play('_IdleStanding');
-        });
-      });
+      const entityModel = this.get('EntityModel');
+      const entityMixer = entityModel.get('EntityMixer');
+      entityMixer.play('_IdleStanding');
     }
   }
 

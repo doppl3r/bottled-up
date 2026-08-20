@@ -65,6 +65,11 @@ class EntityModel extends Entity {
             child.castShadow = this.castShadow;
             child.receiveShadow = this.receiveShadow;
           }
+
+          // Update skinned mesh world matrix for bounding box calculations
+          if (child.isSkinnedMesh) {
+            child.updateMatrixWorld();
+          }
         });
 
         this.model = model;
