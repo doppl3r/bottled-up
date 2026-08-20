@@ -113,8 +113,26 @@ class Entity extends Object3D {
     delete this.entities[entity.class];
   }
 
-  get(className) {
-    return this.entities[className];
+  get(className, callback = () => {}) {
+    const entity = this.entities[className];
+
+    // Add optional callback if entity does not exist yet
+    if (entity === undefined) {
+      const onChildAdded = event => {
+        if (event.child.class === className) {
+          this.removeEventListener('childadded', onChildAdded);
+          callback(event.child);
+        }
+      };
+
+      // Listen for child added events to find the entity when it is added
+      this.addEventListener('childadded', onChildAdded);
+    }
+    else {
+      // Return entity immediately
+      callback(entity);
+      return entity;
+    }
   }
 
   serialize() {

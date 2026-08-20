@@ -69,6 +69,7 @@ class EntityManager {
       EntityLightDirectional,
       EntityLightHemisphere,
       EntityLightPoint,
+      EntityLightSun,
       EntitySkyBox,
       EntitySkySphere,
       EntityTrimesh,
@@ -268,14 +269,10 @@ class EntityManager {
   onCollision = (handle1, handle2, started) => {
     const collider1 = this.world.getCollider(handle1);
     const collider2 = this.world.getCollider(handle2);
-    if (!collider1 || !collider2) return;
-    const entity1 = collider1._parent?.entity;
-    const entity2 = collider2._parent?.entity;
-    if (!entity1 || !entity2) return;
-    const event1 = { handle: handle1, pair: entity2, started: started, type: 'collision' };
-    const event2 = { handle: handle2, pair: entity1, started: started, type: 'collision' };
-    entity1.dispatchEvent(event1);
-    entity2.dispatchEvent(event2);
+    const entity1 = collider1?._parent?.entity;
+    const entity2 = collider2?._parent?.entity;
+    entity1?.dispatchCollisionEvent?.(handle1, entity2, started);
+    entity2?.dispatchCollisionEvent?.(handle2, entity1, started);
   }
 
   registerEntityClass(name, entityClass) {

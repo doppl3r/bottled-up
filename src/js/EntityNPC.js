@@ -10,13 +10,14 @@ class EntityNPC extends Entity {
     // Inherit Entity properties
     super(options);
 
-    // TODO: Remove frame logic
-    this.frame = Math.random() * 500;
+    
+    this.get('EntityPhysics', entity => {
+      entity.addEventListener('collision', this.onCollision);
+    });
   }
 
   load(options, core) {
     // TODO: Remove URL selection logic
-    const index = Math.floor(Math.random() * EntityNPC.urls.length);
     options.children[0].url = EntityNPC.urls[0];
     EntityNPC.urls.splice(0, 1);
 
@@ -24,10 +25,19 @@ class EntityNPC extends Entity {
   }
 
   render(loop) {
-    // TODO: Remove frame logic
-    if (loop.frame < this.frame) return;
-
     super.render(loop);
+  }
+
+  onCollision = event => {
+    // Check if collision is with player
+    if (event.pair.parent.class === 'EntityPlayer' && event.started) {
+      // Update model mixer
+      this.get('EntityModel', entityModel => {
+        entityModel.get('EntityMixer', entityMixer => {
+          entityMixer.play('_IdleStanding');
+        });
+      });
+    }
   }
 
   static urls = [
@@ -42,18 +52,17 @@ class EntityNPC extends Entity {
       {
         class: 'EntityModel',
         url: 'glb/npc-mage.glb',
-        position: { x: 0, y: -0.25, z: 0 },
         children: [
           {
             class: 'EntityMixer',
             actions: {
               _IdleStanding: {
                 crossFadeDuration: 0.25,
-                default: true,
                 loop: true
               },
               _IdleWounded: {
                 crossFadeDuration: 0.25,
+                default: true,
                 loop: true
               }
             }
@@ -72,8 +81,8 @@ class EntityNPC extends Entity {
               shapeDesc: {
                 shapes: [
                   {
-                    type: 'capsule',
-                    arguments: [0.5, 0.5]
+                    type: 'ball',
+                    arguments: [0.5]
                   }
                 ]
               }

@@ -13,6 +13,7 @@ import { Entity } from './Entity.js';
 // Initialize module-scoped variables
 const _eventUpdatedRigidBody = { type: 'updatedRigidBody', loop: null };
 const _eventRenderedRigidBody = { type: 'renderedRigidBody', loop: null };
+const _eventOnCollision = { handle: null, pair: null, started: true, type: 'collision' };
 const _eventOnWake = { type: 'onWake' };
 const _eventOnSleep = { type: 'onSleep' };
 const _v = new Vector3();
@@ -211,6 +212,13 @@ class EntityPhysics extends Entity {
     // Queue rigid body for removal and remove event listener from parent entity
     this.world?.queueRigidBodyRemoval(this.rigidBody);
     this.parent.removeEventListener('removed', this.onParentRemoved);
+  }
+
+  dispatchCollisionEvent = (handle, pair, started) => {
+    _eventOnCollision.handle = handle;
+    _eventOnCollision.pair = pair;
+    _eventOnCollision.started = started;
+    this.dispatchEvent(_eventOnCollision);
   }
 
   serialize() {

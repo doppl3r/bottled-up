@@ -59,7 +59,11 @@ class EntityMixer extends Entity {
       time: 0,
     }, actionOptions, options);
     
+    // Get reference to the action to play
     const action = this.actions[name];
+
+    // Prevent playing the same action
+    if (action === this.activeAction) return;
 
     // Ignore missing actions or a request to replay the already-active one
     if (!action) return;
