@@ -89,7 +89,6 @@ class Assets extends EventDispatcher {
                 // Update material texture with JSON data
                 Object.assign(texture, data.map);
                 this.get(fileName).map = texture;
-                material.dispatchEvent({ type: 'loaded', texture });
               });
             }
             else {

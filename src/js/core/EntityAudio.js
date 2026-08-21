@@ -19,7 +19,7 @@ class EntityAudio extends Entity {
     core.assets.load(options.url, audio => {
       this.setAudio(audio, options);
       this.add(audio);
-      super.load(options, core);
+      this.isLoaded = true;
     });
   }
 

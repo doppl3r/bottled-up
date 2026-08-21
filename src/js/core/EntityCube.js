@@ -96,7 +96,7 @@ class EntityCube extends Entity {
     }
 
     // Resume base entity load
-    super.load(options, core);
+    this.isLoaded = true;
   }
 
   static template = {

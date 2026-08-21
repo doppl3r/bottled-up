@@ -35,12 +35,12 @@ class EntitySkyBox extends Entity {
         core.scene.background = textureCube;
         
         // Dispatch loaded and resume base class
-        super.load(options, core);
+        this.isLoaded = true;
       });
     }
     else {
       core.scene.background = TextureFactory.generateSkySphereTexture();
-      super.load(options, core);
+      this.isLoaded = true;
     }
   }
 

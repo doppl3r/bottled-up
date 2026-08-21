@@ -8,8 +8,6 @@ import { Tweens } from './Tweens.js';
 */
 
 // Initialize module-scoped variables
-const _euler = new Euler();
-const _quaternion = new Quaternion();
 
 class EntityPlatform extends EntityCube {
   constructor(options) {

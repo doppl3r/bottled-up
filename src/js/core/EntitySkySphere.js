@@ -88,7 +88,7 @@ class EntitySkySphere extends Entity {
     });
 
     // Get the sphere mesh child and apply the material
-    super.load(options, core);
+    this.isLoaded = true;
   }
 
   render(loop) {

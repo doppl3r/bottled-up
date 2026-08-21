@@ -111,7 +111,7 @@ class EntityManager {
 
     // Define scene loaded handler
     const onSceneLoaded = () => {
-      this.core.scene.dispatchEvent({ type: 'loaded' });
+      this.core.scene.dispatchEvent({ type: 'isLoaded' });
       onLoad();
     };
 
@@ -132,7 +132,7 @@ class EntityManager {
       };
 
       // Add loaded event listener
-      entity.addEventListener('loaded', onEntityLoaded);
+      entity.addEventListener('isLoaded', onEntityLoaded);
     });
   }
 

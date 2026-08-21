@@ -24,7 +24,7 @@ class EntityFog extends Entity {
     core.scene.fog = this.fog;
 
     // Get the sphere mesh child and apply the material
-    super.load(options, core);
+    this.isLoaded = true;
   }
 
   serialize() {

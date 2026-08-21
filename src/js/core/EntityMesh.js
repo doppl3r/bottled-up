@@ -23,7 +23,7 @@ class EntityMesh extends Entity {
     mesh.castShadow = options.castShadow;
     mesh.receiveShadow = options.receiveShadow;
     mesh.renderOrder = options.renderOrder;
-    super.load(options, core);
+    this.isLoaded = true;
   }
 
   setMesh(mesh, options) {

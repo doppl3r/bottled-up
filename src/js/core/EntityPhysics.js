@@ -78,14 +78,14 @@ class EntityPhysics extends Entity {
         // Resync transform
         this.syncTransformFromParent();
 
-        // Dispatch 'loaded' event after creating the rigid body
-        super.load(options, core);
+        // Update loaded state
+        this.isLoaded = true;
       });
     }
     else {
       // Create physics component immediately
       PhysicsFactory.create(this, options.rigidBody, this.world);
-      super.load(options, core);
+      this.isLoaded = true;
     }
   }
 

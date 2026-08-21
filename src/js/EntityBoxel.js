@@ -46,7 +46,7 @@ class EntityBoxel extends Entity {
       }
     }
 
-    super.load(options, core);
+    this.isLoaded = true;
   }
 
   render(loop) {

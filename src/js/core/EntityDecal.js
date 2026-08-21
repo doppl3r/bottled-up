@@ -46,12 +46,13 @@ class EntityDecal extends Entity {
     }
     else {
       // Otherwise wait for the target to finish loading (ex: EntityModel GLTF)
-      target.addEventListener('loaded', this.onTargetLoaded);
+      target.addEventListener('isLoaded', this.onTargetLoaded);
     }
   }
 
   onTargetLoaded = event => {
-    this.target.removeEventListener('loaded', this.onTargetLoaded);
+    this.target.removeEventListener('isLoaded', this.onTargetLoaded);
+    this.isLoaded = true;
     this.build(this.core, this.target);
   }
 
@@ -100,7 +101,7 @@ class EntityDecal extends Entity {
       // Add decal mesh to scene
       const decalMesh = new Mesh(decalGeometry, material);
       this.add(decalMesh);
-      super.load({}, this.core);
+      this.isLoaded = true;
     });
   }
 
@@ -146,7 +147,7 @@ class EntityDecal extends Entity {
   onTargetRemoved = () => {
     // Remove event listeners
     this.target.removeEventListener('removed', this.onTargetRemoved);
-    this.target.removeEventListener('loaded', this.onTargetLoaded);
+    this.target.removeEventListener('isLoaded', this.onTargetLoaded);
   }
 
   serialize() {

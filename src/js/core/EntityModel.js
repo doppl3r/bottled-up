@@ -65,7 +65,7 @@ class EntityModel extends Entity {
 
         this.model = model;
         this.add(model);
-        super.load(options, core);
+        this.isLoaded = true;
       });
     }
   }

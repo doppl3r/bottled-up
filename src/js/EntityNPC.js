@@ -16,7 +16,7 @@ class EntityNPC extends Entity {
     options.children[0].url = EntityNPC.urls[0];
     EntityNPC.urls.splice(0, 1);
 
-    super.load(options, core);
+    this.isLoaded = true;
   }
 
   render(loop) {
