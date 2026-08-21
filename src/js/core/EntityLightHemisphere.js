@@ -11,7 +11,7 @@ class EntityLightHemisphere extends Entity {
     this.add(this.light);
 
     // Update entity state
-    this.isReady = true;
+    this.ready();
   }
 
   serialize() {

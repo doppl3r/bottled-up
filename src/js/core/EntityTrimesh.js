@@ -18,7 +18,7 @@ class EntityTrimesh extends Entity {
     });
 
     // Resume base entity load process
-    this.isReady = true;
+    this.ready();
   }
 
   static template = {

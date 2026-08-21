@@ -33,7 +33,7 @@ class EntityBoxel extends Entity {
 
     // Update entity state
     this.isCollected = false;
-    this.isReady = true;
+    this.ready();
 
     // Add child events
     this.addEventListener('childadded', this.onChildAdded);

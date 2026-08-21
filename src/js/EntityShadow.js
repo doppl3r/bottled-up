@@ -38,12 +38,12 @@ class EntityShadow extends Entity {
     if (options.url) {
       core.assets.load(options.url, texture => {
         material.map = texture;
-        this.isReady = true;
+        this.ready();
       });
     }
     else {
       material.map = this.createShadowTexture();
-      this.isReady = true;
+      this.ready();
     }
   }
 

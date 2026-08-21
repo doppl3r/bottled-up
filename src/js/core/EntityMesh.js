@@ -17,7 +17,7 @@ class EntityMesh extends Entity {
     mesh.castShadow = options.castShadow;
     mesh.receiveShadow = options.receiveShadow;
     mesh.renderOrder = options.renderOrder;
-    this.isReady = true;
+    this.ready();
   }
 
   setMesh(mesh, options) {

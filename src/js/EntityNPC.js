@@ -15,7 +15,7 @@ class EntityNPC extends Entity {
     });
 
     // Update entity state
-    this.isReady = true;
+    this.ready();
   }
 
   render(loop) {

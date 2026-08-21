@@ -16,7 +16,7 @@ class EntityMaterial extends Entity {
     // Add material component if entity is an instance of EntityMaterial
     core.assets.load(options.url, material => {
       this.setMaterial(material, options);
-      this.isReady = true;
+      this.ready();
     });
   }
 

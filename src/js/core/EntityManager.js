@@ -102,9 +102,18 @@ class EntityManager {
     // Spawn all entities defined in the scene JSON
     const pendingEntities = [];
     const sceneOptions = (typeof data === 'string') ? await this.fetchJSON(data) : data;
+
+    // Spawn all child entities recursively
     sceneOptions.children?.forEach(childOptions => {
       this.spawn(childOptions, this.core.scene, pendingEntities);
     });
+
+    // Add console warning for pending entities
+    const warnIntervalId = setInterval(() => {
+      const pending = pendingEntities.filter(entity => entity.isReady === false);
+      if (pending.length > 0) console.warn('Warning: entities not ready', pending);
+      else clearInterval(warnIntervalId);
+    }, 1000);
 
     // Define scene ready handler
     const onSceneReady = () => {

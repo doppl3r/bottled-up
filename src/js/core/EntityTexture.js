@@ -6,7 +6,6 @@ import { Entity } from './Entity.js';
 
 class EntityTexture extends Entity {
   constructor(options, core) {
-    // Set default options
     // Inherit Entity properties
     super(options, core);
 
@@ -23,7 +22,7 @@ class EntityTexture extends Entity {
     // Add texture component if entity is an instance of EntityTexture
     core.assets.load(options.url, texture => {
       this.texture = texture;
-      this.isReady = true;
+      this.ready();
     });
   }
 

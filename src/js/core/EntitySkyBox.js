@@ -30,12 +30,12 @@ class EntitySkyBox extends Entity {
         core.scene.background = textureCube;
         
         // Update entity state
-        this.isReady = true;
+        this.ready();
       });
     }
     else {
       core.scene.background = TextureFactory.generateSkySphereTexture();
-      this.isReady = true;
+      this.ready();
     }
   }
 

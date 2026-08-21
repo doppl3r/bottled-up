@@ -35,6 +35,7 @@ class Entity extends Object3D {
 
     // Declare entity properties
     this.isEntity = true;
+    this.isReady = false;
     this.entities = {};
     this.name = options.name;
     this.label = options.label;
@@ -45,9 +46,6 @@ class Entity extends Object3D {
     this.rotation.set(options.rotation.x, options.rotation.y, options.rotation.z);
     this.scale.set(options.scale.x, options.scale.y, options.scale.z);
     this.visible = options.visible;
-
-    // Define reactive properties
-    this.defineProperty('isReady', false, event => this.dispatchEvent({ type: 'ready', value: event.value }));
 
     // Add event listener(s)
     this.addEventListener('removed', this.onRemoved);
@@ -131,16 +129,9 @@ class Entity extends Object3D {
     }
   }
 
-  defineProperty = (name, value, callback = () => {}) => {
-    Object.defineProperty(this, name, {
-      get: () => value,
-      set: newValue => {
-        if (value !== newValue) {
-          value = newValue;
-          callback({ type: name, value: newValue });
-        }
-      }
-    });
+  ready() {
+    this.isReady = true;
+    this.dispatchEvent({ type: 'ready' });
   }
 
   serialize() {

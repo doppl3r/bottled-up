@@ -85,7 +85,7 @@ class EntitySkySphere extends Entity {
     this.addEventListener('childadded', this.onChildAdded);
 
     // Update loading state
-    this.isReady = true;
+    this.ready();
   }
 
   render(loop) {

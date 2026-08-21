@@ -56,7 +56,7 @@ class EntityModel extends Entity {
 
         this.model = model;
         this.add(model);
-        this.isReady = true;
+        this.ready();
       });
     }
   }

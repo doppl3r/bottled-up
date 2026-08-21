@@ -18,7 +18,7 @@ class EntityFog extends Entity {
     core.scene.fog = this.fog;
 
     // Update entity state
-    this.isReady = true;
+    this.ready();
   }
 
   serialize() {

@@ -24,11 +24,11 @@ class EntityEnvironment extends Entity {
       this.url = options.url;
       core.assets.load(this.url, texture => {
         this.texture = texture;
-        this.isReady = true;
+        this.ready();
       });
     }
     else {
-      this.isReady = true;
+      this.ready();
     }
 
     // Add event listeners

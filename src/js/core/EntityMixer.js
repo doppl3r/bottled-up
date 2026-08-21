@@ -24,7 +24,7 @@ class EntityMixer extends Entity {
     this.addEventListener('added', this.onAdded);
 
     // Update entity state
-    this.isReady = true;
+    this.ready();
   }
 
   render(loop) {

@@ -73,13 +73,13 @@ class EntityPhysics extends Entity {
         this.syncTransformFromParent();
 
         // Update entity state
-        this.isReady = true;
+        this.ready();
       });
     }
     else {
       // Create physics component immediately
       PhysicsFactory.create(this, options.rigidBody, this.world);
-      this.isReady = true;
+      this.ready();
     }
 
     // Add event listeners

@@ -53,8 +53,8 @@ class EntityDecal extends Entity {
 
   onTargetReady = event => {
     this.target.removeEventListener('ready', this.onTargetReady);
-    this.isReady = true;
     this.build(this.core, this.target);
+    this.ready();
   }
 
   build(core, target) {
@@ -97,7 +97,7 @@ class EntityDecal extends Entity {
       // Add decal mesh to scene
       const decalMesh = new Mesh(decalGeometry, material);
       this.add(decalMesh);
-      this.isReady = true;
+      this.ready();
     });
   }
 

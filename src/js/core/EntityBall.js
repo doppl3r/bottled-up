@@ -4,6 +4,9 @@ class EntityBall extends Entity {
   constructor(options, core) {
     // Inherit Entity properties
     super(options, core);
+
+    // Update entity state
+    this.ready();
   }
 
   static template = {

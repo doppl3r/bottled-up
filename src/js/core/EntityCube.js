@@ -94,7 +94,7 @@ class EntityCube extends Entity {
     }
 
     // Update entity state
-    this.isReady = true;
+    this.ready();
   }
 
   static template = {

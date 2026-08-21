@@ -34,7 +34,7 @@ class EntityLightSun extends Entity {
     this.lightHelper = new CameraHelper(this.light.shadow.camera);
 
     // Update entity state
-    this.isReady = true;
+    this.ready();
   }
 
   render(loop) {

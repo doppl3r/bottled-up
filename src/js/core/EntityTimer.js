@@ -14,7 +14,7 @@ class EntityTimer extends Entity {
     this.elapsed = 0;
     
     // Update entity state
-    this.isReady = true;
+    this.ready();
   }
 
   update(loop) {

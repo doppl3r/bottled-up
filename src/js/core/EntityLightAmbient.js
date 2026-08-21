@@ -9,6 +9,9 @@ class EntityLightAmbient extends Entity {
     // Create and add light
     this.light = new AmbientLight(options.color, options.intensity);
     this.add(this.light);
+
+    // Update entity state
+    this.ready();
   }
 
   serialize() {

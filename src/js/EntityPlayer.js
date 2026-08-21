@@ -10,7 +10,7 @@ class EntityPlayer extends Entity {
     this.tweens = new Tweens();
 
     // Update loading state
-    this.isReady = true;
+    this.ready();
   }
 
   update(loop) {

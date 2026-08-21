@@ -17,7 +17,7 @@ class EntityText extends Entity {
     this.addEventListener('rootRemoved', this.onRootRemoved);
 
     // Update entity state
-    this.isReady = true;
+    this.ready();
   }
 
   onAdded = event => {
