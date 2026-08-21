@@ -3,12 +3,6 @@ import { Entity } from './Entity.js';
 
 class EntityText extends Entity {
   constructor(options) {
-    // Set default options
-    options = Object.assign({
-      type: 'div',
-      text: 'Hello, World!'
-    }, options);
-
     // Inherit Entity properties
     super(options);
 
@@ -45,6 +39,11 @@ class EntityText extends Entity {
 
   show() {
     this.visible = true;
+  }
+
+  static template = {
+    type: 'div',
+    text: 'Hello, World!'
   }
 }
 

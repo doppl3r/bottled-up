@@ -5,15 +5,7 @@ import { EntityParticles } from './core/EntityParticles.js';
 */
 
 class EntityRain extends EntityParticles {
-  constructor(options = {}) {
-    // Set default options
-    options = Object.assign({
-      class: 'EntityRain',
-      capacity: 100,
-      range: 10,
-      speed: 0.001
-    }, options);
-
+  constructor(options) {
     // Inherit Entity properties
     super(options);
 

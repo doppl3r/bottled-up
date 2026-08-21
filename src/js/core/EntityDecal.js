@@ -18,15 +18,8 @@ const _position = new Vector3();
 const _relativeMatrix = new Matrix4();
 
 class EntityDecal extends Entity {
-  constructor(options = {}) {
+  constructor(options) {
     // Inherit Entity properties (position, rotation, scale, etc.)
-    options = Object.assign({
-      class: 'EntityDecal',
-      url: null,
-      normal: { x: 0, y: 0, z: 1 },
-      size: { x: 1, y: 1, z: 1 },
-    }, options);
-
     super(options);
 
     // Store only what cannot be derived from Entity properties
@@ -163,6 +156,12 @@ class EntityDecal extends Entity {
     json.normal = { x: this.normal.x, y: this.normal.y, z: this.normal.z };
     json.size = { x: this.size.x, y: this.size.y, z: this.size.z };
     return json;
+  }
+
+  static template = {
+    url: null,
+    normal: { x: 0, y: 0, z: 1 },
+    size: { x: 1, y: 1, z: 1 }
   }
 }
 

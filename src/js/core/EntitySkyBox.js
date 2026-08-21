@@ -7,12 +7,8 @@ import { Entity } from './Entity.js';
 */
 
 class EntitySkyBox extends Entity {
-  constructor(options = {}) {
+  constructor(options) {
     // Set default options
-    options = Object.assign({
-      class: 'EntitySkyBox'
-    }, options);
-
     // Inherit Entity properties
     super(options);
 
@@ -61,7 +57,7 @@ class EntitySkyBox extends Entity {
   }
 
   static template = {
-    
+    urls: []
   }
 }
 

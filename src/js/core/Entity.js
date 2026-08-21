@@ -161,10 +161,6 @@ class Entity extends Object3D {
     // Return full JSON data
     return jsonData;
   }
-
-  static getTemplate() {
-    return this.template;
-  }
 }
 
 export { Entity }

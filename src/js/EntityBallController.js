@@ -34,33 +34,7 @@ const _colliderPosition = new Vector3();
 const _colliderRotation = new Quaternion();
 
 class EntityBallController extends Entity {
-  constructor(options = {}) {
-    options = Object.assign({
-      class: 'EntityBallController',
-      moveForce: 24,
-      moveMaxSpeed: 8,
-      steerFactor: 4.0,
-      dashSpeed: 8,
-      dashTimerDuration: 1000,
-      jumpBufferDuration: 100,
-      jumpHeight: 2.5,
-      jumpSpin: 0.0,
-      maxSlopeAngle: 45,
-      maxWallAngle: 60,
-      wallJumpPower: 5,
-      camPitchDefault: Math.PI / 8,
-      camPitchMin: (Math.PI / -2) + 0.1,
-      camPitchMax: (Math.PI / 2) - 0.1,
-      camLerp: 0.9,
-      camOrbitHeight: 0.5,
-      camCollisionLerp: 0.5,
-      camCollisionDistanceMax: 5,
-      camCollisionDistanceMin: 0.25,
-      camCollisionRadius: 0.1,
-      camDistanceFadeRatio: 0.5,
-      camAzimuthSensitivity: 0.00125,
-      camPitchSensitivity: 0.00125,
-    }, options);
+  constructor(options) {
 
     // Inherit Entity properties
     super(options);
@@ -134,6 +108,32 @@ class EntityBallController extends Entity {
     this.camRotateTween = null;
     this.camAzimuthTarget = 0;
     this.camPitchTarget = this.camPitchDefault;
+  }
+
+  static template = {
+    moveForce: 24,
+    moveMaxSpeed: 8,
+    steerFactor: 4.0,
+    dashSpeed: 8,
+    dashTimerDuration: 1000,
+    jumpBufferDuration: 100,
+    jumpHeight: 2.5,
+    jumpSpin: 0.0,
+    maxSlopeAngle: 45,
+    maxWallAngle: 60,
+    wallJumpPower: 5,
+    camPitchDefault: Math.PI / 8,
+    camPitchMin: (Math.PI / -2) + 0.1,
+    camPitchMax: (Math.PI / 2) - 0.1,
+    camLerp: 0.9,
+    camOrbitHeight: 0.5,
+    camCollisionLerp: 0.5,
+    camCollisionDistanceMax: 5,
+    camCollisionDistanceMin: 0.25,
+    camCollisionRadius: 0.1,
+    camDistanceFadeRatio: 0.5,
+    camAzimuthSensitivity: 0.00125,
+    camPitchSensitivity: 0.00125
   }
 
   load(options, core) {

@@ -5,22 +5,8 @@ import { Entity } from './Entity.js';
 const _targetPos = new Vector3();
 
 class EntityLightSun extends Entity {
-  constructor(options = {}) {
+  constructor(options) {
     // Set default options
-    options = Object.assign({
-      class: 'EntityLightSun',
-      color: '#ffffff',
-      intensity: Math.PI,
-      time: 12,
-      duration: 120,
-      speed: 1,
-      azimuth: 0,
-      targetName: '',
-      shadowArea: 64,
-      shadowQuality: 64,
-      shadowRadius: 1,
-    }, options);
-
     // Inherit Entity properties
     super(options);
 
@@ -103,14 +89,16 @@ class EntityLightSun extends Entity {
   }
 
   static template = {
-    class: 'EntityLightSun',
     color: '#ffffff',
     intensity: Math.PI,
     time: 12,
+    duration: 120,
     speed: 0,
+    azimuth: 0,
     targetName: 'ball',
     shadowArea: 64,
-    shadowQuality: 32
+    shadowQuality: 32,
+    shadowRadius: 1
   }
 }
 

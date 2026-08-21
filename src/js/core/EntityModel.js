@@ -6,17 +6,8 @@ import { Entity } from './Entity.js';
 */
 
 class EntityModel extends Entity {
-  constructor(options = {}) {
+  constructor(options) {
     // Set default options
-    options = Object.assign({
-      castShadow: true,
-      class: 'EntityModel',
-      generateMipmaps: true,
-      magFilter: 1003,
-      minFilter: 1003,
-      receiveShadow: true,
-    }, options);
-
     // Inherit Entity properties
     super(options);
 
@@ -87,7 +78,12 @@ class EntityModel extends Entity {
   }
 
   static template = {
-    url: ''
+    url: '',
+    castShadow: true,
+    generateMipmaps: true,
+    magFilter: 1003,
+    minFilter: 1003,
+    receiveShadow: true
   }
 }
 

@@ -7,12 +7,8 @@ import { Entity } from './Entity.js';
 */
 
 class EntityMixer extends Entity {
-  constructor(options = {}) {
+  constructor(options) {
     // Set default options
-    options = Object.assign({
-      class: 'EntityMixer',
-    }, options);
-
     // Inherit Entity properties
     super(options);
 

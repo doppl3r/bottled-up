@@ -5,13 +5,7 @@ import { Entity } from './Entity.js';
 */
 
 class EntityTimer extends Entity {
-  constructor(options = {}) {
-    // Set default options
-    options = Object.assign({
-      class: 'EntityTimer',
-      delay: 1000,
-    }, options);
-
+  constructor(options) {
     // Inherit Entity properties
     super(options);
 
@@ -29,6 +23,10 @@ class EntityTimer extends Entity {
       this.dispatchEvent({ type: 'tick' });
       this.elapsed %= this.delay;
     }
+  }
+
+  static template = {
+    delay: 1000
   }
 }
 

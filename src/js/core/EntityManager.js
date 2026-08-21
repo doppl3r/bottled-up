@@ -227,7 +227,7 @@ class EntityManager {
     const entityClass = this.entityClasses[options.class];
     if (entityClass) {
       // Merge options from deep-cloned class template
-      const template = structuredClone(entityClass.getTemplate());
+      const template = structuredClone(entityClass.template);
       if (template) {
         Object.assign(template, options); // Merge options into cloned template
         Object.assign(options, template); // Merge template back into options

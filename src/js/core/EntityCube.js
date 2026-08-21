@@ -14,11 +14,6 @@ const _center = new Vector3(0, 0, 0);
 
 class EntityCube extends Entity {
   constructor(options) {
-    // Set default options
-    options = Object.assign({
-      
-    }, options);
-
     // Inherit Entity properties
     super(options);
   }

@@ -2,11 +2,6 @@ import { Entity } from './core/Entity.js';
 
 class EntityNPC extends Entity {
   constructor(options) {
-    // Set default options
-    options = Object.assign({
-      
-    }, options);
-
     // Inherit Entity properties
     super(options);
 

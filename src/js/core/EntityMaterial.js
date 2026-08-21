@@ -5,12 +5,7 @@ import { Entity } from './Entity.js';
 */
 
 class EntityMaterial extends Entity {
-  constructor(options = {}) {
-    // Set default options
-    options = Object.assign({
-      class: 'EntityMaterial'
-    }, options);
-
+  constructor(options) {
     // Inherit Entity properties
     super(options);
 
@@ -38,6 +33,10 @@ class EntityMaterial extends Entity {
     const json = super.serialize();
     json.url = this.url;
     return json;
+  }
+
+  static template = {
+    url: null
   }
 }
 

@@ -5,13 +5,7 @@ import { Entity } from './Entity.js';
 */
 
 class EntityAudio extends Entity {
-  constructor(options = {}) {
-    // Set default options
-    options = Object.assign({
-      class: 'EntityAudio',
-      url: null
-    }, options);
-
+  constructor(options) {
     // Inherit Entity properties
     super(options);
 
@@ -42,6 +36,10 @@ class EntityAudio extends Entity {
     json.url = this.url;
     json.userData = this.audio?.userData;
     return json;
+  }
+
+  static template = {
+    url: null
   }
 }
 

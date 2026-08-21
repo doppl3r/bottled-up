@@ -9,15 +9,8 @@ import { Entity } from './Entity.js';
 const _worldPosition = new Vector3();
 
 class EntityEnvironment extends Entity {
-  constructor(options = {}) {
+  constructor(options) {
     // Inherit Entity properties
-    options = Object.assign({
-      material: {
-        envMap: null,
-        metalness: 1.0
-      }
-    }, options);
-
     super(options);
 
     // Store options
@@ -107,6 +100,13 @@ class EntityEnvironment extends Entity {
     const json = super.serialize();
     json.url = this.url;
     return json;
+  }
+
+  static template = {
+    material: {
+      envMap: null,
+      metalness: 1.0
+    }
   }
 }
 

@@ -2,14 +2,8 @@ import { AmbientLight } from 'three';
 import { Entity } from './Entity.js';
 
 class EntityLightAmbient extends Entity {
-  constructor(options = {}) {
+  constructor(options) {
     // Set default options
-    options = Object.assign({
-      class: 'EntityLightAmbient',
-      color: '#ffffff',
-      intensity: Math.PI
-    }, options);
-
     // Inherit Entity properties
     super(options);
 
@@ -24,6 +18,11 @@ class EntityLightAmbient extends Entity {
     json.color = `#${ this.light.color.getHexString() }`;
     json.intensity = this.light.intensity;
     return json;
+  }
+
+  static template = {
+    color: '#ffffff',
+    intensity: Math.PI
   }
 }
 

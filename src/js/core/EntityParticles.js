@@ -6,12 +6,8 @@ import { Particles } from './Particles.js';
 */
 
 class EntityParticles extends Entity {
-  constructor(options = {}) {
+  constructor(options) {
     // Set default options
-    options = Object.assign({
-      class: 'EntityParticles'
-    }, options);
-
     // Inherit Entity properties
     super(options);
 
@@ -57,6 +53,10 @@ class EntityParticles extends Entity {
     const json = super.serialize();
     json.urls = this.urls;
     return json;
+  }
+
+  static template = {
+    urls: []
   }
 }
 

@@ -6,12 +6,7 @@ import { MeshFactory } from './MeshFactory.js';
 */
 
 class EntityMesh extends Entity {
-  constructor(options = {}) {
-    // Set default options
-    options = Object.assign({
-      
-    }, options);
-
+  constructor(options) {
     // Inherit Entity properties
     super(options);
 

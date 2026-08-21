@@ -2,16 +2,8 @@ import { PointLight } from 'three';
 import { Entity } from './Entity.js';
 
 class EntityLightPoint extends Entity {
-  constructor(options = {}) {
+  constructor(options) {
     // Set default options
-    options = Object.assign({
-      class: 'EntityLightPoint',
-      color: '#ffffff',
-      intensity: Math.PI,
-      distance: 0,
-      decay: 1
-    }, options);
-
     // Inherit Entity properties
     super(options);
 
@@ -28,6 +20,13 @@ class EntityLightPoint extends Entity {
     json.distance = this.light.distance;
     json.decay = this.light.decay;
     return json;
+  }
+
+  static template = {
+    color: '#ffffff',
+    intensity: Math.PI,
+    distance: 0,
+    decay: 1
   }
 }
 

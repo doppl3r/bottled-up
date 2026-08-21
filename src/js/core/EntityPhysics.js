@@ -21,13 +21,7 @@ const _e = new Euler();
 const _q = new Quaternion();
 
 class EntityPhysics extends Entity {
-  constructor(options = {}) {
-    // Set default options
-    options = Object.assign({
-      class: 'EntityPhysics',
-      rigidBody: {}
-    }, options);
-
+  constructor(options) {
     // Inherit Entity properties
     super(options);
 
@@ -229,6 +223,10 @@ class EntityPhysics extends Entity {
       json.rigidBody = JSON.parse(JSON.stringify(this.options.rigidBody));
     }
     return json;
+  }
+
+  static template = {
+    rigidBody: {}
   }
 }
 

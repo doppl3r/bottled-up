@@ -13,11 +13,6 @@ const _quaternion = new Quaternion();
 
 class EntityPlatform extends EntityCube {
   constructor(options) {
-    // Set default options
-    options = Object.assign({
-      
-    }, options);
-
     // Inherit Entity properties
     super(options);
 

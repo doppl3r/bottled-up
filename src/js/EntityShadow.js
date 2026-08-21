@@ -15,13 +15,7 @@ const _localPosition = new Vector3();
 const _worldQuat = new Quaternion();
 
 class EntityShadow extends Entity {
-  constructor(options = {}) {
-    options = Object.assign({
-      class: 'EntityShadow',
-      distance: 64,
-      url: null
-    }, options);
-
+  constructor(options) {
     // Inherit Entity properties
     super(options);
 
@@ -132,6 +126,11 @@ class EntityShadow extends Entity {
     texture.minFilter = options.minFilter;
     texture.magFilter = options.magFilter;
     return texture;
+  }
+
+  static template = {
+    distance: 64,
+    url: null
   }
 
   serialize() {

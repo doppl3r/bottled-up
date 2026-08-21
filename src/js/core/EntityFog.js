@@ -6,12 +6,8 @@ import { Entity } from './Entity.js';
 */
 
 class EntityFog extends Entity {
-  constructor(options = {}) {
+  constructor(options) {
     // Set default options
-    options = Object.assign({
-      
-    }, options);
-
     // Inherit Entity properties
     super(options);
 
@@ -19,7 +15,7 @@ class EntityFog extends Entity {
     this.fog;
   }
 
-  load(options = {}, core) {
+  load(options, core) {
     // Initialize fog
     const { color = '#ffffff', near = 1, far = 1000 } = options;
     this.fog = new Fog(color, near, far);
@@ -36,6 +32,12 @@ class EntityFog extends Entity {
     const json = super.serialize();
     json.color = this.color;
     return json;
+  }
+
+  static template = {
+    color: '#ffffff',
+    near: 1,
+    far: 1000
   }
 }
 

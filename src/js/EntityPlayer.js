@@ -3,11 +3,6 @@ import { Tweens } from './core/Tweens.js';
 
 class EntityPlayer extends Entity {
   constructor(options) {
-    // Set default options
-    options = Object.assign({
-      
-    }, options);
-
     // Inherit Entity properties
     super(options);
 

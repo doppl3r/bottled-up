@@ -8,12 +8,8 @@ import { Tweens } from './Tweens.js';
 */
 
 class EntitySkySphere extends Entity {
-  constructor(options = {}) {
+  constructor(options) {
     // Set default options
-    options = Object.assign({
-      
-    }, options);
-
     // Inherit Entity properties
     super(options);
 

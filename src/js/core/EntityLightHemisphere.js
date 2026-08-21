@@ -2,15 +2,7 @@ import { HemisphereLight } from 'three';
 import { Entity } from './Entity.js';
 
 class EntityLightHemisphere extends Entity {
-  constructor(options = {}) {
-    // Set default options
-    options = Object.assign({
-      class: 'EntityLightHemisphere',
-      skyColor: '#ffffff',
-      groundColor: '#aaaaaa',
-      intensity: Math.PI
-    }, options);
-
+  constructor(options) {
     // Inherit Entity properties
     super(options);
 

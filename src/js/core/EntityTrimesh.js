@@ -2,11 +2,6 @@ import { Entity } from './Entity.js';
 
 class EntityTrimesh extends Entity {
   constructor(options) {
-    // Set default options
-    options = Object.assign({
-      url: ''
-    }, options);
-
     // Inherit Entity properties
     super(options);
   }
