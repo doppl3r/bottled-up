@@ -18,7 +18,7 @@ class EntityTexture extends Entity {
 
     // Add event listeners
     this.addEventListener('added', this.updateParentTexture);
-    this.addEventListener('isReady', this.updateParentTexture);
+    this.addEventListener('ready', this.updateParentTexture);
 
     // Add texture component if entity is an instance of EntityTexture
     core.assets.load(options.url, texture => {

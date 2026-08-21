@@ -100,18 +100,15 @@ class EntityManager {
 
   async load(data, onLoad = () => {}) {
     // Spawn all entities defined in the scene JSON
-    const entities = [];
+    const pendingEntities = [];
     const sceneOptions = (typeof data === 'string') ? await this.fetchJSON(data) : data;
     sceneOptions.children?.forEach(childOptions => {
-      this.spawn(childOptions, this.core.scene, entities);
+      this.spawn(childOptions, this.core.scene, pendingEntities);
     });
-
-    // Filter list of entities that are not yet ready
-    const pendingEntities = entities.filter(entity => !entity.isReady);
 
     // Define scene ready handler
     const onSceneReady = () => {
-      this.core.scene.dispatchEvent({ type: 'isReady' });
+      this.core.scene.dispatchEvent({ type: 'ready' });
       onLoad();
     };
 
@@ -126,13 +123,13 @@ class EntityManager {
     pendingEntities.forEach(entity => {
       // Create entity ready handler
       const onEntityReady = () => {
-        entity.removeEventListener('isReady', onEntityReady);
+        entity.removeEventListener('ready', onEntityReady);
         remaining--;
         if (remaining === 0) onSceneReady();
       };
 
       // Add ready event listener
-      entity.addEventListener('isReady', onEntityReady);
+      entity.addEventListener('ready', onEntityReady);
     });
   }
 
@@ -142,6 +139,26 @@ class EntityManager {
     try { json = await (await fetch(url)).json(); }
     catch { console.error(`Error: ${ url } not found.`); }
     return json;
+  }
+
+  spawn(options, parent = this.core.scene, pending = []) {
+    // Create and add entity to parent
+    const entity = this.create(options);
+    if (entity) {
+      // Track pending entities
+      if (entity.isReady === false) pending.push(entity);
+
+      // Add entity to parent
+      parent.add(entity);
+
+      // Continue loading child entities recursively
+      options.children?.forEach(childOptions => {
+        this.spawn(childOptions, entity, pending);
+      });
+
+      // Return entity
+      return entity;
+    }
   }
 
   convertModelToJSON(obj) {
@@ -200,26 +217,6 @@ class EntityManager {
   get(className) {
     const child = this.core.scene.children.find(child => child.class === className);
     return child;
-  }
-
-  spawn(options, parent = this.core.scene, entities = null) {
-    // Create and add entity to parent
-    const entity = this.create(options);
-    if (entity) {
-      // Add entity to parent
-      parent.add(entity);
-
-      // Track entity for initialization
-      if (entities) entities.push(entity);
-
-      // Continue loading child entities recursively
-      options.children?.forEach(childOptions => {
-        this.spawn(childOptions, entity, entities);
-      });
-
-      // Return entity
-      return entity;
-    }
   }
 
   create(options) {

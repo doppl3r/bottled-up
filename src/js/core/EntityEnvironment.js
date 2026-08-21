@@ -81,11 +81,11 @@ class EntityEnvironment extends Entity {
   onAdded = event => {
     if (this.parent.isScene) {
       // Update scene background when ready
-      this.scene.addEventListener('isReady', this.updateEnvironment);
+      this.scene.addEventListener('ready', this.updateEnvironment);
     }
     else {
       // Update parent entity environment when ready
-      this.parent.addEventListener('isReady', this.updateEnvironment);
+      this.parent.addEventListener('ready', this.updateEnvironment);
     }
   }
 

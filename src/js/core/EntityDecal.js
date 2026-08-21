@@ -47,12 +47,12 @@ class EntityDecal extends Entity {
     }
     else {
       // Otherwise wait for the target to finish loading (ex: EntityModel GLTF)
-      target.addEventListener('isReady', this.onTargetReady);
+      target.addEventListener('ready', this.onTargetReady);
     }
   }
 
   onTargetReady = event => {
-    this.target.removeEventListener('isReady', this.onTargetReady);
+    this.target.removeEventListener('ready', this.onTargetReady);
     this.isReady = true;
     this.build(this.core, this.target);
   }
@@ -143,7 +143,7 @@ class EntityDecal extends Entity {
   onTargetRemoved = () => {
     // Remove event listeners
     this.target.removeEventListener('removed', this.onTargetRemoved);
-    this.target.removeEventListener('isReady', this.onTargetReady);
+    this.target.removeEventListener('ready', this.onTargetReady);
   }
 
   serialize() {

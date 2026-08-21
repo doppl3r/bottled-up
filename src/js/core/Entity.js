@@ -47,7 +47,7 @@ class Entity extends Object3D {
     this.visible = options.visible;
 
     // Define reactive properties
-    this.defineProperty('isReady', false, event => this.dispatchEvent(event));
+    this.defineProperty('isReady', false, event => this.dispatchEvent({ type: 'ready', value: event.value }));
 
     // Add event listener(s)
     this.addEventListener('removed', this.onRemoved);
