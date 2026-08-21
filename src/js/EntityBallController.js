@@ -110,32 +110,6 @@ class EntityBallController extends Entity {
     this.camPitchTarget = this.camPitchDefault;
   }
 
-  static template = {
-    moveForce: 24,
-    moveMaxSpeed: 8,
-    steerFactor: 4.0,
-    dashSpeed: 8,
-    dashTimerDuration: 1000,
-    jumpBufferDuration: 100,
-    jumpHeight: 2.5,
-    jumpSpin: 0.0,
-    maxSlopeAngle: 45,
-    maxWallAngle: 60,
-    wallJumpPower: 5,
-    camPitchDefault: Math.PI / 8,
-    camPitchMin: (Math.PI / -2) + 0.1,
-    camPitchMax: (Math.PI / 2) - 0.1,
-    camLerp: 0.9,
-    camOrbitHeight: 0.5,
-    camCollisionLerp: 0.5,
-    camCollisionDistanceMax: 5,
-    camCollisionDistanceMin: 0.25,
-    camCollisionRadius: 0.1,
-    camDistanceFadeRatio: 0.5,
-    camAzimuthSensitivity: 0.00125,
-    camPitchSensitivity: 0.00125
-  }
-
   load(options, core) {
     // Initialize core
     this.core = core;
@@ -649,6 +623,32 @@ class EntityBallController extends Entity {
 
     // Exit pointer lock if active
     if (this.hasPointerLock) document.exitPointerLock?.();
+  }
+
+  static template = {
+    moveForce: 24,
+    moveMaxSpeed: 8,
+    steerFactor: 4.0,
+    dashSpeed: 8,
+    dashTimerDuration: 1000,
+    jumpBufferDuration: 100,
+    jumpHeight: 2.5,
+    jumpSpin: 0.0,
+    maxSlopeAngle: 45,
+    maxWallAngle: 60,
+    wallJumpPower: 5,
+    camPitchDefault: Math.PI / 8,
+    camPitchMin: (Math.PI / -2) + 0.1,
+    camPitchMax: (Math.PI / 2) - 0.1,
+    camLerp: 0.9,
+    camOrbitHeight: 0.5,
+    camCollisionLerp: 0.5,
+    camCollisionDistanceMax: 5,
+    camCollisionDistanceMin: 0.25,
+    camCollisionRadius: 0.1,
+    camDistanceFadeRatio: 0.5,
+    camAzimuthSensitivity: 0.00125,
+    camPitchSensitivity: 0.00125
   }
 }
 

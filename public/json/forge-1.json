@@ -8,14 +8,14 @@
       "intensity": 3.14
     },
     {
-      "class": "EntitySkybox",
+      "class": "EntitySkyBox",
       "urls": [
-        "png/skybox-forge-1-px.png",
-        "png/skybox-forge-1-nx.png",
-        "png/skybox-forge-1-py.png",
-        "png/skybox-forge-1-ny.png",
-        "png/skybox-forge-1-pz.png",
-        "png/skybox-forge-1-nz.png"
+        "png/forge-skybox-px.png",
+        "png/forge-skybox-nx.png",
+        "png/forge-skybox-py.png",
+        "png/forge-skybox-ny.png",
+        "png/forge-skybox-pz.png",
+        "png/forge-skybox-nz.png"
       ]
     },
     {

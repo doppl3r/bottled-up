@@ -128,16 +128,16 @@ class EntityShadow extends Entity {
     return texture;
   }
 
-  static template = {
-    distance: 64,
-    url: null
-  }
-
   serialize() {
     // Serialize entity to JSON
     const json = super.serialize();
     json.url = this.url;
     return json;
+  }
+
+  static template = {
+    distance: 64,
+    url: null
   }
 }
 
