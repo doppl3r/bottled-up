@@ -71,6 +71,7 @@ class PhysicsFactory {
       contactForceEventThreshold: 0,
       density: 1,
       events: [],
+      enabled: true,
       friction: 0.5,
       isSensor: false,
       mass: 0,
@@ -93,6 +94,7 @@ class PhysicsFactory {
     colliderDesc.setContactForceEventThreshold(options.contactForceEventThreshold);
     colliderDesc.setMass(options.mass); // Must set before density
     colliderDesc.setDensity(options.density);
+    colliderDesc.setEnabled(options.enabled);
     colliderDesc.setFriction(options.friction);
     colliderDesc.setRestitution(options.restitution);
     colliderDesc.setRotation(rotation);

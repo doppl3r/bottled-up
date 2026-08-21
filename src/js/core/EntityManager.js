@@ -223,9 +223,11 @@ class EntityManager {
   }
 
   create(options) {
+    const entityClass = this.entityClasses[options.class];
+
     // Merge options from class template
-    if (options.class) {
-      const entityTemplate = this.entityClasses[options.class].template;
+    if (entityClass) {
+      const entityTemplate = entityClass.getTemplate(options);
       if (entityTemplate) {
         const template = structuredClone(entityTemplate);
         Object.assign(template, options); // Merge options into cloned template
@@ -235,8 +237,8 @@ class EntityManager {
 
     // Create entity from registered class object
     let entity;
-    if (this.entityClasses[options.class]) {
-      entity = new this.entityClasses[options.class](options);
+    if (entityClass) {
+      entity = new entityClass(options);
       entity.load(options, this.core);
       return entity;
     }
