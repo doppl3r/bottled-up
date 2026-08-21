@@ -9,7 +9,6 @@ import { Tweens } from './Tweens.js';
 
 class EntitySkySphere extends Entity {
   constructor(options) {
-    // Set default options
     // Inherit Entity properties
     super(options);
 
@@ -23,11 +22,6 @@ class EntitySkySphere extends Entity {
     // Animations
     this.tweens = new Tweens();
 
-    // Add event listeners
-    this.addEventListener('childadded', this.onChildAdded);
-  }
-
-  load(options, core) {
     // Create uniform arrays for shader
     this.colorGroup = this.getColorGroup(options.colors);
     this.colorArray = new Float32Array(this.colorGroup.length * 3);
@@ -87,8 +81,11 @@ class EntitySkySphere extends Entity {
       `
     });
 
-    // Get the sphere mesh child and apply the material
+    // Update loading state
     this.isLoaded = true;
+
+    // Add event listeners
+    this.addEventListener('childadded', this.onChildAdded);
   }
 
   render(loop) {
@@ -236,11 +233,11 @@ class EntitySkySphere extends Entity {
       { color: '#c1f0f6', offset: 1.0 }
     ],
     hell: [
-      { color: '#f65510', offset: 0.0 },
-      { color: '#f65510', offset: 0.33 },
+      { color: '#371c29', offset: 0.0 },
+      { color: '#371c29', offset: 0.33 },
       { color: '#662a22', offset: 0.5 },
-      { color: '#371c29', offset: 0.66 },
-      { color: '#371c29', offset: 1.0 },
+      { color: '#f65510', offset: 0.66 },
+      { color: '#f65510', offset: 1.0 },
     ]
   }
 

@@ -7,22 +7,17 @@ import { Entity } from './Entity.js';
 */
 
 class EntitySkyBox extends Entity {
-  constructor(options) {
-    // Set default options
+  constructor(options, core) {
     // Inherit Entity properties
-    super(options);
+    super(options, core);
 
-    // Declare entity components
-    this.urls = [];
-  }
-
-  load(options, core) {
     // Initialize with textures
     if (options.urls) {
-      core.assets.loadBatch(options.urls, textures => {
-        // Store options for serialization
-        this.urls = options.urls;
+      // Store options for serialization
+      this.urls = options.urls;
 
+      // Load all textures
+      core.assets.loadBatch(options.urls, textures => {
         // Ensure 6 items
         const length = textures.length;
         const lastTexture = textures[length - 1];

@@ -13,12 +13,10 @@ const _size = new Vector3(1, 1, 1);
 const _center = new Vector3(0, 0, 0);
 
 class EntityCube extends Entity {
-  constructor(options) {
+  constructor(options, core) {
     // Inherit Entity properties
-    super(options);
-  }
+    super(options, core);
 
-  load(options, core) {
     // Update model properties
     const model = core.assets.get(options.url);
     if (model) {

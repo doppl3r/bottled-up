@@ -1,12 +1,10 @@
 import { Entity } from './Entity.js';
 
 class EntityTrimesh extends Entity {
-  constructor(options) {
+  constructor(options, core) {
     // Inherit Entity properties
-    super(options);
-  }
+    super(options, core);
 
-  load(options, core) {
     // Propagate properties to all child entities
     options.children.forEach(childOptions => {
       // Set child entity url to match parent entity url

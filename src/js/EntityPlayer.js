@@ -2,9 +2,12 @@ import { Entity } from './core/Entity.js';
 import { Tweens } from './core/Tweens.js';
 
 class EntityPlayer extends Entity {
-  constructor(options) {
+  constructor(options, core) {
     // Inherit Entity properties
-    super(options);
+    super(options, core);
+
+    // Update loading state
+    this.isLoaded = true;
 
     // Animations
     this.tweens = new Tweens();

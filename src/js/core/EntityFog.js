@@ -6,31 +6,25 @@ import { Entity } from './Entity.js';
 */
 
 class EntityFog extends Entity {
-  constructor(options) {
-    // Set default options
+  constructor(options, core) {
     // Inherit Entity properties
-    super(options);
+    super(options, core);
 
-    // Declare entity components
-    this.fog;
-  }
-
-  load(options, core) {
     // Initialize fog
     const { color = '#ffffff', near = 1, far = 1000 } = options;
     this.fog = new Fog(color, near, far);
+    this.isLoaded = true;
 
     // Assign fog to scene
     core.scene.fog = this.fog;
-
-    // Get the sphere mesh child and apply the material
-    this.isLoaded = true;
   }
 
   serialize() {
     // Serialize entity to JSON
     const json = super.serialize();
-    json.color = this.color;
+    json.color = this.fog.color.getHex();
+    json.near = this.fog.near;
+    json.far = this.fog.far;
     return json;
   }
 

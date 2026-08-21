@@ -5,9 +5,9 @@ import { EntityParticles } from './core/EntityParticles.js';
 */
 
 class EntityRain extends EntityParticles {
-  constructor(options) {
+  constructor(options, core) {
     // Inherit Entity properties
-    super(options);
+    super(options, core);
 
     // Add rain particles
     this.range = options.range;
@@ -22,9 +22,8 @@ class EntityRain extends EntityParticles {
         }
       })
     }
-  }
 
-  load(options, core) {
+    // Enable rain layer for camera
     core.camera.layers.enable(1);
     this.isLoaded = true;
   }

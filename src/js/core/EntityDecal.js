@@ -18,11 +18,12 @@ const _position = new Vector3();
 const _relativeMatrix = new Matrix4();
 
 class EntityDecal extends Entity {
-  constructor(options) {
+  constructor(options, core) {
     // Inherit Entity properties (position, rotation, scale, etc.)
-    super(options);
+    super(options, core);
 
     // Store only what cannot be derived from Entity properties
+    this.core = core;
     this.url = options.url;
     this.normal = options.normal;
     this.size = new Vector3(options.size.x, options.size.y, options.size.z);
@@ -54,11 +55,6 @@ class EntityDecal extends Entity {
     this.target.removeEventListener('isLoaded', this.onTargetLoaded);
     this.isLoaded = true;
     this.build(this.core, this.target);
-  }
-
-  load(options, core) {
-    // Store core reference for use once the target is ready
-    this.core = core;
   }
 
   build(core, target) {

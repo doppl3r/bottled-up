@@ -5,10 +5,10 @@ import { Entity } from './Entity.js';
 */
 
 class EntityTexture extends Entity {
-  constructor(options) {
+  constructor(options, core) {
     // Set default options
     // Inherit Entity properties
-    super(options);
+    super(options, core);
 
     // Store options
     this.options = options;
@@ -19,9 +19,7 @@ class EntityTexture extends Entity {
     // Add event listeners
     this.addEventListener('added', this.updateParentTexture);
     this.addEventListener('isLoaded', this.updateParentTexture);
-  }
 
-  load(options, core) {
     // Add texture component if entity is an instance of EntityTexture
     core.assets.load(options.url, texture => {
       this.texture = texture;

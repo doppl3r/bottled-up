@@ -5,16 +5,14 @@ import { Entity } from './Entity.js';
 */
 
 class EntityMaterial extends Entity {
-  constructor(options) {
+  constructor(options, core) {
     // Inherit Entity properties
-    super(options);
+    super(options, core);
 
     // Create standard material
     this.material;
     this.url;
-  }
 
-  load(options, core) {
     // Add material component if entity is an instance of EntityMaterial
     core.assets.load(options.url, material => {
       this.setMaterial(material, options);

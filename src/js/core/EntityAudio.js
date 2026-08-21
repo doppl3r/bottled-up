@@ -5,22 +5,20 @@ import { Entity } from './Entity.js';
 */
 
 class EntityAudio extends Entity {
-  constructor(options) {
+  constructor(options, core) {
     // Inherit Entity properties
-    super(options);
+    super(options, core);
 
-    // Set default properties
-    this.audio;
-    this.url;
-  }
-
-  load(options, core) {
     // Add audio component if entity is an instance of EntityAudio
     core.assets.load(options.url, audio => {
       this.setAudio(audio, options);
       this.add(audio);
       this.isLoaded = true;
     });
+
+    // Set default properties
+    this.audio;
+    this.url;
   }
 
   setAudio(audio, options = {}) {

@@ -5,10 +5,9 @@ import { Entity } from './Entity.js';
 const _targetPos = new Vector3();
 
 class EntityLightSun extends Entity {
-  constructor(options) {
-    // Set default options
+  constructor(options, core) {
     // Inherit Entity properties
-    super(options);
+    super(options, core);
 
     // Store shadow parameters
     this.shadowQuality = options.shadowQuality;
@@ -33,6 +32,9 @@ class EntityLightSun extends Entity {
 
     // Create optional debug helper for shadow camera frustum
     this.lightHelper = new CameraHelper(this.light.shadow.camera);
+
+    // Update loaded state
+    this.isLoaded = true;
   }
 
   render(loop) {

@@ -2,14 +2,16 @@ import { DirectionalLight } from 'three';
 import { Entity } from './Entity.js';
 
 class EntityLightDirectional extends Entity {
-  constructor(options) {
-    // Set default options
+  constructor(options, core) {
     // Inherit Entity properties
-    super(options);
+    super(options, core);
 
     // Create and add light
     this.light = new DirectionalLight(options.color, options.intensity);
     this.add(this.light);
+
+    // Update loaded state
+    this.isLoaded = true;
   }
 
   serialize() {

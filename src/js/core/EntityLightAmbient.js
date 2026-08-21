@@ -3,7 +3,6 @@ import { Entity } from './Entity.js';
 
 class EntityLightAmbient extends Entity {
   constructor(options) {
-    // Set default options
     // Inherit Entity properties
     super(options);
 

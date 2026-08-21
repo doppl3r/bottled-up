@@ -3,13 +3,15 @@ import { Entity } from './Entity.js';
 
 class EntityLightPoint extends Entity {
   constructor(options) {
-    // Set default options
     // Inherit Entity properties
     super(options);
 
     // Create and add light
     this.light = new PointLight(options.color, options.intensity, options.distance, options.decay);
     this.add(this.light);
+
+    // Update loaded state
+    this.isLoaded = true;
   }
 
   serialize() {

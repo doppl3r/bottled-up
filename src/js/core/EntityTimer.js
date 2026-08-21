@@ -12,6 +12,7 @@ class EntityTimer extends Entity {
     // Define properties
     this.delay = options.delay;
     this.elapsed = 0;
+    this.isLoaded = true;
   }
 
   update(loop) {

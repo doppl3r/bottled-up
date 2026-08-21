@@ -34,10 +34,9 @@ const _colliderPosition = new Vector3();
 const _colliderRotation = new Quaternion();
 
 class EntityBallController extends Entity {
-  constructor(options) {
-
+  constructor(options, core) {
     // Inherit Entity properties
-    super(options);
+    super(options, core);
 
     // Assign default values from options
     this.moveForce = options.moveForce;
@@ -108,9 +107,7 @@ class EntityBallController extends Entity {
     this.camRotateTween = null;
     this.camAzimuthTarget = 0;
     this.camPitchTarget = this.camPitchDefault;
-  }
 
-  load(options, core) {
     // Initialize core
     this.core = core;
 

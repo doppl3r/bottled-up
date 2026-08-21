@@ -15,21 +15,15 @@ const _localPosition = new Vector3();
 const _worldQuat = new Quaternion();
 
 class EntityShadow extends Entity {
-  constructor(options) {
+  constructor(options, core) {
     // Inherit Entity properties
-    super(options);
+    super(options, core);
 
     // Initialize raycaster
     this.distance = options.distance;
     this.raycaster = new Raycaster();
 
-    // Set in load()
-    this.shadow = null;
-    this.core = null;
-    this.url = null;
-  }
-
-  load(options, core) {
+    // Store core reference and shadow texture URL
     this.core = core;
     this.url = options.url;
 

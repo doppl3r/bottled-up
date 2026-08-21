@@ -10,12 +10,6 @@ class EntityMesh extends Entity {
     // Inherit Entity properties
     super(options);
 
-    // Create mesh reference prior to creation
-    this.mesh = null;
-    this.meshOptions = options;
-  }
-
-  load(options, core) {
     // Add mesh component if entity is an instance of EntityMesh
     const mesh = MeshFactory.create(options);
     this.setMesh(mesh, options);

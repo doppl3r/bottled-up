@@ -6,21 +6,18 @@ import { Particles } from './Particles.js';
 */
 
 class EntityParticles extends Entity {
-  constructor(options) {
-    // Set default options
+  constructor(options, core) {
     // Inherit Entity properties
-    super(options);
+    super(options, core);
 
     // Declare entity components
-    this.urls = [];
     this.particles = new Particles(options);
     this.particles.layers.set(1);
     this.add(this.particles);
-  }
 
-  load(options, core) {
     // Add particles component if entity is an instance of EntityParticles
     if (options.urls) {
+      this.urls = options.urls;
       core.assets.loadBatch(options.urls, textures => {
         this.setTextures(textures, options);
         this.isLoaded = true;
@@ -29,11 +26,6 @@ class EntityParticles extends Entity {
     else {
       this.isLoaded = true;
     }
-  }
-
-  render(loop) {
-    // Perform base entity render
-    super.render(loop);
   }
 
   setTextures(textures, options) {

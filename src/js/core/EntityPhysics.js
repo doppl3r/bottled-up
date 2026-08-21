@@ -21,9 +21,9 @@ const _e = new Euler();
 const _q = new Quaternion();
 
 class EntityPhysics extends Entity {
-  constructor(options) {
+  constructor(options, core) {
     // Inherit Entity properties
-    super(options);
+    super(options, core);
 
     // Store options
     this.options = options;
@@ -33,13 +33,7 @@ class EntityPhysics extends Entity {
     this.quaternion0 = this.quaternion.clone();
     this.rigidBody;
     this.sleeping = false;
-    this.world;
 
-    // Add event listeners
-    this.addEventListener('added', this.onAdded);
-  }
-
-  load(options, core) {
     // Store reference to the physics world
     this.world = core.entityManager.world;
 
@@ -87,6 +81,9 @@ class EntityPhysics extends Entity {
       PhysicsFactory.create(this, options.rigidBody, this.world);
       this.isLoaded = true;
     }
+
+    // Add event listeners
+    this.addEventListener('added', this.onAdded);
   }
 
   update(loop) {

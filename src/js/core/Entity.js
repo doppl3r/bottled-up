@@ -13,7 +13,6 @@ const _eventBeforeUpdate = { type: 'beforeUpdate', loop: null };
 const _eventRendered = { type: 'rendered', loop: null };
 const _eventUpdated = { type: 'updated', loop: null };
 const _eventRootRemoved = { type: 'rootRemoved', root: null };
-const _eventPropertyChanged = { type: null, value: null };
 
 class Entity extends Object3D {
   constructor(options) {
@@ -48,17 +47,12 @@ class Entity extends Object3D {
     this.visible = options.visible;
 
     // Define reactive properties
-    this.defineProperty('isLoaded', false);
+    this.defineProperty('isLoaded', false, event => this.dispatchEvent(event));
 
     // Add event listener(s)
     this.addEventListener('removed', this.onRemoved);
     this.addEventListener('childadded', this.onChildAdded);
     this.addEventListener('childremoved', this.onChildRemoved);
-  }
-
-  load() {
-    // Update loading state
-    this.isLoaded = true;
   }
 
   update(loop) {
@@ -137,15 +131,13 @@ class Entity extends Object3D {
     }
   }
 
-  defineProperty = (name, value) => {
+  defineProperty = (name, value, callback = () => {}) => {
     Object.defineProperty(this, name, {
       get: () => value,
       set: newValue => {
         if (value !== newValue) {
           value = newValue;
-          _eventPropertyChanged.type = name;
-          _eventPropertyChanged.value = newValue;
-          this.dispatchEvent(_eventPropertyChanged);
+          callback({ type: name, value: newValue });
         }
       }
     });

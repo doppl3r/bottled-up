@@ -1,9 +1,9 @@
 import { Entity } from './Entity.js';
 
 class EntityBall extends Entity {
-  constructor(options) {
+  constructor(options, core) {
     // Inherit Entity properties
-    super(options);
+    super(options, core);
   }
 
   static template = {

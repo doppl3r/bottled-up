@@ -2,15 +2,16 @@ import { CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
 import { Entity } from './Entity.js';
 
 class EntityText extends Entity {
-  constructor(options) {
+  constructor(options, core) {
     // Inherit Entity properties
-    super(options);
+    super(options, core);
 
     // Create element for the CSS2DObject
     const element = document.createElement(options.type);
     element.className = options.class;
     element.innerHTML = options.text;
     this.textObject = new CSS2DObject(element);
+    this.isLoaded = true;
 
     // Ensure this text is removed after parent is removed
     this.addEventListener('added', this.onAdded);

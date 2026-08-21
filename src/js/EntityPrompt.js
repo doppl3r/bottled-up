@@ -1,9 +1,9 @@
 import { Entity } from './core/Entity.js';
 
 class EntityPrompt extends Entity {
-  constructor(options) {
+  constructor(options, core) {
     // Inherit Entity properties
-    super(options);
+    super(options, core);
   }
 
   static template = {

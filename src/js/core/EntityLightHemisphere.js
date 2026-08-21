@@ -9,6 +9,9 @@ class EntityLightHemisphere extends Entity {
     // Create and add light
     this.light = new HemisphereLight(options.skyColor, options.groundColor, options.intensity);
     this.add(this.light);
+
+    // Update loaded state
+    this.isLoaded = true;
   }
 
   serialize() {

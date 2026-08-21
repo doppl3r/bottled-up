@@ -9,28 +9,19 @@ import { Entity } from './Entity.js';
 const _worldPosition = new Vector3();
 
 class EntityEnvironment extends Entity {
-  constructor(options) {
+  constructor(options, core) {
     // Inherit Entity properties
-    super(options);
+    super(options, core);
 
     // Store options
     this.options = options;
 
-    // Store only what cannot be derived from Entity properties
-    this.url = options.url;
-    this.texture = null;
-    this.pmremGenerator = null;
-
-    // Add event listeners
-    this.addEventListener('added', this.onAdded);
-  }
-
-  load(options, core) {
     this.scene = core.scene;
     this.pmremGenerator = new PMREMGenerator(core.renderer);
 
     // Load HDR texture
     if (this.url) {
+      this.url = options.url;
       core.assets.load(this.url, texture => {
         this.texture = texture;
         this.isLoaded = true;
@@ -39,6 +30,9 @@ class EntityEnvironment extends Entity {
     else {
       this.isLoaded = true;
     }
+
+    // Add event listeners
+    this.addEventListener('added', this.onAdded);
   }
 
   updateEnvironment = () => {

@@ -1,22 +1,20 @@
 import { Entity } from './core/Entity.js';
 
 class EntityNPC extends Entity {
-  constructor(options) {
+  constructor(options, core) {
     // Inherit Entity properties
-    super(options);
+    super(options, core);
 
-    // Get physics entity after it gets added
-    this.get('EntityPhysics', entity => {
-      entity.addEventListener('collision', this.onCollision);
-    });
-  }
-
-  load(options, core) {
     // TODO: Remove URL selection logic
     options.children[0].url = EntityNPC.urls[0];
     EntityNPC.urls.splice(0, 1);
 
     this.isLoaded = true;
+
+    // Get physics entity after it gets added
+    this.get('EntityPhysics', entity => {
+      entity.addEventListener('collision', this.onCollision);
+    });
   }
 
   render(loop) {

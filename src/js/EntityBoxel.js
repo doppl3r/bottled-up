@@ -2,28 +2,13 @@ import { Entity } from './core/Entity.js';
 import { Tweens } from './core/Tweens.js';
 
 class EntityBoxel extends Entity {
-  constructor(options) {
+  constructor(options, core) {
     // Inherit Entity properties
-    super(options);
-
-    // Properties
-    this.isCollected = false;
+    super(options, core);
 
     // Animations
     this.tweens = new Tweens();
     this.time = 0;
-
-    // Add child events
-    this.addEventListener('childadded', this.onChildAdded);
-  }
-
-  load(options, core) {
-    // Set default options
-    options = Object.assign({
-      position: { x: 0, y: 0, z: 0 },
-      rotation: { x: 0, y: 0, z: 0 },
-      scale: { x: 0.25, y: 0.25, z: 0.25 },
-    }, options);
 
     // Update child entity options
     for (let i = 0; i < options.children.length; i++) {
@@ -46,7 +31,12 @@ class EntityBoxel extends Entity {
       }
     }
 
+    // Update entity state
+    this.isCollected = false;
     this.isLoaded = true;
+
+    // Add child events
+    this.addEventListener('childadded', this.onChildAdded);
   }
 
   render(loop) {

@@ -7,10 +7,9 @@ import { Entity } from './Entity.js';
 */
 
 class EntityMixer extends Entity {
-  constructor(options) {
-    // Set default options
+  constructor(options, core) {
     // Inherit Entity properties
-    super(options);
+    super(options, core);
 
     // Declare entity components
     this.mixer;
@@ -19,17 +18,12 @@ class EntityMixer extends Entity {
 
     // Store options for later
     this.options = options;
+    this.core = core;
+    this.isLoaded = true;
 
     // Add event listeners
     this.addEventListener('added', this.onAdded);
   }
-
-  load(options, core) {
-    // Stash core here; parent isn't assigned yet until the 'added' event fires
-    this.core = core;
-    this.isLoaded = true;
-  }
-
 
   render(loop) {
     this.mixer?.update(loop.delta / 1000);

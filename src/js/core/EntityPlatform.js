@@ -10,12 +10,18 @@ import { Tweens } from './Tweens.js';
 // Initialize module-scoped variables
 
 class EntityPlatform extends EntityCube {
-  constructor(options) {
+  constructor(options, core) {
     // Inherit Entity properties
-    super(options);
+    super(options, core);
 
     // Animations
     this.tweens = new Tweens();
+
+    // Assign "prop" string to options
+    this.stringToOptions(options.prop, options);
+
+    // Initialize animations container
+    this.createAnimations(options);
   }
 
   stringToOptions(propString = '', options) {
@@ -29,17 +35,6 @@ class EntityPlatform extends EntityCube {
         options[k] = v;
       }
     });
-  }
-
-  load(options, core) {
-    // Assign "prop" string to options
-    this.stringToOptions(options.prop, options);
-
-    // Resume cube entity loading
-    super.load(options, core);
-
-    // Initialize animations container
-    this.createAnimations(options);
   }
 
   update(loop) {

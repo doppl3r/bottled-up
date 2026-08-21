@@ -6,10 +6,9 @@ import { Entity } from './Entity.js';
 */
 
 class EntityModel extends Entity {
-  constructor(options) {
-    // Set default options
+  constructor(options, core) {
     // Inherit Entity properties
-    super(options);
+    super(options, core);
 
     // Declare entity components
     this.minFilter = options.minFilter;
@@ -17,16 +16,8 @@ class EntityModel extends Entity {
     this.generateMipmaps = options.generateMipmaps;
     this.castShadow = options.castShadow;
     this.receiveShadow = options.receiveShadow;
-    this.model;
-    this.url;
-  }
 
-  render(loop) {
-    // Perform base entity render
-    super.render(loop);
-  }
-
-  load(options, core) {
+    // Load model if url is provided
     const url = options.url;
     if (url) {
       // Store url

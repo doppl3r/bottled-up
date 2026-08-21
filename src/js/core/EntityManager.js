@@ -234,8 +234,7 @@ class EntityManager {
       }
 
       // Create entity instance and load options
-      const entity = new entityClass(options);
-      entity.load(options, this.core);
+      const entity = new entityClass(options, this.core);
       return entity;
     }
     else {
