@@ -10,8 +10,8 @@ class EntityLightDirectional extends Entity {
     this.light = new DirectionalLight(options.color, options.intensity);
     this.add(this.light);
 
-    // Update loaded state
-    this.isLoaded = true;
+    // Update entity state
+    this.isReady = true;
   }
 
   serialize() {

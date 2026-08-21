@@ -6,9 +6,9 @@ import { MeshFactory } from './MeshFactory.js';
 */
 
 class EntityMesh extends Entity {
-  constructor(options) {
+  constructor(options, core) {
     // Inherit Entity properties
-    super(options);
+    super(options, core);
 
     // Add mesh component if entity is an instance of EntityMesh
     const mesh = MeshFactory.create(options);
@@ -17,7 +17,7 @@ class EntityMesh extends Entity {
     mesh.castShadow = options.castShadow;
     mesh.receiveShadow = options.receiveShadow;
     mesh.renderOrder = options.renderOrder;
-    this.isLoaded = true;
+    this.isReady = true;
   }
 
   setMesh(mesh, options) {

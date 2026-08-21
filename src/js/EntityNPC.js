@@ -9,12 +9,13 @@ class EntityNPC extends Entity {
     options.children[0].url = EntityNPC.urls[0];
     EntityNPC.urls.splice(0, 1);
 
-    this.isLoaded = true;
-
     // Get physics entity after it gets added
     this.get('EntityPhysics', entity => {
       entity.addEventListener('collision', this.onCollision);
     });
+
+    // Update entity state
+    this.isReady = true;
   }
 
   render(loop) {

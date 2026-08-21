@@ -11,11 +11,13 @@ class EntityText extends Entity {
     element.className = options.class;
     element.innerHTML = options.text;
     this.textObject = new CSS2DObject(element);
-    this.isLoaded = true;
-
+    
     // Ensure this text is removed after parent is removed
     this.addEventListener('added', this.onAdded);
     this.addEventListener('rootRemoved', this.onRootRemoved);
+
+    // Update entity state
+    this.isReady = true;
   }
 
   onAdded = event => {

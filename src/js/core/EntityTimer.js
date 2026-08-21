@@ -5,14 +5,16 @@ import { Entity } from './Entity.js';
 */
 
 class EntityTimer extends Entity {
-  constructor(options) {
+  constructor(options, core) {
     // Inherit Entity properties
-    super(options);
+    super(options, core);
 
     // Define properties
     this.delay = options.delay;
     this.elapsed = 0;
-    this.isLoaded = true;
+    
+    // Update entity state
+    this.isReady = true;
   }
 
   update(loop) {

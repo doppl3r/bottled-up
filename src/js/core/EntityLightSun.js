@@ -33,8 +33,8 @@ class EntityLightSun extends Entity {
     // Create optional debug helper for shadow camera frustum
     this.lightHelper = new CameraHelper(this.light.shadow.camera);
 
-    // Update loaded state
-    this.isLoaded = true;
+    // Update entity state
+    this.isReady = true;
   }
 
   render(loop) {

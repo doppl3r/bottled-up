@@ -13,10 +13,12 @@ class EntityFog extends Entity {
     // Initialize fog
     const { color = '#ffffff', near = 1, far = 1000 } = options;
     this.fog = new Fog(color, near, far);
-    this.isLoaded = true;
-
+    
     // Assign fog to scene
     core.scene.fog = this.fog;
+
+    // Update entity state
+    this.isReady = true;
   }
 
   serialize() {

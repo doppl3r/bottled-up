@@ -124,7 +124,7 @@ class EntityBallController extends Entity {
     this.addEventListener('added', this.onAdded);
 
     // Initialize entity properties
-    this.isLoaded = true;
+    this.isReady = true;
   }
 
   update(loop) {

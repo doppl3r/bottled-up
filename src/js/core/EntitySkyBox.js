@@ -29,13 +29,13 @@ class EntitySkyBox extends Entity {
         const textureCube = TextureFactory.createTextureCube(images);
         core.scene.background = textureCube;
         
-        // Dispatch loaded and resume base class
-        this.isLoaded = true;
+        // Update entity state
+        this.isReady = true;
       });
     }
     else {
       core.scene.background = TextureFactory.generateSkySphereTexture();
-      this.isLoaded = true;
+      this.isReady = true;
     }
   }
 

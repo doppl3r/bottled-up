@@ -15,7 +15,7 @@ const _eventUpdated = { type: 'updated', loop: null };
 const _eventRootRemoved = { type: 'rootRemoved', root: null };
 
 class Entity extends Object3D {
-  constructor(options) {
+  constructor(options, core) {
     // Inherit Three.js Object3D system
     super();
 
@@ -47,7 +47,7 @@ class Entity extends Object3D {
     this.visible = options.visible;
 
     // Define reactive properties
-    this.defineProperty('isLoaded', false, event => this.dispatchEvent(event));
+    this.defineProperty('isReady', false, event => this.dispatchEvent(event));
 
     // Add event listener(s)
     this.addEventListener('removed', this.onRemoved);

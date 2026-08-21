@@ -8,9 +8,9 @@ import { Tweens } from './Tweens.js';
 */
 
 class EntitySkySphere extends Entity {
-  constructor(options) {
+  constructor(options, core) {
     // Inherit Entity properties
-    super(options);
+    super(options, core);
 
     // Declare entity components
     this.colors = options.colors;
@@ -81,11 +81,11 @@ class EntitySkySphere extends Entity {
       `
     });
 
-    // Update loading state
-    this.isLoaded = true;
-
     // Add event listeners
     this.addEventListener('childadded', this.onChildAdded);
+
+    // Update loading state
+    this.isReady = true;
   }
 
   render(loop) {

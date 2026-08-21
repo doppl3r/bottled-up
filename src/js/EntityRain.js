@@ -25,7 +25,9 @@ class EntityRain extends EntityParticles {
 
     // Enable rain layer for camera
     core.camera.layers.enable(1);
-    this.isLoaded = true;
+
+    // Update entity state
+    this.isReady = true;
   }
 
   render(loop) {

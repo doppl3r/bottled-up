@@ -6,11 +6,11 @@ class EntityPlayer extends Entity {
     // Inherit Entity properties
     super(options, core);
 
-    // Update loading state
-    this.isLoaded = true;
-
     // Animations
     this.tweens = new Tweens();
+
+    // Update loading state
+    this.isReady = true;
   }
 
   update(loop) {

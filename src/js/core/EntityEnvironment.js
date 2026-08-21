@@ -24,11 +24,11 @@ class EntityEnvironment extends Entity {
       this.url = options.url;
       core.assets.load(this.url, texture => {
         this.texture = texture;
-        this.isLoaded = true;
+        this.isReady = true;
       });
     }
     else {
-      this.isLoaded = true;
+      this.isReady = true;
     }
 
     // Add event listeners
@@ -80,12 +80,12 @@ class EntityEnvironment extends Entity {
 
   onAdded = event => {
     if (this.parent.isScene) {
-      // Update scene background when loaded
-      this.scene.addEventListener('isLoaded', this.updateEnvironment);
+      // Update scene background when ready
+      this.scene.addEventListener('isReady', this.updateEnvironment);
     }
     else {
-      // Update parent entity environment when loaded
-      this.parent.addEventListener('isLoaded', this.updateEnvironment);
+      // Update parent entity environment when ready
+      this.parent.addEventListener('isReady', this.updateEnvironment);
     }
   }
 

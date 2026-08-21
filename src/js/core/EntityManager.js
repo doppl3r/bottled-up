@@ -106,33 +106,33 @@ class EntityManager {
       this.spawn(childOptions, this.core.scene, entities);
     });
 
-    // Filter list of entities that are not yet loaded
-    const pendingEntities = entities.filter(entity => !entity.isLoaded);
+    // Filter list of entities that are not yet ready
+    const pendingEntities = entities.filter(entity => !entity.isReady);
 
-    // Define scene loaded handler
-    const onSceneLoaded = () => {
-      this.core.scene.dispatchEvent({ type: 'isLoaded' });
+    // Define scene ready handler
+    const onSceneReady = () => {
+      this.core.scene.dispatchEvent({ type: 'isReady' });
       onLoad();
     };
 
     // Load scene immediately if no pending entities
     if (pendingEntities.length === 0) {
-      onSceneLoaded();
+      onSceneReady();
       return;
     }
 
     // Loop through pending entities
     let remaining = pendingEntities.length;
     pendingEntities.forEach(entity => {
-      // Create loaded entity handler
-      const onEntityLoaded = () => {
-        entity.removeEventListener('loaded', onEntityLoaded);
+      // Create entity ready handler
+      const onEntityReady = () => {
+        entity.removeEventListener('isReady', onEntityReady);
         remaining--;
-        if (remaining === 0) onSceneLoaded();
+        if (remaining === 0) onSceneReady();
       };
 
-      // Add loaded event listener
-      entity.addEventListener('isLoaded', onEntityLoaded);
+      // Add ready event listener
+      entity.addEventListener('isReady', onEntityReady);
     });
   }
 

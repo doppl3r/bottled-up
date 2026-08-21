@@ -20,11 +20,11 @@ class EntityParticles extends Entity {
       this.urls = options.urls;
       core.assets.loadBatch(options.urls, textures => {
         this.setTextures(textures, options);
-        this.isLoaded = true;
+        this.isReady = true;
       });
     }
     else {
-      this.isLoaded = true;
+      this.isReady = true;
     }
   }
 

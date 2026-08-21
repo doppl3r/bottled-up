@@ -19,10 +19,12 @@ class EntityMixer extends Entity {
     // Store options for later
     this.options = options;
     this.core = core;
-    this.isLoaded = true;
-
+    
     // Add event listeners
     this.addEventListener('added', this.onAdded);
+
+    // Update entity state
+    this.isReady = true;
   }
 
   render(loop) {

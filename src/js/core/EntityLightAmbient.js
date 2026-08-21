@@ -2,9 +2,9 @@ import { AmbientLight } from 'three';
 import { Entity } from './Entity.js';
 
 class EntityLightAmbient extends Entity {
-  constructor(options) {
+  constructor(options, core) {
     // Inherit Entity properties
-    super(options);
+    super(options, core);
 
     // Create and add light
     this.light = new AmbientLight(options.color, options.intensity);

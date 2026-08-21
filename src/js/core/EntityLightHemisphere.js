@@ -2,16 +2,16 @@ import { HemisphereLight } from 'three';
 import { Entity } from './Entity.js';
 
 class EntityLightHemisphere extends Entity {
-  constructor(options) {
+  constructor(options, core) {
     // Inherit Entity properties
-    super(options);
+    super(options, core);
 
     // Create and add light
     this.light = new HemisphereLight(options.skyColor, options.groundColor, options.intensity);
     this.add(this.light);
 
-    // Update loaded state
-    this.isLoaded = true;
+    // Update entity state
+    this.isReady = true;
   }
 
   serialize() {
