@@ -21,7 +21,7 @@ class EntityTexture extends Entity {
 
     // Add texture component if entity is an instance of EntityTexture
     core.assets.load(options.url, texture => {
-      this.texture = texture;
+      this.texture = options.clone ? texture.clone() : texture;
       this.ready();
     });
   }

@@ -41,7 +41,7 @@ class EntityPlayer extends Entity {
 
   static applyTemplate(options) {
     // TODO: Remove shape override
-    options.shape = 'capsule';
+    options.shape = 'ball';
 
     // Update template based on shape
     this.template = this.templates[options.shape];
@@ -77,6 +77,7 @@ class EntityPlayer extends Entity {
           children: [
             {
               class: 'EntityTexture',
+              clone: true,
               url: 'png/smile.png',
               minFilter: 1003,
               magFilter: 1003,
@@ -144,6 +145,7 @@ class EntityPlayer extends Entity {
           children: [
             {
               class: 'EntityTexture',
+              clone: true,
               url: 'png/smile.png',
               minFilter: 1003,
               magFilter: 1003,
@@ -159,7 +161,6 @@ class EntityPlayer extends Entity {
             sleeping: true,
             colliders: [
               {
-                friction: 0,
                 shapeDesc: {
                   shapes: [
                     {
@@ -210,6 +211,7 @@ class EntityPlayer extends Entity {
           children: [
             {
               class: 'EntityTexture',
+              clone: true,
               url: 'png/smile.png',
               minFilter: 1003,
               magFilter: 1003,
@@ -276,6 +278,7 @@ class EntityPlayer extends Entity {
           children: [
             {
               class: 'EntityTexture',
+              clone: true,
               url: 'png/smile.png',
               minFilter: 1003,
               magFilter: 1003,
