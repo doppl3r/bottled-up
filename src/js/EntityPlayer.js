@@ -32,7 +32,7 @@ class EntityPlayer extends Entity {
       },
       {
         class: 'EntityModel',
-        url: 'glb/potion.glb'
+        url: 'glb/potion-ball.glb'
       },
       {
         class: 'EntityMesh',
