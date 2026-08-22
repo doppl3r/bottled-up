@@ -128,9 +128,11 @@ class EntityBallController extends Entity {
   }
 
   update(loop) {
+    // Cancel update if physics entity is not yet assigned
+    if (this.entityPhysics === undefined) return;
+
     // Refresh ground/slope/wall contact normals from physics narrow-phase
     this.updateSurfaceNormals();
-
 
     // Decrement timers
     this.dashTimerElapsed = Math.max(0, this.dashTimerElapsed - loop.delta);
@@ -504,7 +506,16 @@ class EntityBallController extends Entity {
 
   setEntityPhysics(entity) {
     this.entityPhysics = entity;
+
+    // Listen to if entity is removed
+    const onEntityPhysicsRemoved = () => {
+      this.entityPhysics = undefined;
+      entity.removeEventListener('removed', onEntityPhysicsRemoved);
+    }
+    entity.addEventListener('removed', onEntityPhysicsRemoved);
   }
+
+  
 
   onKeyDown = (event) => {
     this.keys.add(event.code);

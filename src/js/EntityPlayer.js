@@ -7,6 +7,7 @@ class EntityPlayer extends Entity {
     super(options, core);
 
     // Animations
+    this.core = core;
     this.tweens = new Tweens();
 
     // Update loading state
@@ -23,6 +24,19 @@ class EntityPlayer extends Entity {
 
     // Resume Entity render behavior
     super.render(loop);
+  }
+
+  switchTemplate(shape) {
+    // Switch template based on shape
+    if (shape in EntityPlayer.templates) {
+      const template = EntityPlayer.templates[shape];
+      if (template) {
+        this.clear();
+        template.children.forEach(child => {
+          this.core.entityManager.spawn(child, this);
+        });
+      } 
+    }
   }
 
   static applyTemplate(options) {
