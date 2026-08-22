@@ -25,6 +25,19 @@ class EntityPlayer extends Entity {
     super.render(loop);
   }
 
+  static applyTemplate(options) {
+    // TODO: Remove shape override
+    options.shape = 'cylinder';
+
+    // Update template based on shape
+    if (options.shape === 'cube') this.template = this.templateCube;
+    else if (options.shape === 'ball') this.template = this.templateBall;
+    else if (options.shape === 'cylinder') this.template = this.templateCylinder;
+
+    // Apply template to entity
+    super.applyTemplate(options);
+  }
+
   static templateCube = {
     children: [
       {

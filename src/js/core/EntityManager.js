@@ -98,6 +98,14 @@ class EntityManager {
     this.core.scene.children.forEach(child => child.render?.(loop));
   }
 
+  async fetchJSON(url) {
+    // Load entity descriptions from JSON file
+    let json = {};
+    try { json = await (await fetch(url)).json(); }
+    catch { console.error(`Error: ${ url } not found.`); }
+    return json;
+  }
+
   async load(data, onLoad = () => {}) {
     // Spawn all entities defined in the scene JSON
     const pendingEntities = [];
@@ -142,14 +150,6 @@ class EntityManager {
     });
   }
 
-  async fetchJSON(url) {
-    // Load entity descriptions from JSON file
-    let json = {};
-    try { json = await (await fetch(url)).json(); }
-    catch { console.error(`Error: ${ url } not found.`); }
-    return json;
-  }
-
   spawn(options, parent = this.core.scene, pending = []) {
     // Create and add entity to parent
     const entity = this.create(options);
@@ -167,6 +167,56 @@ class EntityManager {
 
       // Return entity
       return entity;
+    }
+  }
+
+  create(options) {
+    // Create entity from registered class object
+    const entityClass = this.entityClasses[options.class];
+    if (entityClass) {
+      // Update options from template
+      entityClass.applyTemplate(options);
+
+      // Create entity instance and load options
+      const entity = new entityClass(options, this.core);
+      return entity;
+    }
+    else {
+      console.error(`Entity class "${ options.class }" does not exist.`, options);
+      return;
+    }
+  }
+
+  findClassName(name) {
+    const lName = name.toLowerCase();
+    let bestMatch = null;
+    let longestLength = 0;
+    
+    // Find the best match based on the name
+    for (const [key, className] of Object.entries(this.entityClasses)) {
+      if (lName.includes(key.toLowerCase()) && key.length > longestLength) {
+        bestMatch = key;
+        longestLength = key.length;
+      }
+    }
+    return bestMatch;
+  }
+
+  get(className) {
+    const child = this.core.scene.children.find(child => child.class === className);
+    return child;
+  }
+
+  remove(entity) {
+    // Remove entity's rigid body from physics world
+    entity.removeFromParent();
+  }
+
+  removeAll() {
+    // Remove all entities from scene and physics world
+    for (let i = this.core.scene.children.length - 1; i >= 0; i--) {
+      const child = this.core.scene.children[i];
+      if (child.isEntity) this.remove(child);
     }
   }
 
@@ -206,60 +256,6 @@ class EntityManager {
 
     // Return JSON data
     return json;
-  }
-
-  findClassName(name) {
-    const lName = name.toLowerCase();
-    let bestMatch = null;
-    let longestLength = 0;
-    
-    // Find the best match based on the name
-    for (const [key, className] of Object.entries(this.entityClasses)) {
-      if (lName.includes(key.toLowerCase()) && key.length > longestLength) {
-        bestMatch = key;
-        longestLength = key.length;
-      }
-    }
-    return bestMatch;
-  }
-
-  get(className) {
-    const child = this.core.scene.children.find(child => child.class === className);
-    return child;
-  }
-
-  create(options) {
-    // Create entity from registered class object
-    const entityClass = this.entityClasses[options.class];
-    if (entityClass) {
-      // Merge options from deep-cloned class template
-      const template = structuredClone(entityClass.template);
-      if (template) {
-        Object.assign(template, options); // Merge options into cloned template
-        Object.assign(options, template); // Merge template back into options
-      }
-
-      // Create entity instance and load options
-      const entity = new entityClass(options, this.core);
-      return entity;
-    }
-    else {
-      console.error(`Entity class "${ options.class }" does not exist.`, options);
-      return;
-    }
-  }
-
-  remove(entity) {
-    // Remove entity's rigid body from physics world
-    entity.removeFromParent();
-  }
-
-  removeAll() {
-    // Remove all entities from scene and physics world
-    for (let i = this.core.scene.children.length - 1; i >= 0; i--) {
-      const child = this.core.scene.children[i];
-      if (child.isEntity) this.remove(child);
-    }
   }
 
   drainRigidBodyQueue() {

@@ -160,6 +160,15 @@ class Entity extends Object3D {
     // Return full JSON data
     return jsonData;
   }
+
+  static applyTemplate(options) {
+    // Merge template into options
+    const template = structuredClone(this.template);
+    if (template) {
+      Object.assign(template, options); // Merge options into cloned template
+      Object.assign(options, template); // Merge template back into options
+    }
+  }
 }
 
 export { Entity }
