@@ -40,9 +40,6 @@ class EntityPlayer extends Entity {
   }
 
   static applyTemplate(options) {
-    // TODO: Remove shape override
-    options.shape = 'ball';
-
     // Update template based on shape
     this.template = this.templates[options.shape];
 
