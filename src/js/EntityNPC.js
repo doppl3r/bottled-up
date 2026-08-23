@@ -9,11 +9,6 @@ class EntityNPC extends Entity {
     options.children[0].url = EntityNPC.urls[0];
     EntityNPC.urls.splice(0, 1);
 
-    // Get physics entity after it gets added
-    this.get('EntityPhysics', entity => {
-      entity.addEventListener('collision', this.onCollision);
-    });
-
     // Update entity state
     this.ready();
   }
@@ -22,9 +17,9 @@ class EntityNPC extends Entity {
     super.render(loop);
   }
 
-  onCollision = event => {
+  standUp = event => {
     // Check if collision is with player
-    if (event.pair.parent.class === 'EntityPlayer' && event.started) {
+    if (event.pair.parent.class === 'EntityPlayer') {
       // Update model mixer
       const entityModel = this.get('EntityModel');
       const entityMixer = entityModel.get('EntityMixer');
@@ -70,6 +65,12 @@ class EntityNPC extends Entity {
           colliders: [
             {
               isSensor: true,
+              events: [
+                {
+                  name: 'standUp',
+                  started: true
+                }
+              ],
               shapeDesc: {
                 shapes: [
                   {

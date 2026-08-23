@@ -22,7 +22,8 @@ class PhysicsFactory {
 
     // Add colliders to rigid body
     options.colliders?.forEach(colliderOptions => {
-      PhysicsFactory.attachCollider(entity, colliderOptions, rigidBody, world);
+      const colliderDesc = PhysicsFactory.createColliderDesc(colliderOptions);
+      PhysicsFactory.createCollider(colliderDesc, rigidBody, world);
     });
   }
 
@@ -106,12 +107,6 @@ class PhysicsFactory {
 
   static createCollider(colliderDesc, rigidBody, world) {
     return world.createCollider(colliderDesc, rigidBody);
-  }
-
-  static attachCollider(entity, colliderOptions, rigidBody, world) {
-    // Create collider immediately
-    const colliderDesc = PhysicsFactory.createColliderDesc(colliderOptions);
-    PhysicsFactory.createCollider(colliderDesc, rigidBody, world);
   }
 
   static createShape(shapeDesc) {

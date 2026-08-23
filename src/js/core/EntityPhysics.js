@@ -85,6 +85,9 @@ class EntityPhysics extends Entity {
     // Add event listeners
     this.addEventListener('added', this.onAdded);
     this.addEventListener('removed', this.onRemoved);
+
+    // Add custom collision event listeners
+    this.addCollisionEvents();
   }
 
   update(loop) {
@@ -164,6 +167,37 @@ class EntityPhysics extends Entity {
     if (!this.rigidBody) return;
     rotation = rotation.w ? rotation : _q.setFromEuler(_e.setFromVector3(_v.copy(rotation)));
     this.rigidBody.setNextKinematicRotation(rotation);
+  }
+
+  addCollisionEvents() {
+    // Loop through all collider options
+    this.options.rigidBody?.colliders?.forEach((colliderOptions, index) => {
+      const colliderEvents = colliderOptions.events;
+      const collider = this.rigidBody?.collider(index);
+
+      // Loop through all collider events
+      colliderEvents?.forEach(colliderEvent => {
+        const onCollisionEvent = event => {
+          // Check event trigger state
+          const isStarted = (event.started === true && colliderEvent.started !== false);
+          const isEnded = (event.started === false && colliderEvent.started === false);
+          if (isStarted || isEnded) {
+            // Trigger match collider handles
+            if (event.handle === collider.handle) {
+              try {
+                this.parent?.[colliderEvent.name]({ value: colliderEvent.value, ...event });
+              }
+              catch (error) {
+                console.error(error);
+              }
+            }
+          }
+        }
+
+        // Add collision event listener to entity
+        this.addEventListener('collision', onCollisionEvent);
+      });
+    });
   }
 
   getSpeed() {
