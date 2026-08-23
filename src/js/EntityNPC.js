@@ -27,6 +27,14 @@ class EntityNPC extends Entity {
     }
   }
 
+  updateDialog = event => {
+    // Check if collision is with player
+    if (event.pair.parent.class === 'EntityPlayer') {
+      // Show or hide dialog based on event type
+      this.get('EntityText').visible = event.started;
+    }
+  }
+
   static urls = [
     'glb/npc-warrior.glb',
     'glb/npc-priest.glb',
@@ -85,9 +93,37 @@ class EntityNPC extends Entity {
                   }
                 ]
               }
+            },
+            {
+              isSensor: true,
+              events: [
+                {
+                  name: 'updateDialog',
+                  started: true
+                },
+                {
+                  name: 'updateDialog',
+                  started: false
+                }
+              ],
+              shapeDesc: {
+                shapes: [
+                  {
+                    type: 'ball',
+                    arguments: [5]
+                  }
+                ]
+              }
             }
           ]
         }
+      },
+      {
+        class: 'EntityText',
+        text: 'Help!',
+        position: { x: 0, y: 1, z: 0 },
+        style: 'color: #fff; text-shadow: 0 0.5vh 0 #000; font-size: 4vh;',
+        visible: false
       }
     ]
   }

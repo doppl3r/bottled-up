@@ -13,7 +13,7 @@ import { Entity } from './Entity.js';
 // Initialize module-scoped variables
 const _eventUpdatedRigidBody = { type: 'updatedRigidBody', loop: null };
 const _eventRenderedRigidBody = { type: 'renderedRigidBody', loop: null };
-const _eventOnCollision = { handle: null, pair: null, started: true, type: 'collision' };
+const _eventOnCollision = { collider: null, pair: null, started: true, type: 'collision' };
 const _eventOnWake = { type: 'onWake' };
 const _eventOnSleep = { type: 'onSleep' };
 const _v = new Vector3();
@@ -179,28 +179,40 @@ class EntityPhysics extends Entity {
       const colliderEvent = colliderOptions.event;
       const colliderEvents = colliderOptions.events || (colliderEvent ? [colliderEvent] : []);
 
+      // Initialize collider event references
+      collider._events = {};
+
       // Add collision event listener for collider events
       colliderEvents.forEach(colliderEvent => {
-        // Check event trigger state
-        const onCollisionEvent = event => {
-          const isStarted = (event.started === true && colliderEvent.started !== false);
-          const isEnded = (event.started === false && colliderEvent.started === false);
-          if (isStarted || isEnded) {
-            // Trigger match collider handles
-            if (event.handle === collider.handle) {
-              try {
-                this.parent?.[colliderEvent.name]({ value: colliderEvent.value, ...event });
-              }
-              catch (error) {
-                console.error(error);
-              }
+        // Assign reference to collider event in collider object
+        const colliderEventStarted = (colliderEvent.started !== false);
+        const colliderEventKey = `${ colliderEventStarted ? 'started' : 'ended' }_${ colliderEvent.name }`;
+        collider._events[colliderEventKey] = colliderEvent;
+      });
+
+      
+      // Listen for collision events and dispatch to parent entity
+      const onCollisionEvent = event => {
+        const _eventKeys = Object.keys(event.collider._events);
+        const _eventKeysFiltered = _eventKeys.filter(key => key.startsWith(`${ event.started !== false ? 'started' : 'ended' }`));
+        
+        // Dispatch collision events to parent entity
+        _eventKeysFiltered.forEach(_eventKey => {
+          const _event = event.collider._events[_eventKey];
+          if (_event) {
+            const eventFunction = this.parent?.[_event.name];
+            if (eventFunction) {
+              eventFunction?.({ value: _event.value, ...event });
+            }
+            else {
+              console.error(`Error: Function "${_event.name}" does not exist in ${ this.parent.constructor.name }.`);
             }
           }
-        }
+        });
+      }
 
-        // Add collision event listener to entity
-        this.addEventListener('collision', onCollisionEvent);
-      });
+      // Add collision event listener to entity
+      this.addEventListener('collision', onCollisionEvent);
     }
   }
 
@@ -250,8 +262,8 @@ class EntityPhysics extends Entity {
     this.parent.removeEventListener('removed', this.onParentRemoved);
   }
 
-  dispatchCollisionEvent = (handle, pair, started) => {
-    _eventOnCollision.handle = handle;
+  dispatchCollisionEvent = (collider, pair, started) => {
+    _eventOnCollision.collider = collider;
     _eventOnCollision.pair = pair;
     _eventOnCollision.started = started;
     this.dispatchEvent(_eventOnCollision);

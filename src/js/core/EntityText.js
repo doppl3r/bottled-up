@@ -10,6 +10,7 @@ class EntityText extends Entity {
     const element = document.createElement(options.type);
     element.className = options.class;
     element.innerHTML = options.text;
+    element.style.cssText = options.style;
     this.textObject = new CSS2DObject(element);
     
     // Ensure this text is removed after parent is removed

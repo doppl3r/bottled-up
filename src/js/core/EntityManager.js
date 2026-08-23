@@ -270,8 +270,8 @@ class EntityManager {
     const collider2 = this.world.getCollider(handle2);
     const entity1 = collider1?._parent?.entity;
     const entity2 = collider2?._parent?.entity;
-    entity1?.dispatchCollisionEvent?.(handle1, entity2, started);
-    entity2?.dispatchCollisionEvent?.(handle2, entity1, started);
+    entity1?.dispatchCollisionEvent?.(collider1, entity2, started);
+    entity2?.dispatchCollisionEvent?.(collider2, entity1, started);
   }
 
   registerEntityClass(name, entityClass) {
