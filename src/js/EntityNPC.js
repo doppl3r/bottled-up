@@ -17,13 +17,13 @@ class EntityNPC extends Entity {
     super.render(loop);
   }
 
-  standUp = event => {
+  updateMixer = event => {
     // Check if collision is with player
     if (event.pair.parent.class === 'EntityPlayer') {
       // Update model mixer
       const entityModel = this.get('EntityModel');
       const entityMixer = entityModel.get('EntityMixer');
-      entityMixer.play('_IdleStanding');
+      entityMixer.play(event.value);
     }
   }
 
@@ -67,8 +67,14 @@ class EntityNPC extends Entity {
               isSensor: true,
               events: [
                 {
-                  name: 'standUp',
+                  name: 'updateMixer',
+                  value: '_IdleStanding',
                   started: true
+                },
+                {
+                  name: 'updateMixer',
+                  value: '_IdleWounded',
+                  started: false
                 }
               ],
               shapeDesc: {

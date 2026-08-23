@@ -34,9 +34,6 @@ class EntityBoxel extends Entity {
     // Update entity state
     this.isCollected = false;
     this.ready();
-
-    // Add child events
-    this.addEventListener('childadded', this.onChildAdded);
   }
 
   render(loop) {
@@ -52,15 +49,8 @@ class EntityBoxel extends Entity {
     super.render(loop);
   }
 
-  onChildAdded = event => {
-    const child = event.child;
-    if (child.class === 'EntityPhysics') {
-      child.addEventListener('collision', this.onCollision);
-    }
-  }
-
-  onCollision = event => {
-    if (event.started && this.isCollected === false && event.pair.parent.class === 'EntityPlayer') {
+  collect = event => {
+    if (this.isCollected === false && event.pair.parent.class === 'EntityPlayer') {
       this.isCollected = true;
 
       // Store scale values for tweening
@@ -84,6 +74,9 @@ class EntityBoxel extends Entity {
           colliders: [
             {
               isSensor: true,
+              event: {
+                name: 'collect'
+              },
               shapeDesc: {
                 type: 'cuboid',
                 arguments: [0.25, 0.25, 0.25]

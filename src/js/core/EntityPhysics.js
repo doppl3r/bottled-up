@@ -87,7 +87,7 @@ class EntityPhysics extends Entity {
     this.addEventListener('removed', this.onRemoved);
 
     // Add custom collision event listeners
-    this.addCollisionEvents();
+    this.addCollisionEvents(options.rigidBody.colliders);
   }
 
   update(loop) {
@@ -169,16 +169,20 @@ class EntityPhysics extends Entity {
     this.rigidBody.setNextKinematicRotation(rotation);
   }
 
-  addCollisionEvents() {
-    // Loop through all collider options
-    this.options.rigidBody?.colliders?.forEach((colliderOptions, index) => {
-      const colliderEvents = colliderOptions.events;
-      const collider = this.rigidBody?.collider(index);
+  addCollisionEvents(colliders) {
+    // Loop through all colliders in the rigid body
+    for (let i = 0; i < this.rigidBody.numColliders(); i++) {
+      const collider = this.rigidBody.collider(i);
+      const colliderOptions = colliders[i];
 
-      // Loop through all collider events
-      colliderEvents?.forEach(colliderEvent => {
+      // Set array of events from collider options
+      const colliderEvent = colliderOptions.event;
+      const colliderEvents = colliderOptions.events || (colliderEvent ? [colliderEvent] : []);
+
+      // Add collision event listener for collider events
+      colliderEvents.forEach(colliderEvent => {
+        // Check event trigger state
         const onCollisionEvent = event => {
-          // Check event trigger state
           const isStarted = (event.started === true && colliderEvent.started !== false);
           const isEnded = (event.started === false && colliderEvent.started === false);
           if (isStarted || isEnded) {
@@ -197,7 +201,7 @@ class EntityPhysics extends Entity {
         // Add collision event listener to entity
         this.addEventListener('collision', onCollisionEvent);
       });
-    });
+    }
   }
 
   getSpeed() {
