@@ -17,7 +17,7 @@ class EntityPrompt extends Entity {
           colliders: [
             {
               isSensor: true,
-              shapeDesc: {
+              shape: {
                 type: 'ball',
                 arguments: [0.25]
               }

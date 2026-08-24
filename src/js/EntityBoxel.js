@@ -26,7 +26,7 @@ class EntityBoxel extends Entity {
         const colliders = child.rigidBody.colliders;
         colliders.forEach(colliderOptions => {
           const args = [options.scale.x, options.scale.y, options.scale.z];
-          colliderOptions.shapeDesc.arguments = args;
+          colliderOptions.shape.arguments = args;
         });
       }
     }
@@ -77,7 +77,7 @@ class EntityBoxel extends Entity {
               event: {
                 name: 'collect'
               },
-              shapeDesc: {
+              shape: {
                 type: 'cuboid',
                 arguments: [0.25, 0.25, 0.25]
               }

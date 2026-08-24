@@ -30,7 +30,7 @@ class EntityBall extends Entity {
           status: 0,
           colliders: [
             {
-              shapeDesc: {
+              shape: {
                 type: 'ball',
                 arguments: [0.5]
               }

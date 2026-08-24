@@ -78,15 +78,13 @@ class PhysicsFactory {
       mass: 0,
       restitution: 0,
       rotation: { x: 0, y: 0, z: 0 },
-      shapeDesc: {
-        type: null,
-        arguments: []
-      },
+      shape: undefined,
+      shapes: undefined,
       solverGroups: 0xFFFFFFFF,
       translation: { x: 0, y: 0, z: 0 }
     }, options);
 
-    const shape = PhysicsFactory.createShape(options.shapeDesc);
+    const shape = PhysicsFactory.createShape(options.shape || options.shapes);
     const colliderDesc = new ColliderDesc(shape);
     const rotation = options.w ? _q.copy(options.rotation) : _q.setFromEuler(_e.setFromVector3(_v.copy(options.rotation), options.rotation.order || 'XYZ'));
     colliderDesc.setActiveCollisionTypes(isNaN(options.activeCollisionTypes) ? ActiveCollisionTypes[options.activeCollisionTypes] : options.activeCollisionTypes);
@@ -110,8 +108,8 @@ class PhysicsFactory {
   }
 
   static createShape(shapeDesc) {
-    const compoundParts = shapeDesc.shapes ?? [];
-    if (compoundParts.length < 1) return ColliderDesc[shapeDesc.type](...shapeDesc.arguments).shape;
+    const compoundParts = Array.isArray(shapeDesc) ? shapeDesc : [];
+    if (compoundParts.length < 1) return ColliderDesc[shapeDesc.type](...shapeDesc.arguments || []).shape;
 
     const shapes = [];
     const positions = [];

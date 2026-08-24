@@ -115,7 +115,7 @@ class EntityPlatform extends EntityCube {
           status: 2,
           colliders: [
             {
-              shapeDesc: {
+              shape: {
                 type: 'cuboid',
                 arguments: [0.5, 0.5, 0.5]
               }

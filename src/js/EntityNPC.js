@@ -31,7 +31,7 @@ class EntityNPC extends Entity {
     // Check if collision is with player
     if (event.pair.parent.class === 'EntityPlayer') {
       // Show or hide dialog based on event type
-      this.get('EntityText').visible = event.started;
+      console.log('updateDialog', this.name, event.started);
     }
   }
 
@@ -78,20 +78,11 @@ class EntityNPC extends Entity {
                   name: 'updateMixer',
                   value: '_IdleStanding',
                   started: true
-                },
-                {
-                  name: 'updateMixer',
-                  value: '_IdleWounded',
-                  started: false
                 }
               ],
-              shapeDesc: {
-                shapes: [
-                  {
-                    type: 'ball',
-                    arguments: [0.5]
-                  }
-                ]
+              shape: {
+                type: 'ball',
+                arguments: [0.5]
               }
             },
             {
@@ -106,24 +97,13 @@ class EntityNPC extends Entity {
                   started: false
                 }
               ],
-              shapeDesc: {
-                shapes: [
-                  {
-                    type: 'ball',
-                    arguments: [5]
-                  }
-                ]
+              shape: {
+                type: 'ball',
+                arguments: [5]
               }
             }
           ]
         }
-      },
-      {
-        class: 'EntityText',
-        text: 'Help!',
-        position: { x: 0, y: 1, z: 0 },
-        style: 'color: #fff; text-shadow: 0 0.5vh 0 #000; font-size: 4vh;',
-        visible: false
       }
     ]
   }

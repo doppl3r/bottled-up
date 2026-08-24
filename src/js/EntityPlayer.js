@@ -91,19 +91,17 @@ class EntityPlayer extends Entity {
             sleeping: true,
             colliders: [
               {
-                shapeDesc: {
-                  shapes: [
-                    {
-                      type: 'ball',
-                      arguments: [0.25]
-                    },
-                    {
-                      type: 'ball',
-                      arguments: [0.125],
-                      translation: { x: 0, y: 0.25, z: 0 }
-                    }
-                  ]
-                }
+                shapes: [
+                  {
+                    type: 'ball',
+                    arguments: [0.25]
+                  },
+                  {
+                    type: 'ball',
+                    arguments: [0.125],
+                    translation: { x: 0, y: 0.25, z: 0 }
+                  }
+                ]
               }
             ]
           }
@@ -158,19 +156,17 @@ class EntityPlayer extends Entity {
             sleeping: true,
             colliders: [
               {
-                shapeDesc: {
-                  shapes: [
-                    {
-                      type: 'roundCuboid',
-                      arguments: [(1 / 4) - (1 / 8), (1 / 4) - (1 / 8), (1 / 4) - (1 / 8), (1 / 8)],
-                    },
-                    {
-                      type: 'ball',
-                      arguments: [0.125],
-                      translation: { x: 0, y: 0.25, z: 0 }
-                    }
-                  ]
-                }
+                shapes: [
+                  {
+                    type: 'roundCuboid',
+                    arguments: [(1 / 4) - (1 / 8), (1 / 4) - (1 / 8), (1 / 4) - (1 / 8), (1 / 8)],
+                  },
+                  {
+                    type: 'ball',
+                    arguments: [0.125],
+                    translation: { x: 0, y: 0.25, z: 0 }
+                  }
+                ]
               }
             ]
           }
@@ -225,19 +221,17 @@ class EntityPlayer extends Entity {
             sleeping: true,
             colliders: [
               {
-                shapeDesc: {
-                  shapes: [
-                    {
-                      type: 'capsule',
-                      arguments: [(1 / 4) - (1 / 8), (1 / 8)],
-                    },
-                    {
-                      type: 'ball',
-                      arguments: [0.125],
-                      translation: { x: 0, y: 0.25, z: 0 }
-                    }
-                  ]
-                }
+                shapes: [
+                  {
+                    type: 'capsule',
+                    arguments: [(1 / 4) - (1 / 8), (1 / 8)],
+                  },
+                  {
+                    type: 'ball',
+                    arguments: [0.125],
+                    translation: { x: 0, y: 0.25, z: 0 }
+                  }
+                ]
               }
             ]
           }
@@ -292,19 +286,17 @@ class EntityPlayer extends Entity {
             sleeping: true,
             colliders: [
               {
-                shapeDesc: {
-                  shapes: [
-                    {
-                      type: 'roundCone',
-                      arguments: [(1 / 4) - (1 / 16), (1 / 8), (1 / 16)],
-                    },
-                    {
-                      type: 'ball',
-                      arguments: [0.125],
-                      translation: { x: 0, y: 0.25, z: 0 }
-                    }
-                  ]
-                }
+                shapes: [
+                  {
+                    type: 'roundCone',
+                    arguments: [(1 / 4) - (1 / 16), (1 / 8), (1 / 16)],
+                  },
+                  {
+                    type: 'ball',
+                    arguments: [0.125],
+                    translation: { x: 0, y: 0.25, z: 0 }
+                  }
+                ]
               }
             ]
           }

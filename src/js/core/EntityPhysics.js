@@ -60,10 +60,11 @@ class EntityPhysics extends Entity {
 
         // Add merged mesh data to collider shape 
         options.rigidBody.colliders?.forEach(colliderOptions => {
-          colliderOptions.shapeDesc.arguments = [
+          colliderOptions.shape.arguments = [
             mesh.geometry.attributes.position.array,
             mesh.geometry.index.array,
-            TriMeshFlags['FIX_INTERNAL_EDGES']];
+            TriMeshFlags['FIX_INTERNAL_EDGES']
+          ];
         });
 
         // Create rigid body

@@ -88,7 +88,7 @@ class EntityCube extends Entity {
         const colliders = child.rigidBody.colliders;
         colliders.forEach(colliderOptions => {
           const args = [ options.scale.x / 2, options.scale.y / 2, options.scale.z / 2];
-          colliderOptions.shapeDesc.arguments = args;
+          colliderOptions.shape.arguments = args;
         });
       }
     }
@@ -110,7 +110,7 @@ class EntityCube extends Entity {
           status: 0,
           colliders: [
             {
-              shapeDesc: {
+              shape: {
                 type: 'cuboid',
                 arguments: [0.5, 0.5, 0.5]
               }

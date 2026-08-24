@@ -35,7 +35,7 @@ class EntityTrimesh extends Entity {
           status: 1,
           colliders: [
             {
-              shapeDesc: {
+              shape: {
                 type: 'trimesh'
               }
             }
