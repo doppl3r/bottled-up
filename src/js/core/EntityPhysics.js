@@ -171,53 +171,32 @@ class EntityPhysics extends Entity {
   }
 
   addCollisionEvents(colliders) {
-    // Loop through all colliders in the rigid body
-    for (let i = 0; i < this.rigidBody.numColliders(); i++) {
-      const collider = this.rigidBody.collider(i);
-      const colliderOptions = colliders[i];
-
+    // Assign events to each collider
+    colliders?.forEach((colliderOptions, index) => {
       // Set array of events from collider options
+      const collider = this.rigidBody.collider(index);
       const colliderEvent = colliderOptions.event;
       const colliderEvents = colliderOptions.events || (colliderEvent ? [colliderEvent] : []);
-
+      
       // Initialize collider event references
-      collider._events = {};
-
-      // Add collision event listener for collider events
+      collider._events = { started: [], ended: [] };
       colliderEvents.forEach(colliderEvent => {
         // Assign reference to collider event in collider object
         const colliderEventStarted = (colliderEvent.started !== false);
-        const colliderEventKey = `${ colliderEventStarted ? 'started' : 'ended' }_${ colliderEvent.name }`;
-        collider._events[colliderEventKey] = colliderEvent;
+        collider._events[colliderEventStarted ? 'started' : 'ended'].push(colliderEvent);
       });
+    });
 
-      // Listen for collision events and dispatch to parent entity
-      const onCollisionEvent = event => {
-        // Ensure the event is for this collider
-        if (event.collider.handle !== collider.handle) return;
-
-        // Filter collider events based on whether the collision started or ended
-        const _eventKeys = Object.keys(event.collider._events);
-        const _eventKeysFiltered = _eventKeys.filter(key => key.startsWith(`${ event.started !== false ? 'started' : 'ended' }`));
-        
-        // Dispatch collision events to parent entity
-        _eventKeysFiltered.forEach(_eventKey => {
-          const _event = event.collider._events[_eventKey];
-          if (_event) {
-            const eventFunction = this.parent?.[_event.name];
-            if (eventFunction) {
-              eventFunction?.({ value: _event.value, ...event });
-            }
-            else {
-              console.error(`Error: Function "${_event.name}" does not exist in ${ this.parent.constructor.name }.`);
-            }
-          }
-        });
-      }
-
-      // Add collision event listener to entity
-      this.addEventListener('collision', onCollisionEvent);
-    }
+    // Add event listener for collision events on this entity
+    this.addEventListener('collision', event => {
+      // Loop through all events with started/ended state
+      const colliderEvents = event.collider._events[event.started ? 'started' : 'ended'] || [];
+      colliderEvents.forEach(colliderEvent => {
+        const callback = this.parent?.[colliderEvent.name];
+        if (callback) callback?.({ value: colliderEvent.value, ...event });
+        else console.error(`Error: Function "${colliderEvent.name}" not found in ${ this.parent.constructor.name }.`);
+      });
+    });
   }
 
   getSpeed() {
