@@ -191,9 +191,12 @@ class EntityPhysics extends Entity {
         collider._events[colliderEventKey] = colliderEvent;
       });
 
-      
       // Listen for collision events and dispatch to parent entity
       const onCollisionEvent = event => {
+        // Ensure the event is for this collider
+        if (event.collider.handle !== collider.handle) return;
+
+        // Filter collider events based on whether the collision started or ended
         const _eventKeys = Object.keys(event.collider._events);
         const _eventKeysFiltered = _eventKeys.filter(key => key.startsWith(`${ event.started !== false ? 'started' : 'ended' }`));
         
