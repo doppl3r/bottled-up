@@ -35,8 +35,8 @@ class EntityPhysics extends Entity {
     this.rigidBody;
     this.sleeping = false;
 
-    // Store reference to the physics world
-    this.world = core.entityManager.world;
+    // Store reference to core
+    this.core = core;
 
     // Load mesh data from asset if defined
     const url = options.url;
@@ -70,7 +70,7 @@ class EntityPhysics extends Entity {
         });
 
         // Create rigid body
-        PhysicsFactory.create(this, options.rigidBody, this.world);
+        PhysicsFactory.create(this, options.rigidBody, core.entityManager.world);
 
         // Resync transform
         this.syncTransformFromParent();
@@ -81,7 +81,7 @@ class EntityPhysics extends Entity {
     }
     else {
       // Create physics component immediately
-      PhysicsFactory.create(this, options.rigidBody, this.world);
+      PhysicsFactory.create(this, options.rigidBody, core.entityManager.world);
       this.ready();
     }
 
@@ -130,7 +130,7 @@ class EntityPhysics extends Entity {
 
   setRigidBody(rigidBody) {
     this.rigidBody = rigidBody;
-    this.rigidBody.entity = this;
+    this.core.entityManager.setRigidBodyEntity(this.rigidBody.handle, this);
     this.sleeping = this.rigidBody.isSleeping();
     this.saveState();
   }
@@ -234,16 +234,16 @@ class EntityPhysics extends Entity {
     // Add event listener to parent entity
     this.parent.addEventListener('removed', this.onParentRemoved);
   }
-
+  
   onRemoved = event => {
     // Queue rigid body for removal and remove event listener from parent entity
-    this.world?.queueRigidBodyRemoval(this.rigidBody);
+    this.core.entityManager.queueRigidBodyRemoval(this.rigidBody);
     this.removeEventListener('removed', this.onRemoved);
   }
 
   onParentRemoved = event => {
     // Queue rigid body for removal and remove event listener from parent entity
-    this.world?.queueRigidBodyRemoval(this.rigidBody);
+    this.core.entityManager.queueRigidBodyRemoval(this.rigidBody);
     this.parent.removeEventListener('removed', this.onParentRemoved);
   }
 

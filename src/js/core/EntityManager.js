@@ -40,8 +40,8 @@ class EntityManager {
     this.world.numSolverIterations = 4; // Default = 4
     this.world.timestep = 1 / 60; // Default 1 / 60
     this.world.maxCcdSubsteps = 0;
-    this.world.rigidBodyRemovalQueue = [];
-    this.world.queueRigidBodyRemoval = rb => this.world.rigidBodyRemovalQueue.push(rb);
+    this.worldRigidBodyRemovalQueue = [];
+    this.worldRigidBodyEntities = new Map();
     this.worldDebugger = new WorldDebugger(this.world); // Add to scene to enable
     this.eventQueue = new EventQueue(true);
     this.entityClasses = {};
@@ -258,18 +258,27 @@ class EntityManager {
     return json;
   }
 
+  queueRigidBodyRemoval = rb => {
+    this.worldRigidBodyRemovalQueue.push(rb);
+  }
+
   drainRigidBodyQueue() {
-    while (this.world.rigidBodyRemovalQueue.length > 0) {
-      const rigidBody = this.world.rigidBodyRemovalQueue.pop();
+    while (this.worldRigidBodyRemovalQueue.length > 0) {
+      const rigidBody = this.worldRigidBodyRemovalQueue.pop();
       this.world.removeRigidBody(rigidBody);
+      this.worldRigidBodyEntities.delete(rigidBody.handle);
     }
+  }
+
+  setRigidBodyEntity(handle, entity) {
+    this.worldRigidBodyEntities.set(handle, entity);
   }
 
   onCollision = (handle1, handle2, started) => {
     const collider1 = this.world.getCollider(handle1);
     const collider2 = this.world.getCollider(handle2);
-    const entity1 = collider1?._parent?.entity;
-    const entity2 = collider2?._parent?.entity;
+    const entity1 = this.worldRigidBodyEntities.get(collider1?._parent?.handle);
+    const entity2 = this.worldRigidBodyEntities.get(collider2?._parent?.handle);
     entity1?.dispatchCollisionEvent?.(collider1, entity2, started);
     entity2?.dispatchCollisionEvent?.(collider2, entity1, started);
   }
