@@ -71,7 +71,6 @@ class PhysicsFactory {
       collisionGroups: 0xFFFFFFFF,
       contactForceEventThreshold: 0,
       density: 1,
-      events: [],
       enabled: true,
       friction: 0.5,
       isSensor: false,

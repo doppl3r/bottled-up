@@ -173,29 +173,29 @@ class EntityPhysics extends Entity {
   addCollisionEvents(colliders) {
     // Assign events to each collider
     colliders?.forEach((colliderOptions, index) => {
-      // Set array of events from collider options
+      // Set enter/exit events
       const collider = this.rigidBody.collider(index);
-      const colliderEvent = colliderOptions.event;
-      const colliderEvents = colliderOptions.events || (colliderEvent ? [colliderEvent] : []);
-      
-      // Initialize collider event references
-      collider._events = { started: [], ended: [] };
-      colliderEvents.forEach(colliderEvent => {
-        // Assign reference to collider event in collider object
-        const colliderEventStarted = (colliderEvent.started !== false);
-        collider._events[colliderEventStarted ? 'started' : 'ended'].push(colliderEvent);
-      });
+      collider._events = {
+        enter: null,
+        exit: null
+      };
+
+      // Assign enter/exit events if defined
+      if (colliderOptions.enter) collider._events['enter'] = colliderOptions.enter;
+      if (colliderOptions.exit) collider._events['exit'] = colliderOptions.exit;
     });
 
     // Add event listener for collision events on this entity
     this.addEventListener('collision', event => {
-      // Loop through all events with started/ended state
-      const colliderEvents = event.collider._events[event.started ? 'started' : 'ended'] || [];
-      colliderEvents.forEach(colliderEvent => {
+      const colliderEventState = event.started ? 'enter' : 'exit';
+      const colliderEvent = event.collider._events[colliderEventState];
+
+      // Call the event handler on the parent entity if defined
+      if (colliderEvent) {
         const callback = this.parent?.[colliderEvent.name];
         if (callback) callback?.({ value: colliderEvent.value, ...event });
         else console.error(`Error: Function "${colliderEvent.name}" not found in ${ this.parent.constructor.name }.`);
-      });
+      }
     });
   }
 

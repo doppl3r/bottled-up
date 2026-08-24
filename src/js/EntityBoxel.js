@@ -74,12 +74,12 @@ class EntityBoxel extends Entity {
           colliders: [
             {
               isSensor: true,
-              event: {
-                name: 'collect'
-              },
               shape: {
                 type: 'cuboid',
                 arguments: [0.25, 0.25, 0.25]
+              },
+              enter: {
+                name: 'collect',
               }
             }
           ]

@@ -31,7 +31,7 @@ class EntityNPC extends Entity {
     // Check if collision is with player
     if (event.pair.parent.class === 'EntityPlayer') {
       // Show or hide dialog based on event type
-      console.log('updateDialog', this.name, event.started);
+      
     }
   }
 
@@ -73,34 +73,27 @@ class EntityNPC extends Entity {
           colliders: [
             {
               isSensor: true,
-              events: [
-                {
-                  name: 'updateMixer',
-                  value: '_IdleStanding',
-                  started: true
-                }
-              ],
               shape: {
                 type: 'ball',
                 arguments: [0.5]
+              },
+              enter: {
+                name: 'updateMixer',
+                value: '_IdleStanding'
               }
             },
             {
               isSensor: true,
-              events: [
-                {
-                  name: 'updateDialog',
-                  started: true
-                },
-                {
-                  name: 'updateDialog',
-                  started: false
-                }
-              ],
               shape: {
                 type: 'ball',
                 arguments: [5]
-              }
+              },
+              enter: {
+                name: 'updateDialog',
+              },
+              exit: {
+                name: 'updateDialog',
+              },
             }
           ]
         }
