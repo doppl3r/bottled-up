@@ -31,6 +31,7 @@ class EntityPhysics extends Entity {
     // Declare entity components
     this.position0 = new Vector3();
     this.quaternion0 = this.quaternion.clone();
+    this.colliderEvents = {};
     this.rigidBody;
     this.sleeping = false;
 
@@ -40,6 +41,7 @@ class EntityPhysics extends Entity {
     // Load mesh data from asset if defined
     const url = options.url;
     if (url) {
+      // Create physics component from loaded asset
       core.assets.load(url, asset => {
         // Clone the loaded asset
         const model = clone(asset);
@@ -175,20 +177,20 @@ class EntityPhysics extends Entity {
     colliders?.forEach((colliderOptions, index) => {
       // Set enter/exit events
       const collider = this.rigidBody.collider(index);
-      const colliderKeyEnter = `collider_${ collider.handle }_enter`;
-      const colliderKeyExit = `collider_${ collider.handle }_exit`;
+      const colliderKeyEnter = `${ collider.handle }_enter`;
+      const colliderKeyExit = `${ collider.handle }_exit`;
 
-      // Store collider event in the rigidBody userData for later retrieval
-      if (colliderOptions.enter) this.rigidBody.userData[colliderKeyEnter] = colliderOptions.enter;
-      if (colliderOptions.exit) this.rigidBody.userData[colliderKeyExit] = colliderOptions.exit;
+      // Store collider event
+      if (colliderOptions.enter) this.colliderEvents[colliderKeyEnter] = colliderOptions.enter;
+      if (colliderOptions.exit) this.colliderEvents[colliderKeyExit] = colliderOptions.exit;
     });
 
     // Add event listener for collision events on this entity
     this.addEventListener('collision', event => {
-      // Retrieve collider event from rigidBody userData based on collision state (enter/exit)
+      // Retrieve collider event based on collision state (enter/exit)
       const colliderEventState = event.started ? 'enter' : 'exit';
-      const colliderEventKey = `collider_${ event.collider.handle }_${ colliderEventState }`;
-      const colliderEvent = this.rigidBody.userData[colliderEventKey];
+      const colliderEventKey = `${ event.collider.handle }_${ colliderEventState }`;
+      const colliderEvent = this.colliderEvents[colliderEventKey];
 
       // Call the event handler on the parent entity if defined
       if (colliderEvent) {
