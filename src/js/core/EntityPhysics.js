@@ -175,20 +175,20 @@ class EntityPhysics extends Entity {
     colliders?.forEach((colliderOptions, index) => {
       // Set enter/exit events
       const collider = this.rigidBody.collider(index);
-      collider._events = {
-        enter: null,
-        exit: null
-      };
+      const colliderKeyEnter = `collider_${ collider.handle }_enter`;
+      const colliderKeyExit = `collider_${ collider.handle }_exit`;
 
-      // Assign enter/exit events if defined
-      if (colliderOptions.enter) collider._events['enter'] = colliderOptions.enter;
-      if (colliderOptions.exit) collider._events['exit'] = colliderOptions.exit;
+      // Store collider event in the rigidBody userData for later retrieval
+      if (colliderOptions.enter) this.rigidBody.userData[colliderKeyEnter] = colliderOptions.enter;
+      if (colliderOptions.exit) this.rigidBody.userData[colliderKeyExit] = colliderOptions.exit;
     });
 
     // Add event listener for collision events on this entity
     this.addEventListener('collision', event => {
+      // Retrieve collider event from rigidBody userData based on collision state (enter/exit)
       const colliderEventState = event.started ? 'enter' : 'exit';
-      const colliderEvent = event.collider._events[colliderEventState];
+      const colliderEventKey = `collider_${ event.collider.handle }_${ colliderEventState }`;
+      const colliderEvent = this.rigidBody.userData[colliderEventKey];
 
       // Call the event handler on the parent entity if defined
       if (colliderEvent) {
