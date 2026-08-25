@@ -1,6 +1,8 @@
 import bpy
 import os
 
+from blender_spritesheet import prepare_spritesheets_for_export
+
 
 relative_path = "//../../public/glb/"
 
@@ -22,6 +24,7 @@ def export_collection(collection, export_path):
         obj.select_set(True)
 
     bpy.context.view_layer.objects.active = exportable_objects[0]
+    prepare_spritesheets_for_export()
     bpy.ops.export_scene.gltf(
         filepath=full_export_path,
         export_format='GLB',

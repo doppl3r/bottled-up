@@ -1,6 +1,8 @@
 import bpy
 import os
 
+from blender_spritesheet import prepare_spritesheets_for_export
+
 
 relative_path = "//../../public/glb/"
 
@@ -14,6 +16,8 @@ level_name = os.path.splitext(os.path.basename(blend_path))[0]
 full_export_path = os.path.join(export_path, f"{level_name}.glb")
 
 os.makedirs(export_path, exist_ok=True)
+
+prepare_spritesheets_for_export()
 
 bpy.ops.export_scene.gltf(
     filepath=full_export_path,

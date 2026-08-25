@@ -1,6 +1,8 @@
 import bpy
 import os
 
+from blender_spritesheet import prepare_spritesheets_for_export
+
 relative_path = "//../../public/glb/"
 armature_name = "Armature"
 
@@ -19,6 +21,7 @@ def export_collection(collection, armature, export_path):
 
     # Export the collection to GLB format
     bpy.context.view_layer.objects.active = armature
+    prepare_spritesheets_for_export()
     bpy.ops.export_scene.gltf(
         filepath=full_export_path,
         export_format='GLB',
