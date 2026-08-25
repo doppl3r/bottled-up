@@ -1,17 +1,5 @@
 import bpy
 import os
-import shutil
-import sys
-import importlib
-
-scripts_path = bpy.path.abspath("//scripts")
-cache_path = os.path.join(scripts_path, "__pycache__")
-if scripts_path not in sys.path:
-    sys.path.insert(0, scripts_path)
-import utilities
-
-importlib.reload(utilities)
-prepare_spritesheets_for_export = utilities.prepare_spritesheets_for_export
 
 relative_path = "//../../public/glb/"
 armature_name = "Armature"
@@ -31,22 +19,18 @@ def export_collection(collection, armature, export_path):
 
     # Export the collection to GLB format
     bpy.context.view_layer.objects.active = armature
-    restore_spritesheets = prepare_spritesheets_for_export()
-    try:
-        bpy.ops.export_scene.gltf(
-            filepath=full_export_path,
-            export_format='GLB',
-            use_selection=True,
-            use_visible=False,
-            export_animations=True,
-            export_animation_mode='ACTIONS',
-            export_skins=True,
-            export_cameras=False,
-            export_lights=False,
-            export_apply=True
-        )
-    finally:
-        restore_spritesheets()
+    bpy.ops.export_scene.gltf(
+        filepath=full_export_path,
+        export_format='GLB',
+        use_selection=True,
+        use_visible=False,
+        export_animations=True,
+        export_animation_mode='ACTIONS',
+        export_skins=True,
+        export_cameras=False,
+        export_lights=False,
+        export_apply=True
+    )
     print(f"Successfully exported to: {full_export_path}")
 
 # Script execution starts here
@@ -72,5 +56,3 @@ else:
             print(f"Failed to export collection '{collection.name}': {error}")
 
     print("--- Bulk Relative Export Complete! ---")
-
-shutil.rmtree(cache_path, ignore_errors=True)
