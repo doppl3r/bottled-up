@@ -43,7 +43,9 @@ If an image filename has no recognized suffix, print a warning containing the im
 Existing export scripts should need one call immediately before `bpy.ops.export_scene.gltf(...)`:
 
 ```python
-from blender_spritesheet import prepare_spritesheets_for_export
+The export scripts load `utilities.py` after adding the scripts directory to
+Python's module path. They reload it so repeated Blender Text Editor runs use
+the latest utility code.
 
 prepare_spritesheets_for_export()
 ```
@@ -91,7 +93,7 @@ The default extrusion size is `1` pixel. The public function may accept an overr
 The implementation is in:
 
 ```text
-blender_spritesheet.py
+utilities.py
 ```
 
 It is currently integrated into:

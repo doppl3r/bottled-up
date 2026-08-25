@@ -133,21 +133,47 @@ def _remap_uvs(mesh, tile_size, rows, columns, extrusion_size):
 
     source_size = tile_size * columns
     output_size = source_size + (extrusion_size * 2 * columns)
-    scale = tile_size / output_size
 
     for uv_layer in mesh.uv_layers:
-        for loop in mesh.loops:
-            uv = uv_layer.data[loop.index].uv
-            source_u = uv.x * source_size
-            source_v = uv.y * source_size
-            column = min(columns - 1, max(0, int(math.floor(source_u / tile_size))))
-            row = min(rows - 1, max(0, int(math.floor(source_v / tile_size))))
-            local_u = source_u - column * tile_size
-            local_v = source_v - row * tile_size
-            uv.x = (column * (tile_size + extrusion_size * 2) + extrusion_size) / output_size
-            uv.x += local_u * scale
-            uv.y = (row * (tile_size + extrusion_size * 2) + extrusion_size) / output_size
-            uv.y += local_v * scale
+        for polygon in mesh.polygons:
+            polygon_coordinates = [
+                uv_layer.data[loop_index].uv
+                for loop_index in polygon.loop_indices
+            ]
+            normalized_coordinates = [
+                (
+                    coordinate.x if 0.0 <= coordinate.x <= 1.0
+                    else coordinate.x % 1.0,
+                    coordinate.y if 0.0 <= coordinate.y <= 1.0
+                    else coordinate.y % 1.0,
+                )
+                for coordinate in polygon_coordinates
+            ]
+            center_u = sum(coordinate[0] for coordinate in normalized_coordinates)
+            center_u /= len(normalized_coordinates)
+            center_v = sum(coordinate[1] for coordinate in normalized_coordinates)
+            center_v /= len(normalized_coordinates)
+            column = min(columns - 1, max(0, int(center_u * columns)))
+            row = min(rows - 1, max(0, int(center_v * rows)))
+
+            for loop_index, (normalized_u, normalized_v) in zip(
+                polygon.loop_indices, normalized_coordinates
+            ):
+                source_u = normalized_u * source_size
+                source_v = normalized_v * source_size
+                local_u = source_u - column * tile_size
+                local_v = source_v - row * tile_size
+                uv = uv_layer.data[loop_index].uv
+                uv.x = (
+                    column * (tile_size + extrusion_size * 2)
+                    + extrusion_size
+                    + local_u
+                ) / output_size
+                uv.y = (
+                    row * (tile_size + extrusion_size * 2)
+                    + extrusion_size
+                    + local_v
+                ) / output_size
 
 
 def _image_nodes(image):
@@ -164,6 +190,12 @@ def prepare_spritesheets_for_export(extrusion_size=1):
         raise ValueError("extrusion_size must be a positive integer")
 
     processed = set()
+    node_restorations = []
+    uv_restorations = []
+    restored_meshes = set()
+    created_images = []
+
+    # Prepare only temporary Blender state; the caller restores it after export.
     for image in list(bpy.data.images):
         if image.name in processed or _GENERATED_MARKER in image.name:
             continue
@@ -173,12 +205,20 @@ def prepare_spritesheets_for_export(extrusion_size=1):
             continue
 
         tile_size, rows, columns = layout
+        generated_name = (
+            f"{image.name}{_GENERATED_MARKER}{extrusion_size}px_"
+            f"{rows}x{columns}"
+        )
+        generated_existed = bpy.data.images.get(generated_name) is not None
         generated = _create_extruded_image(
             image, tile_size, rows, columns, extrusion_size
         )
+        if not generated_existed:
+            created_images.append(generated)
         users = list(_image_nodes(image))
         remapped_meshes = set()
         for material, node in users:
+            node_restorations.append((node, image))
             node.image = generated
             for obj in bpy.data.objects:
                 if (
@@ -186,7 +226,35 @@ def prepare_spritesheets_for_export(extrusion_size=1):
                     and obj.data.materials.get(material.name) is not None
                     and obj.data.name not in remapped_meshes
                 ):
+                    if obj.data.name not in restored_meshes:
+                        uv_layers = [
+                            (uv_layer, [data.uv.copy() for data in uv_layer.data])
+                            for uv_layer in obj.data.uv_layers
+                        ]
+                        uv_restorations.append((obj.data, uv_layers))
+                        restored_meshes.add(obj.data.name)
                     _remap_uvs(obj.data, tile_size, rows, columns, extrusion_size)
                     remapped_meshes.add(obj.data.name)
         processed.add(image.name)
         print(f"Extruded '{image.name}' -> '{generated.name}'")
+
+    restored = False
+
+    def restore_originals():
+        nonlocal restored
+        if restored:
+            return
+
+        # Restore every changed datablock before Blender can save the scene.
+        for node, image in node_restorations:
+            node.image = image
+        for mesh, uv_layers in uv_restorations:
+            for uv_layer, coordinates in uv_layers:
+                for index, coordinate in enumerate(coordinates):
+                    uv_layer.data[index].uv = coordinate
+        for image in created_images:
+            if bpy.data.images.get(image.name) is image:
+                bpy.data.images.remove(image)
+        restored = True
+
+    return restore_originals
