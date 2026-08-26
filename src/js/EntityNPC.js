@@ -9,21 +9,36 @@ class EntityNPC extends Entity {
     options.children[0].url = EntityNPC.urls[0];
     EntityNPC.urls.splice(0, 1);
 
+    this.time = 0;
+    this.state = 'wounded';
+
     // Update entity state
     this.ready();
   }
 
   render(loop) {
+    const potion = this.get('EntityModel').get('EntityModel');
+    this.time += loop.delta;
+    potion.position.y = 0.5 + Math.cos(this.time * 0.0025) * 0.125;
+    potion.rotation.y += loop.delta * 0.0025;
+
     super.render(loop);
   }
 
-  updateMixer = event => {
+  revive = event => {
     // Check if collision is with player
     if (event.pair.parent.class === 'EntityPlayer') {
-      // Update model mixer
-      const entityModel = this.get('EntityModel');
-      const entityMixer = entityModel.get('EntityMixer');
-      entityMixer.play(event.value);
+      if (this.state === 'wounded') {
+        // Update model mixer
+        const entityModelBody = this.get('EntityModel');
+        const entityModelPotion = entityModelBody.get('EntityModel');
+        const entityMixer = entityModelBody.get('EntityMixer');
+        
+        // Update NPC state
+        this.state = 'revived';
+        entityMixer.play(event.value);
+        entityModelPotion.visible = false;
+      }
     }
   }
 
@@ -42,9 +57,17 @@ class EntityNPC extends Entity {
     'glb/npc-mage.glb',
   ]
 
+  static npcs = {
+    mage: {
+      modelBody: 'glb/npc-mage.glb',
+      modelPotion: 'glb/potion-ball.glb',
+    }
+  }
+
   static template = {
     children: [
       {
+        name: 'ModelBody',
         class: 'EntityModel',
         url: 'glb/npc-mage.glb',
         children: [
@@ -61,7 +84,15 @@ class EntityNPC extends Entity {
                 loop: true
               }
             }
-          }
+          },
+          {
+            name: 'ModelPotion',
+            class: 'EntityModel',
+            url: 'glb/potion-ball.glb',
+            position: { x: 0, y: 0.5, z: 0 },
+            rotation: { x: 0, y: 0, z: Math.PI / 8 },
+            scale: { x: 0.5, y: 0.5, z: 0.5 },
+          },
         ]
       },
       {
@@ -78,7 +109,7 @@ class EntityNPC extends Entity {
                 arguments: [0.5]
               },
               enter: {
-                name: 'updateMixer',
+                name: 'revive',
                 value: '_IdleStanding'
               }
             },

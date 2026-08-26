@@ -172,6 +172,14 @@ class EntityPhysics extends Entity {
     this.rigidBody.setNextKinematicRotation(rotation);
   }
 
+  getVelocity() {
+    return this.rigidBody?.linvel();
+  }
+
+  setVelocity(velocity, wakeUp = true) {
+    this.rigidBody?.setLinvel(velocity, wakeUp);
+  }
+
   addCollisionEvents(colliders) {
     // Assign events to each collider
     colliders?.forEach((colliderOptions, index) => {

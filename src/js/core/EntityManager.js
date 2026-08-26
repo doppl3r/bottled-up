@@ -44,7 +44,7 @@ class EntityManager {
     this.worldRigidBodyEntities = new Map();
     this.worldDebugger = new WorldDebugger(this.world); // Add to scene to enable
     this.eventQueue = new EventQueue(true);
-    this.entityClasses = {};
+    this.entityClasses = new Map();
 
     // Register core entity classes
     this.registerEntityClasses({
@@ -172,7 +172,7 @@ class EntityManager {
 
   create(options) {
     // Create entity from registered class object
-    const entityClass = this.entityClasses[options.class];
+    const entityClass = this.entityClasses.get(options.class);
     if (entityClass) {
       // Update options from template
       entityClass.applyTemplate(options);
@@ -193,7 +193,7 @@ class EntityManager {
     let longestLength = 0;
     
     // Find the best match based on the name
-    for (const [key, className] of Object.entries(this.entityClasses)) {
+    for (const [key, className] of this.entityClasses.entries()) {
       if (lName.includes(key.toLowerCase()) && key.length > longestLength) {
         bestMatch = key;
         longestLength = key.length;
@@ -239,7 +239,7 @@ class EntityManager {
     if (className) json.class = className;
 
     // Store url reference if specified in template
-    const template = this.entityClasses[className]?.template;
+    const template = this.entityClasses.get(className)?.template;
     if (template?.url !== undefined) {
       // Store mesh as an asset
       this.core.assets.assign(obj.uuid, obj);
@@ -284,7 +284,7 @@ class EntityManager {
   }
 
   registerEntityClass(name, entityClass) {
-    this.entityClasses[name] = entityClass;
+    this.entityClasses.set(name, entityClass);
   }
 
   registerEntityClasses(entities = {}) {

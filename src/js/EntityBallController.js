@@ -515,8 +515,6 @@ class EntityBallController extends Entity {
     entity.addEventListener('removed', onEntityPhysicsRemoved);
   }
 
-  
-
   onKeyDown = (event) => {
     this.keys.add(event.code);
     if (event.code === 'Space') {
