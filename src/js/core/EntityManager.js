@@ -117,10 +117,10 @@ class EntityManager {
     });
 
     // Add console warning for pending entities
-    const warnIntervalId = setInterval(() => {
+    const warnTimeoutId = setTimeout(() => {
       const pending = pendingEntities.filter(entity => entity.isReady === false);
       if (pending.length > 0) console.warn('Warning: entities not ready', pending);
-      else clearInterval(warnIntervalId);
+      else clearTimeout(warnTimeoutId);
     }, 1000);
 
     // Define scene ready handler

@@ -17,10 +17,14 @@ class EntityNPC extends Entity {
   }
 
   render(loop) {
-    const potion = this.get('EntityModel').get('EntityModel');
+    const status = this.get('EntityModel').get('EntityModel');
+    
+    // Update status model properties
     this.time += loop.delta;
-    potion.position.y = 0.5 + Math.cos(this.time * 0.0025) * 0.125;
-    potion.rotation.y += loop.delta * 0.0025;
+    const duration = 2500;
+    const alpha = (Math.sin(this.time * 2 * Math.PI / duration) + 1) / 2;
+    status.position.y = 1 + (alpha * 0.25);
+    status.scale.setScalar(0.5 + (alpha * 0.25));
 
     super.render(loop);
   }
@@ -31,13 +35,13 @@ class EntityNPC extends Entity {
       if (this.state === 'wounded') {
         // Update model mixer
         const entityModelBody = this.get('EntityModel');
-        const entityModelPotion = entityModelBody.get('EntityModel');
+        const entityModelStatus = entityModelBody.get('EntityModel');
         const entityMixer = entityModelBody.get('EntityMixer');
         
         // Update NPC state
         this.state = 'revived';
         entityMixer.play(event.value);
-        entityModelPotion.visible = false;
+        entityModelStatus.visible = false;
       }
     }
   }
@@ -60,7 +64,7 @@ class EntityNPC extends Entity {
   static npcs = {
     mage: {
       modelBody: 'glb/npc-mage.glb',
-      modelPotion: 'glb/potion-ball.glb',
+      modelStatus: 'glb/potion-ball.glb',
     }
   }
 
@@ -86,12 +90,9 @@ class EntityNPC extends Entity {
             }
           },
           {
-            name: 'ModelPotion',
+            name: 'ModelStatus',
             class: 'EntityModel',
-            url: 'glb/potion-ball.glb',
-            position: { x: 0, y: 0.5, z: 0 },
-            rotation: { x: 0, y: 0, z: Math.PI / 8 },
-            scale: { x: 0.5, y: 0.5, z: 0.5 },
+            url: 'glb/quest.glb',
           },
         ]
       },

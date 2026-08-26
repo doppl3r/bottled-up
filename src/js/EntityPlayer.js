@@ -40,6 +40,9 @@ class EntityPlayer extends Entity {
   }
 
   static applyTemplate(options) {
+    // Apply fallback
+    options.shape = options.shape || 'ball';
+
     // Update template based on shape
     this.template = this.templates[options.shape];
 
