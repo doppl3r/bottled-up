@@ -19,7 +19,7 @@ const stateStorage = {
 }
 
 const stateSession = {
-  
+  menuPaused: true
 }
 
 class Game {
@@ -55,7 +55,6 @@ class Game {
 
       // Load level from JSON data
       this.core.entityManager.load(json, () => {
-        this.core.compositor.resize();
         this.core.start();
       });
     });
