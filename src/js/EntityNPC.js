@@ -17,14 +17,14 @@ class EntityNPC extends Entity {
   }
 
   render(loop) {
-    const status = this.get('EntityModel').get('EntityModel');
-    
     // Update status model properties
-    this.time += loop.delta;
-    const duration = 2500;
-    const alpha = (Math.sin(this.time * 2 * Math.PI / duration) + 1) / 2;
-    status.position.y = 1 + (alpha * 0.25);
-    status.scale.setScalar(0.5 + (alpha * 0.25));
+    if (this.state === 'wounded') {
+      const status = this.get('EntityModel').get('EntityModel');
+      this.time += loop.delta;
+      const duration = 2500;
+      const alpha = (Math.sin(this.time * 2 * Math.PI / duration) + 1) / 2;
+      status.position.y = 0.5 + (alpha * 0.25);
+    }
 
     super.render(loop);
   }
@@ -93,6 +93,7 @@ class EntityNPC extends Entity {
             name: 'ModelStatus',
             class: 'EntityModel',
             url: 'glb/quest.glb',
+            scale: { x: 0.5, y: 0.5, z: 0.5 }
           },
         ]
       },

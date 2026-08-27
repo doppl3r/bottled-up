@@ -118,7 +118,7 @@ class EntityBallController extends Entity {
     document.addEventListener('mousemove', this.onMouseMove);
     window.addEventListener('blur', this.onWindowBlur);
     window.addEventListener('mouseup', this.onWindowMouseUp);
-    this.core.canvas.addEventListener('mousedown', this.onCanvasMouseDown);
+    this.core.canvas.addEventListener('mousedown', this.requestPointerLock);
 
     // Add event listeners for components
     this.addEventListener('added', this.onAdded);
@@ -571,21 +571,17 @@ class EntityBallController extends Entity {
     }
   }
 
-  onCanvasMouseDown = (event) => {
+  requestPointerLock = async event => {
     if (event.button !== 0) return;
     if (this.core.canvas.requestPointerLock) {
       // Attempt to request pointer lock
-      Promise.resolve(this.core.canvas.requestPointerLock()).catch(() => {
-        this.isDragging = true;
-        this.dragX = event.clientX;
-        this.dragY = event.clientY;
-      });
+      const canvas = this.core.canvas;
+      await canvas.requestPointerLock({ unadjustedMovement: false });
+      this.isDragging = true;
     }
     else {
       // Fallback drag mode
       this.isDragging = true;
-      this.dragX = event.clientX;
-      this.dragY = event.clientY;
     }
   }
 
@@ -625,7 +621,7 @@ class EntityBallController extends Entity {
     document.removeEventListener('mousemove', this.onMouseMove);
     window.removeEventListener('blur', this.onWindowBlur);
     window.removeEventListener('mouseup', this.onWindowMouseUp);
-    this.core.canvas.removeEventListener('mousedown', this.onCanvasMouseDown);
+    this.core.canvas.removeEventListener('mousedown', this.requestPointerLock);
 
     // Exit pointer lock if active
     if (this.hasPointerLock) document.exitPointerLock?.();
