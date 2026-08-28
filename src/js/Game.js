@@ -55,7 +55,7 @@ class Game {
 
       // Load level from JSON data
       this.core.entityManager.load(json, () => {
-        this.core.compositor.render();
+        this.core.render(this.core.interval.loops[1]);
       });
     });
 
@@ -75,7 +75,7 @@ class Game {
   }
 
   onResize = () => {
-    this.core.compositor.render();
+    this.core.render(this.core.interval.loops[1]);
   }
 
   onKeyDown = event => {
