@@ -6,6 +6,7 @@
   import { useI18n } from 'vue-i18n';
   import { Game } from '../js/Game.js';
   import ProgressBar from './ProgressBar.vue';
+  import GameButton from './GameButton.vue';
 
   // Initialize Vue components
   const i18n = useI18n();
@@ -57,7 +58,8 @@
     <div class="menu-pause" v-if="game.state.menuPaused === true">
       <div class="menu-pause__overlay" @click="resumeGame"></div>
       <div class="menu-pause__wrapper">
-        <button @click="resumeGame">Resume</button>
+        <GameButton class="pink">Settings</GameButton>
+        <GameButton @click="resumeGame">Resume</GameButton>
       </div>
     </div>
 
@@ -87,22 +89,11 @@
     }
 
     .menu-pause__wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5em;
       padding: 1em;
       position: relative;
-
-      button {
-        background:
-          linear-gradient(to bottom, #14BEFD, #0954C4) padding-box,
-          linear-gradient(to bottom, #7DB7FE, #E6F9FF) border-box;
-        border: 0.25em solid transparent;
-        border-radius: 1em;
-        color: #ffffff;
-        cursor: pointer;
-        font-size: 0.75em;
-        font-family: inherit;
-        padding: 0.5em 1em;
-        text-shadow: 0 0.125em 0 #000000;
-      }
     }
   }
 </style>

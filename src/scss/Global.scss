@@ -2,11 +2,29 @@
   box-sizing: border-box;
   user-select: none;
   font-size: 100%;
-  text-transform: uppercase;
 }
 
 *:focus-visible {
   outline: none;
+}
+
+:root {
+  --color-blue-1: #14BEFD;
+  --color-blue-2: #0954C4;
+  --color-blue-light-1: #E6F9FF;
+  --color-blue-light-2: #7DB7FE;
+  --color-green-1: #34FF12;
+  --color-green-2: #199309;
+  --color-green-light-1: #F0FFF4;
+  --color-green-light-2: #CAFFCE;
+  --color-pink-1: #E96CF6;
+  --color-pink-2: #6D32B7;
+  --color-pink-light-1: #F4EBFD;
+  --color-pink-light-2: #D9B9F8;
+  --color-red-1: #FC3412;
+  --color-red-2: #A3220C;
+  --color-red-light-1: #FFF9F7;
+  --color-red-light-2: #FBB19D;
 }
 
 html {
@@ -21,7 +39,7 @@ html {
   body {
     background-color: #000000;
     margin: 0;
-    font-family: 'Goblin';
+    font-family: 'Germania One';
     font-size: clamp(1em, 4vh, 4em); // fallback without round()
     font-size: clamp(1em, calc(round(down, 4vh, 0.5em)), 4em); // 2em (< 600px), 3em (600px), 4em (800px)
     letter-spacing: calc(1em / 16);
@@ -102,8 +120,8 @@ html {
 
 /* Font Family */
 @font-face {
-  font-family: 'Goblin';
-  src: url('/woff2/goblin.woff2') format('woff2');
+  font-family: 'Germania One';
+  src: url('/woff2/GermaniaOne-Regular.woff2') format('woff2');
   font-weight: bold;
   font-style: normal;
 }
