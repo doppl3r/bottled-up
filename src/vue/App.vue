@@ -58,8 +58,13 @@
     <div class="menu-pause" v-if="game.state.menuPaused === true">
       <div class="menu-pause__overlay" @click="resumeGame"></div>
       <div class="menu-pause__wrapper">
-        <GameButton class="pink">Settings</GameButton>
-        <GameButton @click="resumeGame">Resume</GameButton>
+        <div class="menu-pause__logo">
+          <img :src="'svg/logo.svg'" />
+        </div>
+        <div class="menu-pause__actions">
+          <GameButton class="pink">Settings</GameButton>
+          <GameButton @click="resumeGame">Resume</GameButton>
+        </div>
       </div>
     </div>
 
@@ -91,9 +96,23 @@
     .menu-pause__wrapper {
       display: flex;
       flex-direction: column;
-      gap: 0.5em;
+      gap: 2em;
       padding: 1em;
       position: relative;
+
+      .menu-pause__logo {
+        img {
+          height: 4em;
+          width: auto;
+        }
+      }
+
+      .menu-pause__actions {
+        align-items: center;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5em;
+      }
     }
   }
 </style>

@@ -107,13 +107,15 @@
     --color-glass-2: var(--color-blue-light-2);
     --color-gradient-1: var(--color-blue-1);
     --color-gradient-2: var(--color-blue-2);
+    --border-width: 0.125em;
+    --border-radius: 0.5em;
 
     align-items: center;
     background:
       linear-gradient(to bottom, var(--color-gradient-1), var(--color-gradient-2)) padding-box,
       linear-gradient(to bottom, var(--color-glass-2), var(--color-glass-1)) border-box;
-    border: 0.125em solid transparent;
-    border-radius: 0.5em;
+    border: var(--border-width) solid transparent;
+    border-radius: var(--border-radius);
     color: #ffffff;
     cursor: pointer;
     display: flex;
@@ -131,12 +133,12 @@
     &:before {
       background: inherit;
       border: inherit;
-      border-right: none;
-      border-radius: 0.125em;
+      border-left: none;
+      border-radius: var(--border-width);
       content: '';
       display: block;
-      height: 1em;
-      left: calc(-0.75em + 0.125em);
+      height: 50%;
+      right: calc(-0.75em + var(--border-width));
       position: absolute;
       top: 50%;
       transform: translate(0%, -50%);
@@ -148,17 +150,18 @@
       background:
         linear-gradient(to bottom, var(--color-cork-1), var(--color-cork-2)) padding-box,
         linear-gradient(to bottom, var(--color-cork-2), var(--color-cork-1)) border-box;
-      border: 0.125em solid transparent;
-      border-right: none;
-      border-radius: 0.125em;
+      border: var(--border-width) solid transparent;
+      border-left: none;
+      border-radius: var(--border-width);
       content: '';
       display: block;
-      height: 0.75em;
-      left: calc(-1.25em + 0.125em);
+      height: 40%;
+      right: calc(-1.25em + var(--border-width));
       position: absolute;
       top: 50%;
       transform: translate(0%, -50%);
-      transition: all 0.1s ease-in-out;
+      transform-origin: 50% 50%;
+      transition: transform 0.1s ease-in-out;
       width: 0.5em;
     }
 
@@ -166,8 +169,7 @@
     &.hover,
     &.active {
       &:after {
-        left: calc(-1.25em - 0.125em);
-        width: 0.75em;
+        transform: translate(100%, -100%) rotate(-45deg);
       }
 
       .tooltip {
@@ -203,17 +205,14 @@
     }
 
     &:disabled {
+      opacity: 0.5;
       pointer-events: none;
-      
-      > * {
-        opacity: 0.5;
-      }
     }
 
     .tooltip {
       align-items: center;
       background-color: inherit;
-      bottom: calc(100% + 0.125em);
+      bottom: calc(100% + var(--border-width));
       display: flex;
       gap: 0.25em;
       left: 50%;
