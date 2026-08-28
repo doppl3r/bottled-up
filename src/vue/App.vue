@@ -6,7 +6,7 @@
   import { useI18n } from 'vue-i18n';
   import { Game } from '../js/Game.js';
   import ProgressBar from './ProgressBar.vue';
-  import GameButton from './GameButton.vue';
+  import ButtonBottle from './ButtonBottle.vue';
 
   // Initialize Vue components
   const i18n = useI18n();
@@ -18,8 +18,6 @@
   game.load();
 
   const resumeGame = () => {
-    game.state.menuPaused = false;
-
     Promise.resolve(game.core.canvas.requestPointerLock({ unadjustedMovement: true })).catch(error => {
       // If pointer lock fails, resume game after a short delay
       setTimeout(() => resumeGame(), 100);
@@ -30,9 +28,11 @@
   const onPointerLockChange = event => {
     if (document.pointerLockElement === game.core.canvas) {
       game.state.menuPaused = false;
+      game.core.start();
     }
     else {
       game.state.menuPaused = true;
+      game.core.stop();
     }
   };
 
@@ -62,8 +62,8 @@
           <img :src="'svg/logo.svg'" />
         </div>
         <div class="menu-pause__actions">
-          <GameButton class="pink">Settings</GameButton>
-          <GameButton @click="resumeGame">Resume</GameButton>
+          <ButtonBottle class="pink">Settings</ButtonBottle>
+          <ButtonBottle @click="resumeGame">Resume</ButtonBottle>
         </div>
       </div>
     </div>
@@ -94,6 +94,7 @@
     }
 
     .menu-pause__wrapper {
+      align-items: center;
       display: flex;
       flex-direction: column;
       gap: 2em;
@@ -112,6 +113,10 @@
         display: flex;
         flex-direction: column;
         gap: 0.5em;
+
+        .game-button {
+          width: 100%;
+        }
       }
     }
   }

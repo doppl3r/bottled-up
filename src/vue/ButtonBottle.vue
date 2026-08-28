@@ -80,7 +80,6 @@
 <template>
   <button
     ref="buttonElement"
-    class="game-button"
     :class="[state, { 'tooltip-visible': tooltipVisible }]"
     @pointerenter="onEnter"
     @pointerleave="onLeave"
@@ -92,15 +91,18 @@
     @touchcancel="onRelease"
     @blur="onBlur"
   >
-    <slot name="default"></slot>
-    <div class="tooltip" v-if="$slots.tooltip">
-      <slot name="tooltip"></slot>
+    <div class="button-bottle">
+      <div class="button-bottle__body">
+        <slot></slot>
+      </div>
+      <div class="button-bottle__neck"></div>
+      <div class="button-bottle__cap"></div>
     </div>
   </button>
 </template>
 
 <style lang="scss" scoped>
-  .game-button {
+  button {
     --color-cork-1: #FFB474;
     --color-cork-2: #E16642;
     --color-glass-1: var(--color-blue-light-1);
@@ -109,72 +111,21 @@
     --color-gradient-2: var(--color-blue-2);
     --border-width: 0.125em;
     --border-radius: 0.5em;
-
-    align-items: center;
-    background:
-      linear-gradient(to bottom, var(--color-gradient-1), var(--color-gradient-2)) padding-box,
-      linear-gradient(to bottom, var(--color-glass-2), var(--color-glass-1)) border-box;
-    border: var(--border-width) solid transparent;
-    border-radius: var(--border-radius);
-    color: #ffffff;
+    border: none;
+    background: none;
     cursor: pointer;
-    display: flex;
-    flex-shrink: 0;
-    font-size: 1em;
+    padding: 0;
     font-family: inherit;
-    gap: 0.25em;
-    justify-content: center;
-    line-height: 1em;
-    padding: 0.5em 1em;
-    position: relative;
-    text-shadow: 0 0.125em 0 #000000;
-
-    // Bottle neck
-    &:before {
-      background: inherit;
-      border: inherit;
-      border-left: none;
-      border-radius: var(--border-width);
-      content: '';
-      display: block;
-      height: 50%;
-      right: calc(-0.75em + var(--border-width));
-      position: absolute;
-      top: 50%;
-      transform: translate(0%, -50%);
-      width: 0.5em;
-    }
-
-    // Bottle cap
-    &:after {
-      background:
-        linear-gradient(to bottom, var(--color-cork-1), var(--color-cork-2)) padding-box,
-        linear-gradient(to bottom, var(--color-cork-2), var(--color-cork-1)) border-box;
-      border: var(--border-width) solid transparent;
-      border-left: none;
-      border-radius: var(--border-width);
-      content: '';
-      display: block;
-      height: 40%;
-      right: calc(-1.25em + var(--border-width));
-      position: absolute;
-      top: 50%;
-      transform: translate(0%, -50%);
-      transform-origin: 50% 50%;
-      transition: transform 0.1s ease-in-out;
-      width: 0.5em;
-    }
+    font-size: 1em;
 
     &:focus-visible,
     &.hover,
     &.active {
-      &:after {
-        transform: translate(100%, -100%) rotate(-45deg);
-      }
+      .button-bottle {
+        transform: translate(-0.5em, 0);
 
-      .tooltip {
-        @media (hover: hover) and (pointer: fine) {
-          visibility: visible;
+        .button-bottle__cap {
+          transform: translate(100%, -50%) rotate(-45deg);
         }
       }
     }
@@ -200,27 +151,59 @@
       --color-glass-2: var(--color-red-light-2);
     }
 
-    &.tooltip-visible .tooltip {
-      visibility: visible;
-    }
-
     &:disabled {
       opacity: 0.5;
       pointer-events: none;
     }
 
-    .tooltip {
+    .button-bottle {
       align-items: center;
-      background-color: inherit;
-      bottom: calc(100% + var(--border-width));
       display: flex;
-      gap: 0.25em;
-      left: 50%;
-      padding: 0.25em;
-      pointer-events: none;
-      position: absolute;
-      transform: translate(-50%, 0);
-      visibility: hidden;
+      transition: transform 0.1s ease-out;
+  
+      .button-bottle__body {
+        align-items: center;
+        background:
+          linear-gradient(to bottom, var(--color-gradient-1), var(--color-gradient-2)) padding-box,
+          linear-gradient(to bottom, var(--color-glass-2), var(--color-glass-1)) border-box;
+        border: var(--border-width) solid transparent;
+        border-radius: var(--border-radius);
+        color: #ffffff;
+        display: flex;
+        flex-shrink: 0;
+        gap: 0.25em;
+        justify-content: center;
+        line-height: 1em;
+        padding: 0.5em 1em;
+        text-shadow: 0 0.125em 0 #000000;
+      }
+  
+      .button-bottle__neck {
+        background:
+          linear-gradient(to bottom, var(--color-gradient-1), var(--color-gradient-2)) padding-box,
+          linear-gradient(to bottom, var(--color-glass-2), var(--color-glass-1)) border-box;
+        border: var(--border-width) solid transparent;
+        border-left: none;
+        border-radius: var(--border-width);
+        display: block;
+        height: 1.25em;
+        margin-left: -0.125em;
+        width: 0.5em;
+      }
+      
+      .button-bottle__cap {
+        background:
+          linear-gradient(to bottom, var(--color-cork-1), var(--color-cork-2)) padding-box,
+          linear-gradient(to bottom, var(--color-cork-2), var(--color-cork-1)) border-box;
+        border: var(--border-width) solid transparent;
+        border-left: none;
+        border-radius: var(--border-width);
+        display: block;
+        height: 1em;
+        margin-left: -0.125em;
+        transition: transform 0.1s ease-out;
+        width: 0.5em;
+      }
     }
   }
 </style>

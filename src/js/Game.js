@@ -40,7 +40,7 @@ class Game {
     this.core.entityManager.world.gravity.y = -9.81 * 4;
     this.core.entityManager.world.numSolverIterations = 4;
     this.core.scene.background.set('#1f1f1f');
-    this.core.camera.position.set(0, 2, 10);
+    this.core.camera.position.set(0, 2, 8);
 
     // Reactive game state (persisted defaults + UI-only keys)
     this.state = reactive({
@@ -55,7 +55,7 @@ class Game {
 
       // Load level from JSON data
       this.core.entityManager.load(json, () => {
-        this.core.start();
+        this.core.compositor.render();
       });
     });
 
@@ -69,6 +69,13 @@ class Game {
 
     // Sync fullscreen state when exiting via Escape or browser controls
     document.addEventListener('fullscreenchange', this.onFullscreenChange);
+
+    // Add resize listener
+    this.core.compositor.addEventListener('resize', this.onResize);
+  }
+
+  onResize = () => {
+    this.core.compositor.render();
   }
 
   onKeyDown = event => {
