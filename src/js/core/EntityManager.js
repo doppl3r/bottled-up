@@ -3,6 +3,7 @@ import { WorldDebugger } from './WorldDebugger.js';
 import { Entity } from './Entity.js';
 import { EntityAudio } from './EntityAudio.js';
 import { EntityBall } from './EntityBall.js';
+import { EntityCamera } from './EntityCamera.js';
 import { EntityCube } from './EntityCube.js';
 import { EntityDecal } from './EntityDecal.js';
 import { EntityEnvironment } from './EntityEnvironment.js';
@@ -51,6 +52,7 @@ class EntityManager {
       Entity,
       EntityAudio,
       EntityBall,
+      EntityCamera,
       EntityCube,
       EntityDecal,
       EntityEnvironment,

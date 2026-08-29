@@ -81,6 +81,7 @@
   <button
     ref="buttonElement"
     :class="[state, { 'tooltip-visible': tooltipVisible }]"
+    class="button-bottle"
     @pointerenter="onEnter"
     @pointerleave="onLeave"
     @pointerdown="onPress"
@@ -91,18 +92,18 @@
     @touchcancel="onRelease"
     @blur="onBlur"
   >
-    <div class="button-bottle">
-      <div class="button-bottle__body">
+    <div class="button-bottle-container">
+      <div class="button-bottle-container__body">
         <slot></slot>
       </div>
-      <div class="button-bottle__neck"></div>
-      <div class="button-bottle__cap"></div>
+      <div class="button-bottle-container__neck"></div>
+      <div class="button-bottle-container__cap"></div>
     </div>
   </button>
 </template>
 
 <style lang="scss" scoped>
-  button {
+  .button-bottle {
     --color-cork-1: #FFB474;
     --color-cork-2: #E16642;
     --color-glass-1: var(--color-blue-light-1);
@@ -121,10 +122,10 @@
     &:focus-visible,
     &.hover,
     &.active {
-      .button-bottle {
+        .button-bottle-container {
         transform: translate(-0.5em, 0);
 
-        .button-bottle__cap {
+        .button-bottle-container__cap {
           transform: translate(100%, -50%) rotate(-45deg);
         }
       }
@@ -156,12 +157,12 @@
       pointer-events: none;
     }
 
-    .button-bottle {
+    .button-bottle-container {
       align-items: center;
       display: flex;
       transition: transform 0.1s ease-out;
   
-      .button-bottle__body {
+      .button-bottle-container__body {
         align-items: center;
         background:
           linear-gradient(to bottom, var(--color-gradient-1), var(--color-gradient-2)) padding-box,
@@ -178,7 +179,7 @@
         text-shadow: 0 0.125em 0 #000000;
       }
   
-      .button-bottle__neck {
+      .button-bottle-container__neck {
         background:
           linear-gradient(to bottom, var(--color-gradient-1), var(--color-gradient-2)) padding-box,
           linear-gradient(to bottom, var(--color-glass-2), var(--color-glass-1)) border-box;
@@ -191,7 +192,7 @@
         width: 0.5em;
       }
       
-      .button-bottle__cap {
+      .button-bottle-container__cap {
         background:
           linear-gradient(to bottom, var(--color-cork-1), var(--color-cork-2)) padding-box,
           linear-gradient(to bottom, var(--color-cork-2), var(--color-cork-1)) border-box;

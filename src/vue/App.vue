@@ -56,7 +56,7 @@
   <!-- Floating menus -->
   <div class="game" ref="gameRef">
     <div class="menu-pause" v-if="game.state.menuPaused === true">
-      <div class="menu-pause__overlay" @click="resumeGame"></div>
+      <div class="menu-pause__overlay"></div>
       <div class="menu-pause__wrapper">
         <div class="menu-pause__logo">
           <img :src="'svg/logo.svg'" />
@@ -83,6 +83,7 @@
     position: fixed;
     top: 0;
     width: 100%;
+    pointer-events: none;
 
     .menu-pause__overlay {
       background-color: rgba(0, 0, 0, 0.5);
@@ -114,8 +115,9 @@
         flex-direction: column;
         gap: 0.5em;
 
-        .game-button {
+        :deep(.button-bottle) {
           width: 100%;
+          pointer-events: all;
         }
       }
     }
