@@ -72,6 +72,9 @@ class EntityPhysics extends Entity {
         // Create rigid body
         PhysicsFactory.create(this, options.rigidBody, core.entityManager.world);
 
+        // Add custom collision event listeners
+        this.addCollisionEvents(options.rigidBody.colliders);
+
         // Resync transform
         this.syncTransformFromParent();
 
@@ -82,15 +85,17 @@ class EntityPhysics extends Entity {
     else {
       // Create physics component immediately
       PhysicsFactory.create(this, options.rigidBody, core.entityManager.world);
+
+      // Add custom collision event listeners
+      this.addCollisionEvents(options.rigidBody.colliders);
+
+      // Update entity state
       this.ready();
     }
 
     // Add event listeners
     this.addEventListener('added', this.onAdded);
     this.addEventListener('removed', this.onRemoved);
-
-    // Add custom collision event listeners
-    this.addCollisionEvents(options.rigidBody.colliders);
   }
 
   update(loop) {

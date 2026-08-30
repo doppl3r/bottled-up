@@ -28,15 +28,14 @@
     {
       "name": "level",
       "label": "Level",
-      "class": "Entity",
+      "class": "EntityTrimesh",
+      "url": "glb/ramps-1.glb",
       "children": [
         {
-          "class": "EntityModel",
-          "url": "glb/ramps-1.glb"
+          "class": "EntityModel"
         },
         {
           "class": "EntityPhysics",
-          "url": "glb/ramps-1.glb",
           "rigidBody": {
             "status": 1,
             "colliders": [

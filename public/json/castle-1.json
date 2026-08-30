@@ -10,7 +10,7 @@
       "intensity": 1.57
     },
     {
-      "class": "EntitySkybox"
+      "class": "EntitySkySphere"
     },
     {
       "class": "EntityPlayer",

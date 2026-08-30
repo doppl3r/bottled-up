@@ -10,6 +10,22 @@ class EntityPlayer extends Entity {
     this.core = core;
     this.tweens = new Tweens();
 
+    // TODO: Move these to a function
+    this.get('EntityParticles', child => {
+      const range = 10;
+      for (let i = 0; i < child.particles.capacity; i++) {
+        
+        child.particles.add({
+          texture: Math.floor(Math.random() * options.urls?.length || 0),
+          position: {
+            x: Math.random() * range - (range / 2),
+            y: Math.random() * range - (range / 2),
+            z: Math.random() * range - (range / 2)
+          }
+        });
+      }
+    });
+
     // Update loading state
     this.ready();
   }
@@ -59,6 +75,14 @@ class EntityPlayer extends Entity {
         {
           class: 'EntityModel',
           url: 'glb/potion-ball.glb'
+        },
+        {
+          class: 'EntityParticles',
+          attenuation: 0,
+          capacity: 100,
+          urls: [
+            'png/icon16.png'
+          ]
         },
         {
           class: 'EntityMesh',
