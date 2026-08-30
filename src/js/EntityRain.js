@@ -12,8 +12,8 @@ class EntityRain extends EntityParticles {
     // Add rain particles
     this.range = options.range;
     this.speed = options.speed;
-    for (let i = 0; i < this.particles.capacity; i++) {
-      this.particles.add({
+    for (let i = 0; i < this.capacity; i++) {
+      this.addParticle({
         texture: Math.floor(Math.random() * options.urls?.length || 0),
         position: {
           x: Math.random() * this.range - this.range / 2,
@@ -32,7 +32,7 @@ class EntityRain extends EntityParticles {
 
   render(loop) {
     // Update rain particle positions
-    this.particles.translateWrapAll(
+    this.translateWrapAll(
       -0.25 * this.speed * loop.delta,
       -0.75 * this.speed * loop.delta,
       0.25 * this.speed * loop.delta,
@@ -46,7 +46,7 @@ class EntityRain extends EntityParticles {
   static template = {
     attenuation: 0.5,
     capacity: 100,
-    range: 100,
+    range: 10,
     speed: 0.01,
     urls: [
       'png/icon16.png'

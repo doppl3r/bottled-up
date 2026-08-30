@@ -12,6 +12,23 @@ class EntityNPC extends Entity {
     this.time = 0;
     this.state = 'wounded';
 
+    // TODO: Move these to a function
+    this.get('EntityParticles', child => {
+      const range = 2;
+      for (let i = 0; i < child.capacity; i++) {
+        const opacity = Math.random();
+        child.addParticle({
+          texture: Math.floor(Math.random() * options.urls?.length || 0),
+          rgba: [1, 1, 1, opacity],
+          position: {
+            x: Math.random() * range - (range / 2),
+            y: Math.random() * range - (range / 2),
+            z: Math.random() * range - (range / 2)
+          }
+        });
+      }
+    });
+
     // Update entity state
     this.ready();
   }
@@ -19,13 +36,22 @@ class EntityNPC extends Entity {
   render(loop) {
     // Update status model properties
     if (this.state === 'wounded') {
+      // Animate status "!" model
       const status = this.get('EntityModel').get('EntityModel');
       this.time += loop.delta;
       const duration = 2500;
       const alpha = (Math.sin(this.time * 2 * Math.PI / duration) + 1) / 2;
       status.position.y = 0.5 + (alpha * 0.25);
+
+      // Animate particles
+      const entityParticles = this.get('EntityParticles');
+      const speed = 0.00025;
+      const range = 2;
+      const delta = loop.delta;
+      entityParticles.translateWrapAll(-0.25 * speed * delta, -0.75 * speed * delta, 0.25 * speed * delta, range);
     }
 
+    // Resume Entity render behavior
     super.render(loop);
   }
 
@@ -37,11 +63,13 @@ class EntityNPC extends Entity {
         const entityModelBody = this.get('EntityModel');
         const entityModelStatus = entityModelBody.get('EntityModel');
         const entityMixer = entityModelBody.get('EntityMixer');
+        const entityParticles = this.get('EntityParticles');
         
         // Update NPC state
         this.state = 'revived';
         entityMixer.play(event.value);
         entityModelStatus.visible = false;
+        entityParticles.visible = false;
       }
     }
   }
@@ -95,6 +123,14 @@ class EntityNPC extends Entity {
             url: 'glb/quest.glb',
             scale: { x: 0.5, y: 0.5, z: 0.5 }
           },
+        ]
+      },
+      {
+        class: 'EntityParticles',
+        attenuation: 0.0,
+        capacity: 10,
+        urls: [
+          'png/icon16.png'
         ]
       },
       {
