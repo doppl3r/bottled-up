@@ -92,6 +92,7 @@ class EntityBallController extends Entity {
     this.camAzimuth = 0;
     this.camPitch = this.camPitchDefault;
     this.hasPointerLock = false;
+    this.hasPointerLockError = false;
     this.isDragging = false;
     this.dragX = 0;
     this.dragY = 0;
@@ -115,9 +116,11 @@ class EntityBallController extends Entity {
     document.addEventListener('keydown', this.onKeyDown);
     document.addEventListener('keyup', this.onKeyUp);
     document.addEventListener('pointerlockchange', this.onPointerLockChange);
-    document.addEventListener('mousemove', this.onMouseMove);
+    document.addEventListener('pointerlockerror', this.onPointerLockError);
     window.addEventListener('blur', this.onWindowBlur);
-    window.addEventListener('mouseup', this.onWindowMouseUp);
+    window.addEventListener('mousedown', this.onMouseDown);
+    window.addEventListener('mousemove', this.onMouseMove);
+    window.addEventListener('mouseup', this.onMouseUp);
 
     // Add event listeners for components
     this.addEventListener('added', this.onAdded);
@@ -532,6 +535,15 @@ class EntityBallController extends Entity {
     this.keys.delete(event.code);
   }
 
+  onMouseDown = (event) => {
+    // Add mouse drag if pointer lock is not supported
+    if (this.hasPointerLockError) {
+      this.isDragging = true;
+      this.dragX = event.clientX;
+      this.dragY = event.clientY;
+    }
+  }
+
   onMouseMove = (event) => {
     if (this.hasPointerLock) {
       // Set threshold limits (33% of window)
@@ -562,8 +574,15 @@ class EntityBallController extends Entity {
     }
   }
 
+  onMouseUp = (event) => {
+    if (event.button !== 0) return;
+    this.isDragging = false;
+  }
+
   onPointerLockChange = event => {
     this.hasPointerLock = (document.pointerLockElement === this.core.canvas);
+    this.hasPointerLockError = false;
+
     // If lock was lost (Escape), pause drag controls until user clicks again
     if (!this.hasPointerLock) {
       this.isDragging = false;
@@ -574,9 +593,8 @@ class EntityBallController extends Entity {
     }
   }
 
-  onWindowMouseUp = (event) => {
-    if (event.button !== 0) return;
-    this.isDragging = false;
+  onPointerLockError = event => {
+    this.hasPointerLockError = true;
   }
 
   onWindowBlur = () => {
@@ -607,9 +625,11 @@ class EntityBallController extends Entity {
     document.removeEventListener('keydown', this.onKeyDown);
     document.removeEventListener('keyup', this.onKeyUp);
     document.removeEventListener('pointerlockchange', this.onPointerLockChange);
-    document.removeEventListener('mousemove', this.onMouseMove);
+    document.removeEventListener('pointerlockerror', this.onPointerLockError);
     window.removeEventListener('blur', this.onWindowBlur);
-    window.removeEventListener('mouseup', this.onWindowMouseUp);
+    window.removeEventListener('mousedown', this.onMouseDown);
+    window.removeEventListener('mousemove', this.onMouseMove);
+    window.removeEventListener('mouseup', this.onMouseUp);
 
     // Exit pointer lock if active
     if (this.hasPointerLock) document.exitPointerLock?.();

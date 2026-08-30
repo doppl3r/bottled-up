@@ -63,16 +63,41 @@ class Game {
     this.addEventListeners();
   }
 
-  addEventListeners() {
-    // Add keyboard event listener
-    document.addEventListener('keydown', this.onKeyDown);
+  pause() {
+    this.core.stop();
+    this.state.menuPaused = true;
+  }
 
-    // Sync fullscreen state when exiting via Escape or browser controls
+  async resume(attempts = 10) {
+    this.core.start();
+    this.state.menuPaused = false;
+
+    // Request pointer lock
+    try {
+      await this.core.canvas.requestPointerLock({ unadjustedMovement: true });
+    }
+    catch (error) {
+      // Retry requesting pointer lock if it fails
+      if (attempts >= 0) setTimeout(() => this.resume(--attempts), 100);
+    }
+  }
+
+  addEventListeners() {
+    // Add document event listeners
+    document.addEventListener('keydown', this.onKeyDown);
+    document.addEventListener('pointerlockchange', this.onPointerLockChange);
     document.addEventListener('fullscreenchange', this.onFullscreenChange);
 
     // Add resize listener
     this.core.compositor.addEventListener('resize', this.onResize);
   }
+
+  onPointerLockChange = event => {
+    // Pause game if pointer lock is exited
+    if (document.pointerLockElement !== this.core.canvas) {
+      this.pause();
+    }
+  };
 
   onResize = () => {
     this.core.render(this.core.interval.loops[1]);
@@ -88,6 +113,9 @@ class Game {
     }
     else if (event.code === 'KeyR') {
       this.restoreCheckpoint();
+    }
+    else if (event.code === 'Escape') {
+      this.pause();
     }
   }
 
