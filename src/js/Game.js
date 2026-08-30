@@ -68,17 +68,27 @@ class Game {
     this.state.menuPaused = true;
   }
 
-  async resume(attempts = 10) {
-    this.core.start();
-    this.state.menuPaused = false;
+  async resume() {
+    // Calculate pause time difference
+    const delay = 1500;
+    const nowTimestamp = performance.now();
+    const pausedTimestamp = this.pointerLockTimestamp;
+    const diffTimestamp = nowTimestamp - pausedTimestamp;
 
-    // Request pointer lock
-    try {
-      await this.core.canvas.requestPointerLock({ unadjustedMovement: true });
+    // Defer resume until after the delay has passed
+    if (diffTimestamp < delay) {
+      setTimeout(() => this.resume(), delay - diffTimestamp);
     }
-    catch (error) {
-      // Retry requesting pointer lock if it fails
-      if (attempts >= 0) setTimeout(() => this.resume(--attempts), 100);
+    else {
+      // Request pointer lock
+      try {
+        this.core.start();
+        this.state.menuPaused = false;
+        await this.core.canvas.requestPointerLock({ unadjustedMovement: true });
+      }
+      catch (error) {
+        console.error(error);
+      }
     }
   }
 
@@ -96,6 +106,7 @@ class Game {
     // Pause game if pointer lock is exited
     if (document.pointerLockElement !== this.core.canvas) {
       this.pause();
+      this.pointerLockTimestamp = performance.now();
     }
   };
 
