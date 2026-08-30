@@ -7,15 +7,29 @@ import { Entity } from './Entity.js';
 
 class EntityParticles extends Entity {
   constructor(options, core) {
+    const {
+      capacity = 1000,
+      size = 1.0,
+      url,
+      magFilter = 1003,
+      minFilter = 1003,
+      alphaTest = 0.001,
+      sizeAttenuation = true,
+      transparent = true,
+      depthWrite = false
+    } = options;
+
     // Inherit Entity properties
     super(options, core);
 
     // Update particle system properties
-    this.capacity = options.capacity;
-    this.size = options.size !== undefined ? options.size : 1.0;
+    this.capacity = capacity;
+    this.size = size;
     this.count = 0;
     this.index = 0;
-    this.url = options.url || null;
+    this.url = url;
+    this.magFilter = magFilter;
+    this.minFilter = minFilter;
 
     // Create geometry for particles
     const geometry = new BufferGeometry();
@@ -27,23 +41,23 @@ class EntityParticles extends Entity {
 
     // Build shader defines
     const defines = {};
-    const sizeAttenuation = options.sizeAttenuation !== undefined ? options.sizeAttenuation : true;
     if (sizeAttenuation) defines.USE_SIZEATTENUATION = '';
-    if (options.alphaTest > 0) defines.USE_ALPHATEST = '';
+    if (alphaTest > 0) defines.USE_ALPHATEST = '';
+    if (url) defines.USE_MAP = '';
 
     // Calculate initial scale factor based on renderer height (fallback 300.0)
     const scaleFactor = core?.renderer?.domElement?.clientHeight ? core.renderer.domElement.clientHeight / 2.0 : 300.0;
 
     // Create shader material for particles
     const material = new ShaderMaterial({
-      transparent: options.transparent !== undefined ? options.transparent : true,
-      depthWrite: options.depthWrite !== undefined ? options.depthWrite : false,
+      transparent,
+      depthWrite,
       defines,
       uniforms: {
         map: { value: null },
         size: { value: this.size },
         scaleFactor: { value: scaleFactor },
-        alphaTest: { value: options.alphaTest || 0.001 }
+        alphaTest: { value: alphaTest }
       },
       vertexShader: `
         attribute vec4 color;
@@ -74,7 +88,9 @@ class EntityParticles extends Entity {
         }
       `,
       fragmentShader: `
-        uniform sampler2D map;
+        #ifdef USE_MAP
+          uniform sampler2D map;
+        #endif
         uniform float alphaTest;
 
         varying vec4 vColor;
@@ -89,8 +105,12 @@ class EntityParticles extends Entity {
 
           if (uv.x < 0.0 || uv.x > 1.0 || uv.y < 0.0 || uv.y > 1.0) discard;
 
-          vec4 mapTexel = texture2D(map, uv);
-          vec4 diffuseColor = vColor * mapTexel;
+          vec4 diffuseColor = vColor;
+
+          #ifdef USE_MAP
+            vec4 mapTexel = texture2D(map, uv);
+            diffuseColor *= mapTexel;
+          #endif
 
           #ifdef USE_ALPHATEST
             if (diffuseColor.a < alphaTest) discard;
@@ -117,17 +137,9 @@ class EntityParticles extends Entity {
       });
     }
 
-    // Store options
-    this.magFilter = options.magFilter !== undefined ? options.magFilter : 1003; // NearestFilter
-    this.minFilter = options.minFilter !== undefined ? options.minFilter : 1003; // NearestFilter
-
     // Load texture or assign directly if map is provided
-    if (options.map) {
-      this.setTexture(options.map);
-      this.ready();
-    }
-    else if (options.url) {
-      core.assets.load(options.url, texture => {
+    if (url) {
+      core.assets.load(url, texture => {
         this.setTexture(texture);
         this.ready();
       });
@@ -145,35 +157,37 @@ class EntityParticles extends Entity {
   }
 
   update(index, options = {}) {
+    const { position, color, rgba, scale, size, angle } = options;
+
     // Update position [x, y, z] or { x, y, z }
-    if (options.position !== undefined) {
-      const position = this.points.geometry.getAttribute('position');
-      if (Array.isArray(options.position)) position.setXYZ(index, options.position[0], options.position[1], options.position[2]);
-      else position.setXYZ(index, options.position.x, options.position.y, options.position.z);
-      position.needsUpdate = true;
+    if (position) {
+      const positionAttr = this.points.geometry.getAttribute('position');
+      if (Array.isArray(options.position)) positionAttr.setXYZ(index, options.position[0], options.position[1], options.position[2]);
+      else positionAttr.setXYZ(index, options.position.x, options.position.y, options.position.z);
+      positionAttr.needsUpdate = true;
     }
 
     // Update color / opacity value [r, g, b, a] (supports color or rgba alias)
-    const colorValues = options.color || options.rgba;
-    if (colorValues !== undefined) {
-      const color = this.points.geometry.getAttribute('color');
-      color.setXYZW(index, colorValues[0], colorValues[1], colorValues[2], colorValues[3]);
-      color.needsUpdate = true;
+    const colorValues = color || rgba;
+    if (colorValues) {
+      const colorAttr = this.points.geometry.getAttribute('color');
+      colorAttr.setXYZW(index, colorValues[0], colorValues[1], colorValues[2], colorValues[3]);
+      colorAttr.needsUpdate = true;
     }
 
     // Update scale value (supports scale or size alias)
-    const scaleValue = options.scale !== undefined ? options.scale : options.size;
-    if (scaleValue !== undefined) {
-      const scale = this.points.geometry.getAttribute('scale');
-      scale.setX(index, scaleValue);
-      scale.needsUpdate = true;
+    const scaleValue = scale || size;
+    if (scaleValue) {
+      const scaleAttr = this.points.geometry.getAttribute('scale');
+      scaleAttr.setX(index, scaleValue);
+      scaleAttr.needsUpdate = true;
     }
 
     // Update angle value
-    if (options.angle !== undefined) {
-      const angle = this.points.geometry.getAttribute('angle');
-      angle.setX(index, options.angle);
-      angle.needsUpdate = true;
+    if (angle) {
+      const angleAttr = this.points.geometry.getAttribute('angle');
+      angleAttr.setX(index, angle);
+      angleAttr.needsUpdate = true;
     }
   }
 
@@ -286,14 +300,6 @@ class EntityParticles extends Entity {
   }
 
   static template = {
-    alphaTest: 0.001,
-    capacity: 1000,
-    magFilter: 1003,
-    minFilter: 1003,
-    size: 1.0,
-    sizeAttenuation: true,
-    transparent: true,
-    depthWrite: false,
     url: null
   }
 }
