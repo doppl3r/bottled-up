@@ -14,13 +14,13 @@ class EntityRain extends EntityParticles {
     this.speed = options.speed;
     for (let i = 0; i < this.capacity; i++) {
       this.addParticle({
-        texture: Math.floor(Math.random() * options.urls?.length || 0),
+        size: options.size !== undefined ? options.size : 1.0,
         position: {
           x: Math.random() * this.range - this.range / 2,
           y: Math.random() * this.range - this.range / 2,
           z: Math.random() * this.range - this.range / 2
         }
-      })
+      });
     }
 
     // Enable rain layer for camera
@@ -44,13 +44,12 @@ class EntityRain extends EntityParticles {
   }
 
   static template = {
-    attenuation: 0.5,
     capacity: 100,
     range: 10,
     speed: 0.01,
-    urls: [
-      'png/icon16.png'
-    ]
+    size: 1.0,
+    sizeAttenuation: true,
+    url: 'png/icon16.png'
   }
 }
 

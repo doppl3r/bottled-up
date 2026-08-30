@@ -1,4 +1,4 @@
-import { BufferAttribute, BufferGeometry, Points, ShaderMaterial, Texture } from 'three';
+import { BufferAttribute, BufferGeometry, Points, ShaderMaterial } from 'three';
 import { Entity } from './Entity.js';
 
 /*
@@ -12,80 +12,123 @@ class EntityParticles extends Entity {
 
     // Update particle system properties
     this.capacity = options.capacity;
+    this.size = options.size !== undefined ? options.size : 1.0;
     this.count = 0;
     this.index = 0;
-    this.atlasTexture = null;
-    this.atlasHeight = 0;
-    this.atlasWidth = 0;
-    this.frustumCulled = false;
+    this.url = options.url || null;
 
     // Create geometry for particles
     const geometry = new BufferGeometry();
     geometry.setAttribute('position', new BufferAttribute(new Float32Array(this.capacity * 3), 3));
-    geometry.setAttribute('rgba', new BufferAttribute(new Float32Array(this.capacity * 4), 4));
-    geometry.setAttribute('size', new BufferAttribute(new Float32Array(this.capacity), 1));
-    geometry.setAttribute('texture', new BufferAttribute(new Float32Array(this.capacity), 1));
+    geometry.setAttribute('color', new BufferAttribute(new Float32Array(this.capacity * 4), 4));
+    geometry.setAttribute('scale', new BufferAttribute(new Float32Array(this.capacity), 1));
+    geometry.setAttribute('angle', new BufferAttribute(new Float32Array(this.capacity), 1));
     geometry.setDrawRange(0, 0);
+
+    // Build shader defines
+    const defines = {};
+    const sizeAttenuation = options.sizeAttenuation !== undefined ? options.sizeAttenuation : true;
+    if (sizeAttenuation) defines.USE_SIZEATTENUATION = '';
+    if (options.alphaTest > 0) defines.USE_ALPHATEST = '';
+
+    // Calculate initial scale factor based on renderer height (fallback 300.0)
+    const scaleFactor = core?.renderer?.domElement?.clientHeight ? core.renderer.domElement.clientHeight / 2.0 : 300.0;
 
     // Create shader material for particles
     const material = new ShaderMaterial({
-      transparent: true,
-      depthWrite: true,
+      transparent: options.transparent !== undefined ? options.transparent : true,
+      depthWrite: options.depthWrite !== undefined ? options.depthWrite : false,
+      defines,
       uniforms: {
-        atlasTexture: { value: null },
-        atlasCount: { value: 0 },
-        atlasHeight: { value: 0 },
-        atlasWidth: { value: 0 },
-        attenuation: { value: options.attenuation },
+        map: { value: null },
+        size: { value: this.size },
+        scaleFactor: { value: scaleFactor },
+        alphaTest: { value: options.alphaTest || 0.001 }
       },
       vertexShader: `
-        attribute float texture;
-        attribute vec4 rgba;
-        attribute float size;
-        varying float v_texture;
-        varying vec4 v_rgba;
-        uniform float attenuation;
+        attribute vec4 color;
+        attribute float scale;
+        attribute float angle;
+
+        varying vec4 vColor;
+        varying vec2 vCosSin;
+
+        uniform float size;
+
+        #ifdef USE_SIZEATTENUATION
+          uniform float scaleFactor;
+        #endif
+
         void main() {
-          v_texture = texture;
-          v_rgba = rgba;
+          vColor = color;
+          vCosSin = vec2(cos(angle), sin(angle));
+
           vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
           gl_Position = projectionMatrix * mvPosition;
-          float v_attenuationFactor = 1.0 - (gl_Position.z / gl_Position.w) * attenuation;
-          gl_PointSize = size * v_attenuationFactor;
+
+          #ifdef USE_SIZEATTENUATION
+            gl_PointSize = size * scale * (scaleFactor / -mvPosition.z);
+          #else
+            gl_PointSize = size * scale;
+          #endif
         }
       `,
       fragmentShader: `
-        uniform sampler2D atlasTexture;
-        uniform float atlasCount;
-        uniform float atlasWidth;
-        uniform float atlasHeight;
-        varying float v_texture;
-        varying vec4 v_rgba;
+        uniform sampler2D map;
+        uniform float alphaTest;
+
+        varying vec4 vColor;
+        varying vec2 vCosSin;
+
         void main() {
-          vec4 f_rgba = v_rgba;
-          float f_textureIndex = v_texture;
-          if (atlasCount > 0.0) {
-            float f_textureTileIndex = floor(f_textureIndex + 0.5);
-            float f_tileWidth = 1.0 / atlasCount;
-            vec2 f_uv = vec2(gl_PointCoord.x * f_tileWidth + f_textureTileIndex * f_tileWidth, 1.0 - gl_PointCoord.y);
-            f_rgba *= texture2D(atlasTexture, f_uv);
-          }
-          if (f_rgba.a == 0.0) discard;
-          gl_FragColor = f_rgba;
+          vec2 pt = vec2(gl_PointCoord.x - 0.5, 0.5 - gl_PointCoord.y);
+          vec2 uv = vec2(
+            pt.x * vCosSin.x + pt.y * vCosSin.y,
+            -pt.x * vCosSin.y + pt.y * vCosSin.x
+          ) + vec2(0.5);
+
+          if (uv.x < 0.0 || uv.x > 1.0 || uv.y < 0.0 || uv.y > 1.0) discard;
+
+          vec4 mapTexel = texture2D(map, uv);
+          vec4 diffuseColor = vColor * mapTexel;
+
+          #ifdef USE_ALPHATEST
+            if (diffuseColor.a < alphaTest) discard;
+          #endif
+
+          gl_FragColor = diffuseColor;
         }
       `
     });
 
     // Declare entity components
     this.points = new Points(geometry, material);
+    this.points.frustumCulled = false;
     this.points.layers.set(0);
     this.add(this.points);
 
-    // Add particles component if entity is an instance of EntityParticles
-    if (options.urls) {
-      this.urls = options.urls;
-      core.assets.loadBatch(options.urls, textures => {
-        this.setTextures(textures, options);
+    // Update scaleFactor on window resize if core is present
+    if (core?.renderer?.domElement) {
+      window.addEventListener('resize', () => {
+        const height = core.renderer.domElement.clientHeight;
+        if (height > 0) {
+          this.points.material.uniforms.scaleFactor.value = height / 2.0;
+        }
+      });
+    }
+
+    // Store options
+    this.magFilter = options.magFilter !== undefined ? options.magFilter : 1003; // NearestFilter
+    this.minFilter = options.minFilter !== undefined ? options.minFilter : 1003; // NearestFilter
+
+    // Load texture or assign directly if map is provided
+    if (options.map) {
+      this.setTexture(options.map);
+      this.ready();
+    }
+    else if (options.url) {
+      core.assets.load(options.url, texture => {
+        this.setTexture(texture);
         this.ready();
       });
     }
@@ -94,81 +137,43 @@ class EntityParticles extends Entity {
     }
   }
 
-  setTextures(textures, options) {
-    // Add textures to entity
-    this.urls = options.urls;
-
-    // Add particles as child of entity
-    this.createAtlas(textures);
-
-    // Update texture properties
-    this.points.material.uniforms.atlasTexture.value.magFilter = 1003;
-    this.points.material.uniforms.atlasTexture.value.minFilter = 1003;
-  }
-
-  createAtlas(textures) {
-    if (textures.length > 0) {
-      // Update atlas uniform properties
-      this.points.material.uniforms.atlasCount.value = textures.length;
-      this.points.material.uniforms.atlasWidth.value = textures[0].image.width * textures.length;
-      this.points.material.uniforms.atlasHeight.value = textures[0].image.height;
-
-      if (textures.length === 1) {
-        // Assign a single texture
-        this.points.material.uniforms.atlasTexture.value = textures[0];
-      }
-      else {
-        // Create canvas to build texture atlas
-        const atlasCanvas = document.createElement('canvas');
-        atlasCanvas.width = this.points.material.uniforms.atlasWidth.value;
-        atlasCanvas.height = this.points.material.uniforms.atlasHeight.value;
-
-        // Draw each texture onto the atlas canvas
-        const ctx = atlasCanvas.getContext('2d');
-        textures.forEach((texture, i) => {
-          ctx.drawImage(texture.image,
-            i * texture.image.width,
-            0,
-            texture.image.width,
-            this.points.material.uniforms.atlasHeight.value
-          );
-        });
-
-        // Update atlas texture
-        this.points.material.uniforms.atlasTexture.value = new Texture(atlasCanvas);
-        this.points.material.uniforms.atlasTexture.value.colorSpace = 'srgb';
-        this.points.material.uniforms.atlasTexture.value.needsUpdate = true;
-      }
-    }
+  setTexture(texture) {
+    if (this.magFilter) texture.magFilter = this.magFilter;
+    if (this.minFilter) texture.minFilter = this.minFilter;
+    this.points.material.uniforms.map.value = texture;
+    texture.needsUpdate = true;
   }
 
   update(index, options = {}) {
-    // Update position
+    // Update position [x, y, z] or { x, y, z }
     if (options.position !== undefined) {
       const position = this.points.geometry.getAttribute('position');
-      position.setXYZ(index, options.position.x, options.position.y, options.position.z);
+      if (Array.isArray(options.position)) position.setXYZ(index, options.position[0], options.position[1], options.position[2]);
+      else position.setXYZ(index, options.position.x, options.position.y, options.position.z);
       position.needsUpdate = true;
     }
 
-    // Update rgba value
-    if (options.rgba !== undefined) {
-      const rgba = this.points.geometry.getAttribute('rgba');
-      rgba.setXYZW(index, options.rgba[0], options.rgba[1], options.rgba[2], options.rgba[3]);
-      rgba.needsUpdate = true;
+    // Update color / opacity value [r, g, b, a] (supports color or rgba alias)
+    const colorValues = options.color || options.rgba;
+    if (colorValues !== undefined) {
+      const color = this.points.geometry.getAttribute('color');
+      color.setXYZW(index, colorValues[0], colorValues[1], colorValues[2], colorValues[3]);
+      color.needsUpdate = true;
     }
 
-    // Update texture index
-    if (options.texture !== undefined) {
-      const texture = this.points.geometry.getAttribute('texture');
-      texture.setX(index, options.texture);
-      texture.needsUpdate = true;
+    // Update scale value (supports scale or size alias)
+    const scaleValue = options.scale !== undefined ? options.scale : options.size;
+    if (scaleValue !== undefined) {
+      const scale = this.points.geometry.getAttribute('scale');
+      scale.setX(index, scaleValue);
+      scale.needsUpdate = true;
     }
 
-    // Update size value
-    if (options.size !== undefined) {
-      const size = this.points.geometry.getAttribute('size');
-      size.setX(index, options.size);
-      size.needsUpdate = true;
+    // Update angle value
+    if (options.angle !== undefined) {
+      const angle = this.points.geometry.getAttribute('angle');
+      angle.setX(index, options.angle);
+      angle.needsUpdate = true;
     }
   }
 
@@ -182,10 +187,10 @@ class EntityParticles extends Entity {
   addParticle(options) {
     // Add new particle with options
     options = Object.assign({
-      position: { x: 0, y: 0, z: 0 },
-      rgba: [1.0, 1.0, 1.0, 1.0],
-      texture: 0,
-      size: 16.0
+      position: [0.0, 0.0, 0.0],
+      color: [1.0, 1.0, 1.0, 1.0],
+      scale: 1.0,
+      angle: 0.0
     }, options);
 
     // Increment draw count if the buffer is not full
@@ -206,23 +211,24 @@ class EntityParticles extends Entity {
     const last = this.count - 1;
     if (index !== last) {
       const position = this.points.geometry.getAttribute('position');
-      const texture = this.points.geometry.getAttribute('texture');
-      const rgba = this.points.geometry.getAttribute('rgba');
-      const size = this.points.geometry.getAttribute('size');
+      const color = this.points.geometry.getAttribute('color');
+      const scale = this.points.geometry.getAttribute('scale');
+      const angle = this.points.geometry.getAttribute('angle');
+
       this.update(index, {
-        position: {
-          x: position.getX(last),
-          y: position.getY(last),
-          z: position.getZ(last)
-        },
-        texture: texture.getX(last),
-        rgba: [
-          rgba.getX(last),
-          rgba.getY(last),
-          rgba.getZ(last),
-          rgba.getW(last)
+        position: [
+          position.getX(last),
+          position.getY(last),
+          position.getZ(last)
         ],
-        size: size.getX(last)
+        color: [
+          color.getX(last),
+          color.getY(last),
+          color.getZ(last),
+          color.getW(last)
+        ],
+        scale: scale.getX(last),
+        angle: angle.getX(last)
       });
     }
 
@@ -273,13 +279,22 @@ class EntityParticles extends Entity {
   serialize() {
     // Serialize entity to JSON
     const json = super.serialize();
-    json.urls = this.urls;
+    json.url = this.url;
+    json.magFilter = this.magFilter;
+    json.minFilter = this.minFilter;
     return json;
   }
 
   static template = {
-    attenuation: 0.0,
-    capacity: 1000
+    alphaTest: 0.001,
+    capacity: 1000,
+    magFilter: 1003,
+    minFilter: 1003,
+    size: 1.0,
+    sizeAttenuation: true,
+    transparent: true,
+    depthWrite: false,
+    url: null
   }
 }
 

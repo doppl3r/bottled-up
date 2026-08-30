@@ -17,14 +17,16 @@ class EntityNPC extends Entity {
       const range = 2;
       for (let i = 0; i < child.capacity; i++) {
         const opacity = Math.random();
+        const scale = Math.random();
         child.addParticle({
-          texture: Math.floor(Math.random() * options.urls?.length || 0),
-          rgba: [1, 1, 1, opacity],
-          position: {
-            x: Math.random() * range - (range / 2),
-            y: Math.random() * range - (range / 2),
-            z: Math.random() * range - (range / 2)
-          }
+          color: [1, 1, 1, opacity],
+          scale: scale,
+          angle: Math.random() * 2 * Math.PI,
+          position: [
+            Math.random() * range - (range / 2),
+            Math.random() * range - (range / 2),
+            Math.random() * range - (range / 2)
+          ]
         });
       }
     });
@@ -127,11 +129,10 @@ class EntityNPC extends Entity {
       },
       {
         class: 'EntityParticles',
-        attenuation: 0.0,
         capacity: 10,
-        urls: [
-          'png/icon16.png'
-        ]
+        size: 1.0,
+        sizeAttenuation: true,
+        url: 'png/icon16.png'
       },
       {
         class: 'EntityPhysics',
