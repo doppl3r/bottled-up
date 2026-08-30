@@ -11,7 +11,7 @@ class EntityCamera extends Entity {
     super(options, core);
 
     // Initialize camera properties
-    const { fov = 45, near = 1, far = 1000, type = 'perspective', zoom = 1, debug = false } = options;
+    const { fov = 50, near = 0.1, far = 2000, type = 'perspective', zoom = 1, debug = false } = options;
     const aspect = window.innerWidth / window.innerHeight;
 
     // Assign camera to scene
@@ -60,8 +60,9 @@ class EntityCamera extends Entity {
 
   static template = {
     color: '#ffffff',
-    near: 1,
-    far: 1000
+    near: 0.1,
+    far: 1000,
+    fov: 45
   }
 }
 

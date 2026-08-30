@@ -17,7 +17,15 @@
   const game = window.game = new Game();
   game.load();
 
+  const pauseGame = () => {
+    game.core.stop();
+    game.state.menuPaused = true;
+  };
+
   const resumeGame = () => {
+    game.core.start();
+    game.state.menuPaused = false;
+
     Promise.resolve(game.core.canvas.requestPointerLock({ unadjustedMovement: true })).catch(error => {
       // If pointer lock fails, resume game after a short delay
       setTimeout(() => resumeGame(), 100);
@@ -26,13 +34,8 @@
 
   // Handle pointer lock change events
   const onPointerLockChange = event => {
-    if (document.pointerLockElement === game.core.canvas) {
-      game.state.menuPaused = false;
-      game.core.start();
-    }
-    else {
-      game.state.menuPaused = true;
-      game.core.stop();
+    if (document.pointerLockElement !== game.core.canvas) {
+      pauseGame();
     }
   };
 
