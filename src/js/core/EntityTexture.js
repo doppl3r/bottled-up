@@ -33,6 +33,7 @@ class EntityTexture extends Entity {
     this.parent.traverse(child => {
       if (child.isMesh) {
         child.material.map = this.texture;
+        child.material.needsUpdate = true;
 
         if (this.options) {
           Object.entries(this.options).forEach(([key, value]) => {
