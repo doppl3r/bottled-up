@@ -1,5 +1,9 @@
 # Bottled Up
 
+Bottled Up is a game where you deliver potions to heroes in dungeons (under development).
+
+![Screenshot](files/png/screenshot-1.png)
+
 ## Local Development (Vite)
 
 Install local dependencies
