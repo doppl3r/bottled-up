@@ -13,6 +13,14 @@
       "class": "EntitySkySphere"
     },
     {
+      "class": "EntityRain",
+      "position": {
+        "x": 0,
+        "y": 25,
+        "z": -25
+      }
+    },
+    {
       "class": "EntityPlayer",
       "position": {
         "x": 0,
@@ -25,21 +33,6 @@
       "label": "Castle",
       "class": "EntityTrimesh",
       "url": "glb/castle-1.glb",
-      "position": {
-        "x": 0,
-        "y": -10,
-        "z": 0
-      },
-      "rotation": {
-        "x": 0.25,
-        "y": 0.25,
-        "z": 0.25
-      },
-      "scale": {
-        "x": 0.25,
-        "y": 0.25,
-        "z": 0.25
-      },
       "children": [
         {
           "class": "EntityModel"

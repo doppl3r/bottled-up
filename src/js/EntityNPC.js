@@ -14,11 +14,11 @@ class EntityNPC extends Entity {
 
     // TODO: Move these to a function
     this.get('EntityParticles', child => {
-      const range = 2;
+      const range = 1;
       for (let i = 0; i < child.capacity; i++) {
         const opacity = Math.random();
-        const scale = Math.random();
-        child.addParticle({
+        const scale = (Math.random() * 0.5) + 0.5;
+        child.addPoint({
           color: [1, 1, 1, opacity],
           scale: scale,
           angle: Math.random() * 2 * Math.PI,
@@ -48,13 +48,29 @@ class EntityNPC extends Entity {
       // Animate particles
       const entityParticles = this.get('EntityParticles');
       const speed = 0.00025;
-      const range = 2;
+      const range = 1;
       const delta = loop.delta;
 
       // Move all particles down by speed
       for (let i = 0; i < entityParticles.count; i++) {
-        entityParticles.translateWrap(i, -0.25 * speed * delta, -0.75 * speed * delta, 0.25 * speed * delta, range);
-        entityParticles.rotate(i, 0.0025 * delta);
+        // Get alpha by current height of particle (0.0 to 1.0)
+        const position = entityParticles.points.geometry.getAttribute('position');
+
+        // Update position (wrapped)
+        entityParticles.positionPoint(i, [
+          (((position.getX(i) + -0.25 * speed * delta + (range / 2)) % range + range) % range) - (range / 2),
+          (((position.getY(i) + -0.75 * speed * delta + (range / 2)) % range + range) % range) - (range / 2),
+          (((position.getZ(i) + 0.25 * speed * delta + (range / 2)) % range + range) % range) - (range / 2)
+        ]);
+
+        // Update color alpha based on height
+        const alpha = (position.getY(i) + (range / 2)) / range;
+        const color = entityParticles.points.geometry.getAttribute('color');
+        color.setW(i, 1 - alpha);
+        color.needsUpdate = true;
+
+        // Rotate particle
+        entityParticles.rotatePoint(i, 0.0025 * delta);
       }
     }
 

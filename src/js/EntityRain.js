@@ -13,8 +13,9 @@ class EntityRain extends EntityParticles {
     this.range = options.range;
     this.speed = options.speed;
     for (let i = 0; i < this.capacity; i++) {
-      this.addParticle({
+      this.addPoint({
         size: options.size !== undefined ? options.size : 1.0,
+        color: '#8A9FBF',
         position: {
           x: Math.random() * this.range - this.range / 2,
           y: Math.random() * this.range - this.range / 2,
@@ -33,12 +34,13 @@ class EntityRain extends EntityParticles {
   render(loop) {
     // Update rain particle positions
     for (let i = 0; i < this.count; i++) {
-      this.translateWrap(
-        -0.25 * this.speed * loop.delta,
-        -0.75 * this.speed * loop.delta,
-        0.25 * this.speed * loop.delta,
-        this.range
-      );
+      // Update position (wrapped)
+      const position = this.points.geometry.getAttribute('position');
+      this.positionPoint(i, [
+        (((position.getX(i) + -0.25 * this.speed * loop.delta + (this.range / 2)) % this.range + this.range) % this.range) - (this.range / 2),
+        (((position.getY(i) + -0.75 * this.speed * loop.delta + (this.range / 2)) % this.range + this.range) % this.range) - (this.range / 2),
+        (((position.getZ(i) + 0.25 * this.speed * loop.delta + (this.range / 2)) % this.range + this.range) % this.range) - (this.range / 2)
+      ]);
     }
 
     // Continue base entity render
@@ -46,12 +48,11 @@ class EntityRain extends EntityParticles {
   }
 
   static template = {
-    capacity: 100,
-    range: 10,
-    speed: 0.01,
-    size: 1.0,
-    sizeAttenuation: true,
-    url: 'png/icon16.png'
+    capacity: 1000,
+    range: 100,
+    speed: 0.1,
+    size: 0.5,
+    sizeAttenuation: true
   }
 }
 

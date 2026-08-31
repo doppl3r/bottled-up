@@ -1,9 +1,12 @@
-import { BufferAttribute, BufferGeometry, Points, ShaderMaterial } from 'three';
+import { BufferAttribute, BufferGeometry, Color, Points, ShaderMaterial } from 'three';
 import { Entity } from './Entity.js';
 
 /*
   EntityParticles adds a buffered particle system to an entity.
 */
+
+// Initialize module-scoped variables
+const _color = new Color();
 
 class EntityParticles extends Entity {
   constructor(options, core) {
@@ -46,7 +49,7 @@ class EntityParticles extends Entity {
     if (url) defines.USE_MAP = '';
 
     // Calculate initial scale factor based on renderer height (fallback 300.0)
-    const scaleFactor = core?.renderer?.domElement?.clientHeight ? core.renderer.domElement.clientHeight / 2.0 : 300.0;
+    const scaleFactor = core.renderer.domElement.clientHeight / 2.0;
 
     // Create shader material for particles
     const material = new ShaderMaterial({
@@ -128,14 +131,9 @@ class EntityParticles extends Entity {
     this.add(this.points);
 
     // Update scaleFactor on window resize if core is present
-    if (core?.renderer?.domElement) {
-      window.addEventListener('resize', () => {
-        const height = core.renderer.domElement.clientHeight;
-        if (height > 0) {
-          this.points.material.uniforms.scaleFactor.value = height / 2.0;
-        }
-      });
-    }
+    core.compositor.addEventListener('resize', () => {
+      this.points.material.uniforms.scaleFactor.value = core.renderer.domElement.clientHeight / 2.0;
+    });
 
     // Load texture or assign directly if map is provided
     if (url) {
@@ -149,49 +147,17 @@ class EntityParticles extends Entity {
     }
   }
 
-  setTexture(texture) {
-    if (this.magFilter) texture.magFilter = this.magFilter;
-    if (this.minFilter) texture.minFilter = this.minFilter;
-    this.points.material.uniforms.map.value = texture;
-    texture.needsUpdate = true;
-  }
-
-  update(index, options = {}) {
+  updatePoint(index, options = {}) {
     const { position, color, rgba, scale, size, angle } = options;
 
-    // Update position [x, y, z] or { x, y, z }
-    if (position) {
-      const positionAttr = this.points.geometry.getAttribute('position');
-      if (Array.isArray(options.position)) positionAttr.setXYZ(index, options.position[0], options.position[1], options.position[2]);
-      else positionAttr.setXYZ(index, options.position.x, options.position.y, options.position.z);
-      positionAttr.needsUpdate = true;
-    }
-
-    // Update color / opacity value [r, g, b, a] (supports color or rgba alias)
-    const colorValues = color || rgba;
-    if (colorValues) {
-      const colorAttr = this.points.geometry.getAttribute('color');
-      colorAttr.setXYZW(index, colorValues[0], colorValues[1], colorValues[2], colorValues[3]);
-      colorAttr.needsUpdate = true;
-    }
-
-    // Update scale value (supports scale or size alias)
-    const scaleValue = scale || size;
-    if (scaleValue) {
-      const scaleAttr = this.points.geometry.getAttribute('scale');
-      scaleAttr.setX(index, scaleValue);
-      scaleAttr.needsUpdate = true;
-    }
-
-    // Update angle value
-    if (angle) {
-      const angleAttr = this.points.geometry.getAttribute('angle');
-      angleAttr.setX(index, angle);
-      angleAttr.needsUpdate = true;
-    }
+    // Update all attributes conditionally
+    if (position) this.positionPoint(index, position);
+    if (color || rgba) this.colorPoint(index, color || rgba);
+    if (scale || size) this.scalePoint(index, scale || size);
+    if (angle) this.rotatePoint(index, angle);
   }
 
-  addParticle(options) {
+  addPoint(options) {
     // Add new particle with options
     options = Object.assign({
       position: [0.0, 0.0, 0.0],
@@ -207,13 +173,13 @@ class EntityParticles extends Entity {
     }
 
     // Write particle data at current index
-    this.update(this.index, options);
+    this.updatePoint(this.index, options);
 
     // Increment and wrap index to ensure a circular buffer
     this.index = (this.index + 1) % this.capacity;
   }
 
-  removeParticle(index) {
+  removePoint(index) {
     // "Swap and pop" with last particle (very fast)
     const last = this.count - 1;
     if (index !== last) {
@@ -222,7 +188,7 @@ class EntityParticles extends Entity {
       const scale = this.points.geometry.getAttribute('scale');
       const angle = this.points.geometry.getAttribute('angle');
 
-      this.update(index, {
+      this.updatePoint(index, {
         position: [
           position.getX(last),
           position.getY(last),
@@ -244,36 +210,60 @@ class EntityParticles extends Entity {
     this.points.geometry.setDrawRange(0, this.count);
   }
 
-  removeAll() {
+  removeAllPoints() {
     this.count = 0;
     this.points.geometry.setDrawRange(0, 0);
   }
 
-  translate(index, x, y, z) {
-    // Update only position of particle at index
+  positionPoint(index, position) {
+    // Set position of particle at index
+    const positionAttr = this.points.geometry.getAttribute('position');
+    if (Array.isArray(position)) positionAttr.setXYZ(index, position[0], position[1], position[2]);
+    else if (typeof position === 'object') positionAttr.setXYZ(index, position.x, position.y, position.z);
+    positionAttr.needsUpdate = true;
+  }
+
+  translatePoint(index, x, y, z) {
+    // Add translation to particle position at index
     const position = this.points.geometry.getAttribute('position');
-    position.setXYZ(
-      index,
-      position.getX(index) + x,
-      position.getY(index) + y,
-      position.getZ(index) + z
-    );
+    position.setXYZ(index, position.getX(index) + x, position.getY(index) + y, position.getZ(index) + z);
     position.needsUpdate = true;
   }
 
-  translateWrap(index, x, y, z, range) {
-    const position = this.points.geometry.getAttribute('position');
-    position.setX(index, (((position.getX(index) + x + (range / 2)) % range + range) % range) - (range / 2));
-    position.setY(index, (((position.getY(index) + y + (range / 2)) % range + range) % range) - (range / 2));
-    position.setZ(index, (((position.getZ(index) + z + (range / 2)) % range + range) % range) - (range / 2));
-    position.needsUpdate = true;
+  scalePoint(index, scale) {
+    // Update only scale of particle at index
+    const scaleAttr = this.points.geometry.getAttribute('scale');
+    scaleAttr.setX(index, scale);
+    scaleAttr.needsUpdate = true;
   }
 
-  rotate(index, angle) {
+  rotatePoint(index, angle) {
     // Update only angle of particle at index
     const angleAttr = this.points.geometry.getAttribute('angle');
     angleAttr.setX(index, angleAttr.getX(index) + angle);
     angleAttr.needsUpdate = true;
+  }
+
+  colorPoint(index, color) {
+    const colorAttr = this.points.geometry.getAttribute('color');
+    if (Array.isArray(color)) {
+      // Support [r, g, b] or [r, g, b, a] color array
+      colorAttr.setXYZW(index, color[0] || 1.0, color[1] || 1.0, color[2] || 1.0, color[3] || 1.0);
+      colorAttr.needsUpdate = true;
+    }
+    else if (typeof color === 'string') {
+      // Support hex color string
+      _color.set(color);
+      colorAttr.setXYZW(index, _color.r, _color.g, _color.b, 1.0);
+      colorAttr.needsUpdate = true;
+    }
+  }
+
+  setTexture(texture) {
+    if (this.magFilter) texture.magFilter = this.magFilter;
+    if (this.minFilter) texture.minFilter = this.minFilter;
+    this.points.material.uniforms.map.value = texture;
+    texture.needsUpdate = true;
   }
 
   serialize() {
