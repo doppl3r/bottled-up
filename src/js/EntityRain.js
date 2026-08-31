@@ -32,12 +32,14 @@ class EntityRain extends EntityParticles {
 
   render(loop) {
     // Update rain particle positions
-    this.translateWrapAll(
-      -0.25 * this.speed * loop.delta,
-      -0.75 * this.speed * loop.delta,
-      0.25 * this.speed * loop.delta,
-      this.range
-    );
+    for (let i = 0; i < this.count; i++) {
+      this.translateWrap(
+        -0.25 * this.speed * loop.delta,
+        -0.75 * this.speed * loop.delta,
+        0.25 * this.speed * loop.delta,
+        this.range
+      );
+    }
 
     // Continue base entity render
     super.render(loop)

@@ -81,9 +81,9 @@ class EntityParticles extends Entity {
           gl_Position = projectionMatrix * mvPosition;
 
           #ifdef USE_SIZEATTENUATION
-            gl_PointSize = size * scale * (scaleFactor / -mvPosition.z);
+            gl_PointSize = size * scale * (scaleFactor / -mvPosition.z) * ${Math.SQRT2};
           #else
-            gl_PointSize = size * scale;
+            gl_PointSize = size * scale * ${Math.SQRT2};
           #endif
         }
       `,
@@ -97,7 +97,7 @@ class EntityParticles extends Entity {
         varying vec2 vCosSin;
 
         void main() {
-          vec2 pt = vec2(gl_PointCoord.x - 0.5, 0.5 - gl_PointCoord.y);
+          vec2 pt = vec2(gl_PointCoord.x - 0.5, 0.5 - gl_PointCoord.y) * ${Math.SQRT2};
           vec2 uv = vec2(
             pt.x * vCosSin.x + pt.y * vCosSin.y,
             -pt.x * vCosSin.y + pt.y * vCosSin.x
@@ -191,13 +191,6 @@ class EntityParticles extends Entity {
     }
   }
 
-  updateAll(options) {
-    // Update all particles with options
-    for (let i = 0; i < this.count; i++) {
-      this.update(i, options);
-    }
-  }
-
   addParticle(options) {
     // Add new particle with options
     options = Object.assign({
@@ -268,13 +261,6 @@ class EntityParticles extends Entity {
     position.needsUpdate = true;
   }
 
-  translateAll(x, y, z) {
-    // Translate all particles by delta
-    for (let i = 0; i < this.count; i++) {
-      this.translate(i, x, y, z);
-    }
-  }
-
   translateWrap(index, x, y, z, range) {
     const position = this.points.geometry.getAttribute('position');
     position.setX(index, (((position.getX(index) + x + (range / 2)) % range + range) % range) - (range / 2));
@@ -283,23 +269,33 @@ class EntityParticles extends Entity {
     position.needsUpdate = true;
   }
 
-  translateWrapAll(x, y, z, range) {
-    // Move all particles down by speed
-    for (let i = 0; i < this.count; i++) {
-      this.translateWrap(i, x, y, z, range);
-    }
+  rotate(index, angle) {
+    // Update only angle of particle at index
+    const angleAttr = this.points.geometry.getAttribute('angle');
+    angleAttr.setX(index, angleAttr.getX(index) + angle);
+    angleAttr.needsUpdate = true;
   }
 
   serialize() {
     // Serialize entity to JSON
     const json = super.serialize();
     json.url = this.url;
+    json.size = this.size;
+    json.capacity = this.capacity;
     json.magFilter = this.magFilter;
     json.minFilter = this.minFilter;
     return json;
   }
 
   static template = {
+    alphaTest: 0.001,
+    capacity: 1000,
+    depthWrite: false,
+    magFilter: 1003,
+    minFilter: 1003,
+    size: 1.0,
+    sizeAttenuation: true,
+    transparent: true,
     url: null
   }
 }

@@ -50,7 +50,12 @@ class EntityNPC extends Entity {
       const speed = 0.00025;
       const range = 2;
       const delta = loop.delta;
-      entityParticles.translateWrapAll(-0.25 * speed * delta, -0.75 * speed * delta, 0.25 * speed * delta, range);
+
+      // Move all particles down by speed
+      for (let i = 0; i < entityParticles.count; i++) {
+        entityParticles.translateWrap(i, -0.25 * speed * delta, -0.75 * speed * delta, 0.25 * speed * delta, range);
+        entityParticles.rotate(i, 0.0025 * delta);
+      }
     }
 
     // Resume Entity render behavior
