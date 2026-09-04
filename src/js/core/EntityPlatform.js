@@ -17,23 +17,20 @@ class EntityPlatform extends EntityCube {
     this.tweens = new Tweens();
 
     // Assign "prop" string to options
-    this.stringToOptions(options.prop, options);
+    this.propToOptions(options.prop, options);
 
     // Initialize animations container
     this.createAnimations(options);
   }
 
-  stringToOptions(propString = '', options) {
+  propToOptions(url = '', options) {
     // Assign options from prop string
-    const props = propString.split(',');
-    props.forEach(prop => {
-      const [key, value] = prop.split('=');
-      if (key && value !== undefined) {
-        const k = key.trim();
-        const v = JSON.parse(value.trim());
-        options[k] = v;
-      }
-    });
+    const params = new URLSearchParams(url);
+
+    // Loop through each parameter and assign to options
+    for (const [key, value] of params.entries()) {
+      options[key] = JSON.parse(value);
+    }
   }
 
   update(loop) {

@@ -5,12 +5,13 @@ class EntityNPC extends Entity {
     // Inherit Entity properties
     super(options, core);
 
-    // TODO: Remove URL selection logic
-    options.children[0].url = EntityNPC.urls[0];
-    EntityNPC.urls.splice(0, 1);
-
+    // Initialize NPC state
     this.time = 0;
     this.state = 'wounded';
+
+    // Assign model and shift to the back
+    options.children[0].url = EntityNPC.urls[0];
+    EntityNPC.urls.push(EntityNPC.urls.shift());
 
     // TODO: Move these to a function
     this.get('EntityParticles', child => {
@@ -57,10 +58,13 @@ class EntityNPC extends Entity {
         const position = entityParticles.points.geometry.getAttribute('position');
 
         // Update position (wrapped)
+        const x = position.getX(i) - 0 * speed * delta;
+        const y = position.getY(i) - 0.75 * speed * delta;
+        const z = position.getZ(i) - 0 * speed * delta;
         entityParticles.positionPoint(i, [
-          (((position.getX(i) + -0.25 * speed * delta + (range / 2)) % range + range) % range) - (range / 2),
-          (((position.getY(i) + -0.75 * speed * delta + (range / 2)) % range + range) % range) - (range / 2),
-          (((position.getZ(i) + 0.25 * speed * delta + (range / 2)) % range + range) % range) - (range / 2)
+          x < -range / 2 ? x + range : x,
+          y < -range / 2 ? y + range : y,
+          z < -range / 2 ? z + range : z
         ]);
 
         // Update color alpha based on height

@@ -36,10 +36,16 @@ class EntityRain extends EntityParticles {
     for (let i = 0; i < this.count; i++) {
       // Update position (wrapped)
       const position = this.points.geometry.getAttribute('position');
+
+      // Update position (wrapped)
+      const halfRange = this.range / 2;
+      const x = position.getX(i) - 0.25 * this.speed * loop.delta;
+      const y = position.getY(i) - 0.75 * this.speed * loop.delta;
+      const z = position.getZ(i) + 0.25 * this.speed * loop.delta;
       this.positionPoint(i, [
-        (((position.getX(i) + -0.25 * this.speed * loop.delta + (this.range / 2)) % this.range + this.range) % this.range) - (this.range / 2),
-        (((position.getY(i) + -0.75 * this.speed * loop.delta + (this.range / 2)) % this.range + this.range) % this.range) - (this.range / 2),
-        (((position.getZ(i) + 0.25 * this.speed * loop.delta + (this.range / 2)) % this.range + this.range) % this.range) - (this.range / 2)
+        x < -halfRange ? x + this.range : x > halfRange ? x - this.range : x,
+        y < -halfRange ? y + this.range : y > halfRange ? y - this.range : y,
+        z < -halfRange ? z + this.range : z > halfRange ? z - this.range : z
       ]);
     }
 
