@@ -8,10 +8,10 @@ class EntityText extends Entity {
 
     // Create element for the CSS2DObject
     const element = document.createElement(options.type || 'div');
-    if (options.className) element.className = options.className;
-    if (options.text) element.innerHTML = options.text;
-    if (options.style) element.style.cssText = options.style;
     this.textObject = new CSS2DObject(element);
+    this.setText(options.text);
+    this.setStyle(options.style);
+    this.addClass(options.className);
     
     // Ensure this text is removed after parent is removed
     this.addEventListener('added', this.onAdded);
@@ -39,6 +39,14 @@ class EntityText extends Entity {
 
   removeText() {
     this.setText('');
+  }
+
+  addClass(className) {
+    this.textObject.element.classList.add(className);
+  }
+
+  removeClass(className) {
+    this.textObject.element.classList.remove(className);
   }
 
   setStyle(style) {

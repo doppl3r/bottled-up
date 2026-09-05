@@ -13,11 +13,15 @@ class EntityPrompt extends EntityText {
 
     // Initialize EntityText with Vue component
     const text = this.getText();
+    const className = this.textObject.element.className;
     this.removeText();
+    this.removeClass(className);
 
     // Render Vue component into the text object element once
-    const vnode = createVNode(Prompt, null, { default: () => createVNode('div', { innerHTML: text }) });
-    render(vnode, this.textObject.element);
+    const props = { class: className };
+    const slots = { default: () => createVNode('div', { innerHTML: text }) };
+    const vNode = createVNode(Prompt, props, slots);
+    render(vNode, this.textObject.element);
 
     // Add event listeners
     this.addEventListener('rootRemoved', this.onRootRemoved);
