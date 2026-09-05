@@ -61,22 +61,7 @@
       display: flex;
       flex-direction: column;
       transition: transform 0.1s ease-out;
-  
-      .prompt-container__neck {
-        background:
-          linear-gradient(to bottom, var(--color-gradient-1), var(--color-gradient-2)) padding-box,
-          linear-gradient(to bottom, var(--color-glass-2), var(--color-glass-1)) border-box;
-        border: var(--border-width) solid transparent;
-        border-bottom: none;
-        border-radius: var(--border-width);
-        display: block;
-        height: 0.5em;
-        margin-bottom: -0.125em;
-        position: relative;
-        width: 1.25em;
-        z-index: 1;
-      }
-      
+
       .prompt-container__cap {
         background:
           linear-gradient(to bottom, var(--color-cork-1), var(--color-cork-2)) padding-box,
@@ -89,6 +74,21 @@
         margin-bottom: -0.125em;
         position: relative;
         transition: transform 0.1s ease-out;
+        width: 0.75em;
+        z-index: 1;
+      }
+  
+      .prompt-container__neck {
+        background:
+          linear-gradient(to bottom, var(--color-gradient-1), var(--color-gradient-2)) padding-box,
+          linear-gradient(to bottom, var(--color-glass-2), var(--color-glass-1)) border-box;
+        border: var(--border-width) solid transparent;
+        border-bottom: none;
+        border-radius: var(--border-width);
+        display: block;
+        height: 0.5em;
+        margin-bottom: -0.125em;
+        position: relative;
         width: 1em;
         z-index: 1;
       }
@@ -99,7 +99,7 @@
           linear-gradient(to bottom, var(--color-gradient-1), var(--color-gradient-2)) padding-box,
           linear-gradient(to bottom, var(--color-glass-2), var(--color-glass-1)) border-box;
         border: var(--border-width) solid transparent;
-        border-radius: var(--border-radius);
+        border-radius: 99em;
         color: #ffffff;
         display: flex;
         flex-shrink: 0;

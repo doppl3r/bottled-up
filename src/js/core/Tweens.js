@@ -55,6 +55,14 @@ class Tweens {
     // Return active tween
     return tween;
   }
+
+  remove(tween) {
+    this.group.remove(tween);
+  }
+
+  removeAll() {
+    this.group.removeAll();
+  }
 }
 
 export { Tweens };

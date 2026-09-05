@@ -47,6 +47,14 @@ class EntityBallController extends Entity {
     this.jumpHeight = options.jumpHeight;
     this.jumpSpin = options.jumpSpin;
     this.jumpBufferDuration = options.jumpBufferDuration;
+    this.keyRight = options.keyRight || 'KeyD';
+    this.keyLeft = options.keyLeft || 'KeyA';
+    this.keyDown = options.keyDown || 'KeyS';
+    this.keyUp = options.keyUp || 'KeyW';
+    this.keyInteract = options.keyInteract || 'KeyF';
+    this.keyRotateClockwise = options.keyRotateClockwise || 'KeyE';
+    this.keyRotateCounterClockwise = options.keyRotateCounterClockwise || 'KeyQ';
+    this.keyJump = options.keyJump || 'Space';
     this.maxSlopeAngleRad = options.maxSlopeAngle * Math.PI / 180;
     this.maxWallAngleRad = options.maxWallAngle * Math.PI / 180;
     this.wallJumpPower = options.wallJumpPower;
@@ -154,10 +162,10 @@ class EntityBallController extends Entity {
 
     // Accumulate movement direction from held keys
     _forceDir.set(0, 0, 0);
-    if (this.keys.has('KeyW')) _forceDir.add(_camForward);
-    if (this.keys.has('KeyS')) _forceDir.sub(_camForward);
-    if (this.keys.has('KeyD')) _forceDir.add(_camRight);
-    if (this.keys.has('KeyA')) _forceDir.sub(_camRight);
+    if (this.keys.has(this.keyUp)) _forceDir.add(_camForward);
+    if (this.keys.has(this.keyDown)) _forceDir.sub(_camForward);
+    if (this.keys.has(this.keyRight)) _forceDir.add(_camRight);
+    if (this.keys.has(this.keyLeft)) _forceDir.sub(_camRight);
     if (_forceDir.lengthSq() > 1) _forceDir.normalize();
 
     // Taper input force as speed approaches max movement speed using dot-product
@@ -278,14 +286,14 @@ class EntityBallController extends Entity {
     const h = this.camCollisionDistanceMax * Math.cos(this.camPitch);
     const v = this.camCollisionDistanceMax * Math.sin(this.camPitch);
     
-    // Calculate desired camera position relative to player
+    // Calculate desired camera position relative to parent
     _desiredCamPos.set(
       this.parent.position.x + h * Math.sin(this.camAzimuth),
       this.parent.position.y + v,
       this.parent.position.z + h * Math.cos(this.camAzimuth)
     );
     
-    // Cast sphere from player position toward desired camera position using Rapier shape cast
+    // Cast sphere from parent position toward desired camera position using Rapier shape cast
     _rayDirection.subVectors(_desiredCamPos, this.parent.position).normalize();
     this.camCollisionDistance = this.castCameraDistance(this.parent.position, _rayDirection, this.camCollisionDistanceMax);
 
@@ -312,7 +320,7 @@ class EntityBallController extends Entity {
     _camLookAtTarget.y += this.camOrbitHeight * this.camDistanceRatio;
     this.core.camera.lookAt(_camLookAtTarget);
     
-    // Update player opacity by camera distance, only fading once within camDistanceFadeRatio of the player
+    // Update parent opacity by camera distance, only fading once within camDistanceFadeRatio of the parent
     const fadeRatio = Math.min(1, this.camDistanceRatio / this.camDistanceFadeRatio);
     const newOpacity = Math.round(fadeRatio / 0.001) * 0.001;
     if (newOpacity !== this.camDistanceFadeOpacity) {
@@ -519,20 +527,25 @@ class EntityBallController extends Entity {
 
   onKeyDown = (event) => {
     this.keys.add(event.code);
-    if (event.code === 'Space') {
+    if (event.code === this.keyJump) {
       event.preventDefault();
       this.jumpBufferElapsed = this.jumpBufferDuration;
     }
 
     // Update camera rotation
-    if (event.code === 'ArrowRight' || event.code === 'KeyE') this.tweenCameraRotation({ azimuth: -Math.PI / 4, duration: 250, snap: Math.PI / 4, easing: 'Quadratic.Out' });
-    if (event.code === 'ArrowLeft' || event.code === 'KeyQ')  this.tweenCameraRotation({ azimuth: Math.PI / 4, duration: 250, snap: Math.PI / 4, easing: 'Quadratic.Out' });
+    if (event.code === 'ArrowRight' || event.code === this.keyRotateClockwise) this.tweenCameraRotation({ azimuth: -Math.PI / 4, duration: 250, snap: Math.PI / 4, easing: 'Quadratic.Out' });
+    if (event.code === 'ArrowLeft' || event.code === this.keyRotateCounterClockwise)  this.tweenCameraRotation({ azimuth: Math.PI / 4, duration: 250, snap: Math.PI / 4, easing: 'Quadratic.Out' });
     if (event.code === 'ArrowUp')    this.tweenCameraRotation({ pitch: -Math.PI / 8, duration: 250, snap: Math.PI / 8, easing: 'Quadratic.Out' });
     if (event.code === 'ArrowDown')  this.tweenCameraRotation({ pitch: Math.PI / 8, duration: 250, snap: Math.PI / 8, easing: 'Quadratic.Out' });
+    if (event.code === this.keyInteract) this.onInteract();
   }
 
   onKeyUp = (event) => {
     this.keys.delete(event.code);
+  }
+
+  onInteract() {
+    this.dispatchEvent({ type: 'interact', code: this.keyInteract });
   }
 
   onMouseDown = (event) => {

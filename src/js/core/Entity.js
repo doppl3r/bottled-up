@@ -129,6 +129,17 @@ class Entity extends Object3D {
     }
   }
 
+  find(className, callback = () => {}) {
+    // Return the entity if it exists in the current entity's registry
+    if (this.entities[className]) return this.get(className, callback);
+
+    // Traverse child entities to find the requested class name
+    for (const child of Object.values(this.entities)) {
+      const found = child.get(className, callback);
+      if (found) return found;
+    }
+  }
+
   getAll(className) {
     return Object.values(this.entities).filter(entity => entity.class === className);
   }

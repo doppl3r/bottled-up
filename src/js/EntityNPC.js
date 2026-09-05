@@ -75,54 +75,45 @@ class EntityNPC extends Entity {
     super.render(loop);
   }
 
-  revive = event => {
-    // Check if collision is with player
-    if (event.pair.parent.class === 'EntityPlayer') {
+  interact = () => {
+    if (this.state === 'wounded') {
       // Save player checkpoint
       game.saveCheckpoint();
+      this.tweens.removeAll();
+      
+      // Update model mixer
+      const entityModelBody = this.get('EntityModel');
+      const entityModelStatus = entityModelBody.get('EntityModel');
+      const entityMixer = entityModelBody.get('EntityMixer');
+      const entityPrompt = this.get('EntityPrompt');
+      const entityParticles = this.get('EntityParticles');
+      
+      // Update NPC state
+      this.state = 'revived';
+      entityMixer.play('_IdleStanding');
+      entityPrompt.hide();
+      entityModelStatus.visible = false;
+      entityParticles.visible = true;
+    }
+  }
 
-      if (this.state === 'wounded') {
-        // Update model mixer
-        const entityModelBody = this.get('EntityModel');
-        const entityModelStatus = entityModelBody.get('EntityModel');
-        const entityMixer = entityModelBody.get('EntityMixer');
-        const entityParticles = this.get('EntityParticles');
-        
-        // Update NPC state
-        this.state = 'revived';
-        entityMixer.play(event.value);
-        entityModelStatus.visible = false;
-        entityParticles.visible = true;
+  enablePrompt = event => {
+    if (this.state === 'wounded') {
+      // Check if collision is with player
+      if (event.pair.parent.class === 'EntityPlayer') {
+        // Show or hide dialog based on event type
+        const entityPrompt = this.get('EntityPrompt');
+        entityPrompt.show();
+
+        // Animate visibility
+        this.tweens.tween({
+          object: { alpha: event.started ? 0 : 1 },
+          to: { alpha: event.started ? 1 : 0 },
+          duration: 250,
+          onUpdate: obj => entityPrompt.setStyle(`opacity: ${obj.alpha}`),
+          onComplete: () => entityPrompt.setVisibility(event.started)
+        });
       }
-    }
-  }
-
-  showDialog = event => {
-    // Check if collision is with player
-    if (event.pair.parent.class === 'EntityPlayer') {
-      // Show or hide dialog based on event type
-      const entityPrompt = this.get('EntityPrompt');
-      this.tweens.tween({
-        object: { alpha: event.started ? 0 : 0.5 },
-        to: { alpha: event.started ? 0.5 : 0 },
-        duration: 250,
-        onStart: () => entityPrompt.show(),
-        onUpdate: obj => entityPrompt.setStyle(`opacity: ${obj.alpha}`),
-        onComplete: () => entityPrompt.setVisibility(event.started)
-      });
-    }
-  }
-
-  enableDialog = event => {
-    if (event.pair.parent.class === 'EntityPlayer') {
-      // Enable dialog
-      const entityPrompt = this.get('EntityPrompt');
-      this.tweens.tween({
-        object: { alpha: event.started ? 0.5 : 1 },
-        to: { alpha: event.started ? 1 : 0.5 },
-        duration: 250,
-        onUpdate: obj => entityPrompt.setStyle(`opacity: ${obj.alpha}`)
-      });
     }
   }
 
@@ -214,26 +205,13 @@ class EntityNPC extends Entity {
               isSensor: true,
               shape: {
                 type: 'ball',
-                arguments: [4]
-              },
-              enter: {
-                name: 'showDialog',
-              },
-              exit: {
-                name: 'showDialog',
-              },
-            },
-            {
-              isSensor: true,
-              shape: {
-                type: 'ball',
                 arguments: [1]
               },
               enter: {
-                name: 'enableDialog',
+                name: 'enablePrompt',
               },
               exit: {
-                name: 'enableDialog',
+                name: 'enablePrompt',
               },
             }
           ]

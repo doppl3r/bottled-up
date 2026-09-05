@@ -10,6 +10,11 @@ class EntityPlayer extends Entity {
     this.core = core;
     this.tweens = new Tweens();
 
+    // Add event listeners
+    this.get('EntityBallController', controller => {
+      controller.addEventListener('interact', this.onInteract);
+    });
+
     // Update loading state
     this.ready();
   }
@@ -24,6 +29,25 @@ class EntityPlayer extends Entity {
 
     // Resume Entity render behavior
     super.render(loop);
+  }
+
+  onCollisionEnter = event => {
+    // Find the EntityPrompt component in the collided entity
+    event.pair.parent.find('EntityPrompt', entityPrompt => {
+      this.entityInteract = entityPrompt.parent;
+    });
+  }
+
+  onCollisionExit = () => {
+    this.entityInteract = null;
+  }
+
+  onInteract = () => {
+    if (this.entityInteract) {
+      if (this.entityInteract.class === 'EntityNPC') {
+        this.entityInteract.interact();
+      }
+    }
   }
 
   switchTemplate(shape) {
@@ -94,6 +118,12 @@ class EntityPlayer extends Entity {
             sleeping: true,
             colliders: [
               {
+                enter: {
+                  name: 'onCollisionEnter'
+                },
+                exit: {
+                  name: 'onCollisionExit'
+                },
                 shapes: [
                   {
                     type: 'ball',
