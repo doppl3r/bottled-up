@@ -129,6 +129,10 @@ class Entity extends Object3D {
     }
   }
 
+  getAll(className) {
+    return Object.values(this.entities).filter(entity => entity.class === className);
+  }
+
   ready() {
     this.isReady = true;
     this.dispatchEvent({ type: 'ready' });

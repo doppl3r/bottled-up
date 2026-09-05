@@ -34,6 +34,7 @@ class Compositor extends EventDispatcher {
     this.rendererCSS = new CSS2DRenderer();
     this.rendererCSS.domElement.className = 'CSS2DRenderer';
     this.rendererCSS.domElement.style.position = 'absolute';
+    this.rendererCSS.domElement.style.zIndex = '0';
     this.rendererCSS.domElement.style.pointerEvents = 'none';
     this.rendererCSS.domElement.style.top = '0px';
     this.rendererCSS.domElement.style.right = '0px';

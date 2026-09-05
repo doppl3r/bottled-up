@@ -1,4 +1,6 @@
+import { onUpdated } from 'vue';
 import { Entity } from './core/Entity.js';
+import { Tweens } from './core/Tweens.js';
 
 class EntityNPC extends Entity {
   constructor(options, core) {
@@ -13,30 +15,20 @@ class EntityNPC extends Entity {
     options.children[0].url = EntityNPC.urls[0];
     EntityNPC.urls.push(EntityNPC.urls.shift());
 
-    // TODO: Move these to a function
-    this.get('EntityParticles', child => {
-      const range = 1;
-      for (let i = 0; i < child.capacity; i++) {
-        const opacity = Math.random();
-        const scale = (Math.random() * 0.5) + 0.5;
-        child.addPoint({
-          color: [1, 1, 1, opacity],
-          scale: scale,
-          angle: Math.random() * 2 * Math.PI,
-          position: [
-            Math.random() * range - (range / 2),
-            Math.random() * range - (range / 2),
-            Math.random() * range - (range / 2)
-          ]
-        });
-      }
-    });
+    // Update particle rendering
+    this.addParticles();
+
+    // Animations
+    this.tweens = new Tweens();
 
     // Update entity state
     this.ready();
   }
 
   render(loop) {
+    // Update animations
+    this.tweens.update(loop.delta);
+
     // Update status model properties
     if (this.state === 'wounded') {
       // Animate status "!" model
@@ -45,7 +37,8 @@ class EntityNPC extends Entity {
       const duration = 2500;
       const alpha = (Math.sin(this.time * 2 * Math.PI / duration) + 1) / 2;
       status.position.y = 0.5 + (alpha * 0.25);
-
+    }
+    else {
       // Animate particles
       const entityParticles = this.get('EntityParticles');
       const speed = 0.00025;
@@ -85,6 +78,9 @@ class EntityNPC extends Entity {
   revive = event => {
     // Check if collision is with player
     if (event.pair.parent.class === 'EntityPlayer') {
+      // Save player checkpoint
+      game.saveCheckpoint();
+
       if (this.state === 'wounded') {
         // Update model mixer
         const entityModelBody = this.get('EntityModel');
@@ -96,17 +92,59 @@ class EntityNPC extends Entity {
         this.state = 'revived';
         entityMixer.play(event.value);
         entityModelStatus.visible = false;
-        entityParticles.visible = false;
+        entityParticles.visible = true;
       }
     }
   }
 
-  updateDialog = event => {
+  showDialog = event => {
     // Check if collision is with player
     if (event.pair.parent.class === 'EntityPlayer') {
       // Show or hide dialog based on event type
-      
+      const entityPrompt = this.get('EntityPrompt');
+      this.tweens.tween({
+        object: { alpha: event.started ? 0 : 0.5 },
+        to: { alpha: event.started ? 0.5 : 0 },
+        duration: 250,
+        onStart: () => entityPrompt.show(),
+        onUpdate: obj => entityPrompt.setStyle(`opacity: ${obj.alpha}`),
+        onComplete: () => entityPrompt.setVisibility(event.started)
+      });
     }
+  }
+
+  enableDialog = event => {
+    if (event.pair.parent.class === 'EntityPlayer') {
+      // Enable dialog
+      const entityPrompt = this.get('EntityPrompt');
+      this.tweens.tween({
+        object: { alpha: event.started ? 0.5 : 1 },
+        to: { alpha: event.started ? 1 : 0.5 },
+        duration: 250,
+        onUpdate: obj => entityPrompt.setStyle(`opacity: ${obj.alpha}`)
+      });
+    }
+  }
+
+  addParticles = () => {
+    // Loop through capacity and add random particles
+    this.get('EntityParticles', child => {
+      const range = 1;
+      for (let i = 0; i < child.capacity; i++) {
+        const opacity = Math.random();
+        const scale = (Math.random() * 0.5) + 0.5;
+        child.addPoint({
+          color: [1, 1, 1, opacity],
+          scale: scale,
+          angle: Math.random() * 2 * Math.PI,
+          position: [
+            Math.random() * range - (range / 2),
+            Math.random() * range - (range / 2),
+            Math.random() * range - (range / 2)
+          ]
+        });
+      }
+    });
   }
 
   static urls = [
@@ -126,7 +164,6 @@ class EntityNPC extends Entity {
   static template = {
     children: [
       {
-        name: 'ModelBody',
         class: 'EntityModel',
         url: 'glb/npc-mage.glb',
         children: [
@@ -145,11 +182,10 @@ class EntityNPC extends Entity {
             }
           },
           {
-            name: 'ModelStatus',
             class: 'EntityModel',
             url: 'glb/quest.glb',
             scale: { x: 0.5, y: 0.5, z: 0.5 }
-          },
+          }
         ]
       },
       {
@@ -157,7 +193,15 @@ class EntityNPC extends Entity {
         capacity: 10,
         size: 1.0,
         sizeAttenuation: true,
-        url: 'png/icon16.png'
+        position: { x: 0, y: 0.25, z: 0 },
+        url: 'png/icon16.png',
+        visible: false,
+      },
+      {
+        class: 'EntityPrompt',
+        position: { x: 0, y: 0.25, z: 0 },
+        text: 'F',
+        visible: false
       },
       {
         class: 'EntityPhysics',
@@ -170,24 +214,26 @@ class EntityNPC extends Entity {
               isSensor: true,
               shape: {
                 type: 'ball',
-                arguments: [0.5]
+                arguments: [4]
               },
               enter: {
-                name: 'revive',
-                value: '_IdleStanding'
-              }
+                name: 'showDialog',
+              },
+              exit: {
+                name: 'showDialog',
+              },
             },
             {
               isSensor: true,
               shape: {
                 type: 'ball',
-                arguments: [5]
+                arguments: [1]
               },
               enter: {
-                name: 'updateDialog',
+                name: 'enableDialog',
               },
               exit: {
-                name: 'updateDialog',
+                name: 'enableDialog',
               },
             }
           ]

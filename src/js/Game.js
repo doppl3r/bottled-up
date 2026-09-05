@@ -56,6 +56,7 @@ class Game {
       // Load level from JSON data
       this.core.entityManager.load(json, () => {
         this.core.render(this.core.interval.loops[1]);
+        this.saveCheckpoint();
       });
     });
 
@@ -118,9 +119,6 @@ class Game {
     if (event.code === 'F11') {
       event.preventDefault();
       this.toggleFullscreen();
-    }
-    else if (event.code === 'KeyC') {
-      this.saveCheckpoint();
     }
     else if (event.code === 'KeyR') {
       this.restoreCheckpoint();
