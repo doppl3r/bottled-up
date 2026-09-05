@@ -525,7 +525,7 @@ class EntityBallController extends Entity {
     entity.addEventListener('removed', onEntityPhysicsRemoved);
   }
 
-  onKeyDown = (event) => {
+  onKeyDown = event => {
     this.keys.add(event.code);
     if (event.code === this.keyJump) {
       event.preventDefault();

@@ -11,15 +11,23 @@ import { getCurrentWindow } from '@tauri-apps/api/window';
 */
 
 const stateStorage = {
-  fullscreen: true,
-  checkpoint: {
-    position: { x: 0, y: 0.25, z: 0 },
-    rotation: { x: 0, y: 0, z: 0 }
-  }
+  keyInteract: 'KeyF',
+  keyJump: 'Space',
+  keyUp: 'KeyW',
+  keyDown: 'KeyS',
+  keyLeft: 'KeyA',
+  keyRight: 'KeyD',
+  keyRotateClockwise: 'KeyE',
+  keyRotateCounterClockwise: 'KeyQ',
+  fullscreen: true
 }
 
 const stateSession = {
-  menuPaused: true
+  menuPaused: true,
+  checkpoint: {
+    position: { x: 0, y: 0, z: 0 },
+    rotation: { x: 0, y: 0, z: 0 }
+  }
 }
 
 class Game {
@@ -27,7 +35,9 @@ class Game {
     // Initialize game components
     this.core = new Core();
     this.core.entityManager.registerEntityClasses(EntityClasses);
+    this.state = reactive({ ...stateStorage, ...stateSession });
     this.record = new Record('bottled-up', stateStorage);
+    this.record.updateFromStorage(this.state);
     this.visible = true;
   }
 
@@ -41,12 +51,6 @@ class Game {
     this.core.entityManager.world.numSolverIterations = 4;
     this.core.scene.background.set('#1f1f1f');
     this.core.camera.position.set(0, 2, 8);
-
-    // Reactive game state (persisted defaults + UI-only keys)
-    this.state = reactive({
-      ...stateStorage,
-      ...stateSession,
-    });
 
     // Load scene from GLB model
     this.core.assets.load('glb/forge-1.glb', model => {
@@ -133,13 +137,13 @@ class Game {
     const physics = player.get('EntityPhysics');
     const position = physics.getPosition();
     const rotation = physics.getRotation();
-    this.record.save('checkpoint', { position, rotation });
+    this.state.checkpoint = { position, rotation };
   }
 
   restoreCheckpoint() {
     const player = this.core.scene.getObjectByProperty('class', 'EntityPlayer');
     const physics = player.get('EntityPhysics');
-    const checkpoint = this.record.load('checkpoint');
+    const checkpoint = this.state.checkpoint;
     if (checkpoint) {
       physics.rigidBody.setLinvel({ x: 0, y: 0, z: 0 });
       physics.rigidBody.setAngvel({ x: 0, y: 0, z: 0 });

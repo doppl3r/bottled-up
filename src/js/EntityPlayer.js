@@ -11,8 +11,9 @@ class EntityPlayer extends Entity {
     this.tweens = new Tweens();
 
     // Add event listeners
-    this.get('EntityBallController', controller => {
-      controller.addEventListener('interact', this.onInteract);
+    this.get('EntityBallController', entityBallController => {
+      entityBallController.keyInteract = game.state.keyInteract;
+      entityBallController.addEventListener('interact', this.onInteract);
     });
 
     // Update loading state
@@ -43,11 +44,7 @@ class EntityPlayer extends Entity {
   }
 
   onInteract = () => {
-    if (this.entityInteract) {
-      if (this.entityInteract.class === 'EntityNPC') {
-        this.entityInteract.interact();
-      }
-    }
+    this.entityInteract?.interact(this);
   }
 
   switchTemplate(shape) {

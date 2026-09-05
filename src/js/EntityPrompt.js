@@ -1,5 +1,5 @@
 import { EntityText } from './core/EntityText.js';
-import { createVNode, render } from 'vue';
+import { createVNode, render, ref } from 'vue';
 import Prompt from '../vue/Prompt.vue';
 
 /*
@@ -12,14 +12,14 @@ class EntityPrompt extends EntityText {
     super(options, core);
 
     // Initialize EntityText with Vue component
-    const text = this.getText();
+    this.textRef = ref(this.getText());
     const className = this.textObject.element.className;
     this.removeText();
     this.removeClass(className);
 
     // Render Vue component into the text object element once
     const props = { class: className };
-    const slots = { default: () => createVNode('div', { innerHTML: text }) };
+    const slots = { default: () => createVNode('div', { innerHTML: this.textRef.value }) };
     const vNode = createVNode(Prompt, props, slots);
     render(vNode, this.textObject.element);
 
@@ -27,13 +27,17 @@ class EntityPrompt extends EntityText {
     this.addEventListener('rootRemoved', this.onRootRemoved);
   }
 
+  setText(text) {
+    if (this.textRef) this.textRef.value = text;
+  }
+
+  getText() {
+    return this.textRef ? this.textRef.value : super.getText();
+  }
+
   onRootRemoved = () => {
     // Unmount the Vue component from the text object element
     render(null, this.textObject.element);
-  }
-
-  static template = {
-    code: 'KeyE',
   }
 }
 

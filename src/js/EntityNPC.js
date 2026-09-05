@@ -1,4 +1,3 @@
-import { onUpdated } from 'vue';
 import { Entity } from './core/Entity.js';
 import { Tweens } from './core/Tweens.js';
 
@@ -14,6 +13,14 @@ class EntityNPC extends Entity {
     // Assign model and shift to the back
     options.children[0].url = EntityNPC.urls[0];
     EntityNPC.urls.push(EntityNPC.urls.shift());
+
+    // Update entity prompt text based on saved localized key
+    this.get('EntityPrompt', async entityPrompt => {
+      const keyInteract = game.state.keyInteract;
+      const layoutMap = await navigator.keyboard.getLayoutMap();
+      const localizedKey = layoutMap.get(keyInteract).toUpperCase();
+      entityPrompt.setText(localizedKey);
+    });
 
     // Update particle rendering
     this.addParticles();
@@ -75,7 +82,7 @@ class EntityNPC extends Entity {
     super.render(loop);
   }
 
-  interact = () => {
+  interact = entity => {
     if (this.state === 'wounded') {
       // Save player checkpoint
       game.saveCheckpoint();
@@ -191,7 +198,7 @@ class EntityNPC extends Entity {
       {
         class: 'EntityPrompt',
         position: { x: 0, y: 0.25, z: 0 },
-        text: 'F',
+        text: 'Interact',
         visible: false
       },
       {
